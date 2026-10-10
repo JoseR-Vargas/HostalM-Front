@@ -462,11 +462,21 @@ class MeterCalculator {
             const API_URL = window.API_URL || window.APP_CONFIG?.API_URL || 'https://mayelewoo-back.onrender.com';
             
             console.log('📤 Enviando cálculo a:', `${API_URL}/api/calculos-medidor`);
+
+            // Attach JWT if the admin is logged in (token stored by login.js).
+            const headers = {};
+            const token = sessionStorage.getItem(
+                window.APP_CONFIG?.STORAGE_KEY || 'mayelewoo_admin_token'
+            );
+            if (token) {
+                headers['Authorization'] = `Bearer ${token}`;
+            }
             
             const response = await fetch(`${API_URL}/api/calculos-medidor`, {
                 method: 'POST',
+                headers,
                 body: formData,
-                // No establecer Content-Type, el navegador lo hará automáticamente con boundary
+                // Do NOT set Content-Type — the browser sets it with the multipart boundary.
             });
             
             if (!response.ok) {
@@ -519,16 +529,29 @@ class MeterCalculator {
                 }
             } catch (serverError) {
                 console.error('Error al comunicarse con el servidor:', serverError);
-                
-                // Guardar en localStorage como backup
-                this.saveToLocalStorage(formData);
-                
-                // Mostrar modal de éxito directamente ya que los datos están guardados localmente
-                // El usuario puede seguir usando la aplicación aunque el servidor no esté disponible
-                console.warn('⚠️ Datos guardados localmente. Se intentará sincronizar cuando el servidor esté disponible.');
-                
-                this.showSuccessModal(formData.consumoCalculado);
-                this.resetForm();
+
+                // Save to a dedicated pending-sync queue (not the general history)
+                // so MeterCalculatorUtils.syncPendingData() can retry later.
+                try {
+                    const dataToQueue = { ...formData };
+                    delete dataToQueue.fotoAnterior;
+                    delete dataToQueue.fotoActual;
+                    const pending = JSON.parse(localStorage.getItem('pendingSyncCalculations') || '[]');
+                    pending.push(dataToQueue);
+                    localStorage.setItem('pendingSyncCalculations', JSON.stringify(pending));
+                    console.warn('⚠️ Datos guardados en cola de sincronización pendiente.');
+                } catch (storageError) {
+                    console.error('No se pudo guardar en localStorage:', storageError);
+                }
+
+                // Show a real error so the user knows the data did NOT reach the server.
+                alert(
+                    'No se pudo enviar la medición al servidor.\n\n' +
+                    'El registro fue guardado localmente y se sincronizará automáticamente ' +
+                    'cuando la conexión se restablezca.\n\n' +
+                    `Detalle: ${serverError.message || 'Error de conexión'}`
+                );
+                // Do NOT call showSuccessModal here — data is not persisted in the server yet.
             }
             
         } catch (error) {
