@@ -81,8 +81,13 @@ class AppState {
 
     applyFilters() {
         this.filteredCalculos = this.allCalculos.filter(calculo => {
-            const fecha = new Date(calculo.fechaRegistro);
-            const matchMonth = fecha.getMonth() === this.currentMonth && fecha.getFullYear() === this.currentYear;
+            // Prefer fechaRegistro (sent by the form); fall back to createdAt (set by the server).
+            // If neither is present the record is still shown rather than silently discarded.
+            const rawDate = calculo.fechaRegistro || calculo.createdAt;
+            const fecha = rawDate ? new Date(rawDate) : null;
+            const matchMonth = fecha && !isNaN(fecha)
+                ? fecha.getMonth() === this.currentMonth && fecha.getFullYear() === this.currentYear
+                : true; // No date → show the record; an admin can filter manually.
             const matchHabitacion = !this.currentFilter.habitacion || 
                                   calculo.habitacion === this.currentFilter.habitacion;
             const matchDNI = !this.currentFilter.dni || 
@@ -105,10 +110,20 @@ const appState = new AppState();
 // ============================================
 // SERVICIO DE API (Abstracción de llamadas HTTP)
 // ============================================
+// Helper: build Authorization header from the token saved by login.js.
+function getAuthHeaders() {
+    const token = sessionStorage.getItem(
+        window.APP_CONFIG?.STORAGE_KEY || 'mayelewoo_admin_token'
+    );
+    return token ? { 'Authorization': `Bearer ${token}` } : {};
+}
+
 class ApiService {
     static async fetchCalculos() {
         try {
-            const response = await fetch(`${API_BASE_URL}${ENDPOINTS.CALCULOS}`);
+            const response = await fetch(`${API_BASE_URL}${ENDPOINTS.CALCULOS}`, {
+                headers: getAuthHeaders(),
+            });
             if (!response.ok) throw new Error('Error al obtener cálculos');
             const data = await response.json();
             return data.data || [];
