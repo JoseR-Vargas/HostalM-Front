@@ -132,10 +132,12 @@ class UIService {
 class PdfService {
     static async download(state) {
         const template = document.getElementById('pdfTemplate');
-        template.style.cssText = 'display: block; position: absolute; top: 0; left: -9999px; z-index: -1;';
+        // z-index: 9999 keeps the node above the document background so html2canvas
+        // captures the full template. z-index: -1 caused content to be clipped.
+        template.style.cssText = 'display: block; position: absolute; top: 0; left: -9999px; z-index: 9999;';
 
-        // Esperar que el browser pinte los datos antes de capturar
-        await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+        // Wait for the browser to complete the full layout pass before capture.
+        await new Promise(r => setTimeout(r, 150));
 
         const filename = `Comprobante_${state.cliente.replace(/\s+/g, '_')}_${state.periodo}.pdf`;
 

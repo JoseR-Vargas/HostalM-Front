@@ -147,10 +147,15 @@ class UIService {
 class PdfService {
     static async download(state) {
         const template = document.getElementById('pdfTemplate');
-        template.style.cssText = 'display: block; position: absolute; top: 0; left: -9999px; z-index: -1;';
+        // z-index: 9999 keeps the node in the same stacking context as the page so
+        // html2canvas can capture it fully. z-index: -1 caused the table rows to be
+        // clipped because the element was painted behind the document background.
+        template.style.cssText = 'display: block; position: absolute; top: 0; left: -9999px; z-index: 9999;';
 
-        // Esperar que el browser pinte los datos antes de capturar
-        await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+        // Give the browser enough time to complete the full table layout before capture.
+        // Two rAFs only guarantee one repaint cycle, not the full layout pass of a table
+        // inside an absolutely-positioned container.
+        await new Promise(r => setTimeout(r, 150));
 
         const filename = `Comprobante_Servicios_${state.cliente.replace(/\s+/g, '_')}_${state.periodo}.pdf`;
 
