@@ -132,11 +132,13 @@ class UIService {
 class PdfService {
     static async download(state) {
         const template = document.getElementById('pdfTemplate');
-        // z-index: 9999 keeps the node above the document background so html2canvas
-        // captures the full template. z-index: -1 caused content to be clipped.
-        template.style.cssText = 'display: block; position: absolute; top: 0; left: -9999px; z-index: 9999;';
+        // position: fixed anchors the template to the viewport (not the document),
+        // so scroll position and body margins never affect the captured coordinates.
+        // position: absolute with top:0 caused content to land at the bottom of the PDF
+        // on machines where the body had scroll offset or extra margin at render time.
+        template.style.cssText = 'display: block; position: fixed; top: 0; left: -9999px; z-index: 9999;';
 
-        // Wait for the browser to complete the full layout pass before capture.
+        // Give the browser a full layout pass before html2canvas captures.
         await new Promise(r => setTimeout(r, 150));
 
         const filename = `Comprobante_${state.cliente.replace(/\s+/g, '_')}_${state.periodo}.pdf`;
@@ -145,7 +147,13 @@ class PdfService {
             margin: 0,
             filename,
             image: { type: 'jpeg', quality: 0.98 },
-            html2canvas: { scale: 2, useCORS: true, logging: false },
+            html2canvas: {
+                scale: 2,
+                useCORS: true,
+                logging: false,
+                scrollX: 0,
+                scrollY: 0,
+            },
             jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
             pagebreak: { mode: 'avoid-all' },
         };

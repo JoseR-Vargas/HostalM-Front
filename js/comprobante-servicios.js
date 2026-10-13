@@ -147,14 +147,12 @@ class UIService {
 class PdfService {
     static async download(state) {
         const template = document.getElementById('pdfTemplate');
-        // z-index: 9999 keeps the node in the same stacking context as the page so
-        // html2canvas can capture it fully. z-index: -1 caused the table rows to be
-        // clipped because the element was painted behind the document background.
-        template.style.cssText = 'display: block; position: absolute; top: 0; left: -9999px; z-index: 9999;';
+        // position: fixed anchors the template to the viewport, not the document scroll.
+        // position: absolute with top:0 caused content to land mid-page on machines
+        // where the body had a scroll offset or extra margin at capture time.
+        template.style.cssText = 'display: block; position: fixed; top: 0; left: -9999px; z-index: 9999;';
 
-        // Give the browser enough time to complete the full table layout before capture.
-        // Two rAFs only guarantee one repaint cycle, not the full layout pass of a table
-        // inside an absolutely-positioned container.
+        // Give the browser a full layout pass before html2canvas captures.
         await new Promise(r => setTimeout(r, 150));
 
         const filename = `Comprobante_Servicios_${state.cliente.replace(/\s+/g, '_')}_${state.periodo}.pdf`;
@@ -163,7 +161,13 @@ class PdfService {
             margin: 0,
             filename,
             image: { type: 'jpeg', quality: 0.98 },
-            html2canvas: { scale: 2, useCORS: true, logging: false },
+            html2canvas: {
+                scale: 2,
+                useCORS: true,
+                logging: false,
+                scrollX: 0,
+                scrollY: 0,
+            },
             jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
             pagebreak: { mode: 'avoid-all' },
         };
