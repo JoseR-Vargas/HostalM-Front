@@ -40,6 +40,23 @@ export function formatMontoInput(value) {
   return intPart.replace(THOUSANDS_REGEX, '.') + decPart;
 }
 
+/**
+ * Same as `formatMontoInput` but also maps the caret: it stays after the same
+ * number of digits/commas it was after in the raw value, so inserting or removing
+ * thousands dots never makes it jump.
+ */
+export function formatMontoInputWithCaret(raw, caret) {
+  const value = formatMontoInput(raw);
+  let remaining = raw.slice(0, caret).replace(/[^0-9,]/g, '').length;
+
+  let position = 0;
+  while (position < value.length && remaining > 0) {
+    if (value[position] !== '.') remaining -= 1;
+    position += 1;
+  }
+  return { value, caret: position };
+}
+
 /** Argentine money format. Example: 17614.333 -> "17.614,33". */
 export function formatMoney(amount) {
   const [intPart, decPart] = amount.toFixed(2).split('.');

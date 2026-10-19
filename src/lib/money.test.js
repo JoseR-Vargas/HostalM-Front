@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   formatMoney,
   formatMontoInput,
+  formatMontoInputWithCaret,
   isValidVoucherAmountFormat,
   normalizeDecimal,
   parseMontoFactura,
@@ -51,6 +52,39 @@ describe('formatMontoInput', () => {
   it('drops non numeric characters', () => {
     expect(formatMontoInput('1a2b3c4')).toBe('1.234');
     expect(formatMontoInput('10.000,5x')).toBe('10.000,5');
+  });
+});
+
+describe('formatMontoInputWithCaret', () => {
+  it('moves the caret past the dots inserted before it', () => {
+    // typing a digit at the end of "999" -> "9999" -> "9.999"
+    expect(formatMontoInputWithCaret('9999', 4)).toEqual({ value: '9.999', caret: 5 });
+  });
+
+  it('keeps the caret on the same digit when typing in the middle', () => {
+    // "1.000" with "5" typed after the first "1" -> raw "15.000", caret 2
+    expect(formatMontoInputWithCaret('15.000', 2)).toEqual({ value: '15.000', caret: 2 });
+    // raw "1.2500" (a 5 typed after "2"), caret 4 -> "12.500", caret after the "5"
+    expect(formatMontoInputWithCaret('1.2500', 4)).toEqual({ value: '12.500', caret: 4 });
+  });
+
+  it('moves the caret back when a dot disappears after deleting', () => {
+    // "1.000" -> backspace on the last 0 -> raw "1.00", caret 4 -> "100", caret 3
+    expect(formatMontoInputWithCaret('1.00', 4)).toEqual({ value: '100', caret: 3 });
+  });
+
+  it('puts the dot back and keeps the caret after the digit when the dot is deleted', () => {
+    expect(formatMontoInputWithCaret('1000', 1)).toEqual({ value: '1.000', caret: 1 });
+  });
+
+  it('drops invalid characters without moving the caret past the end', () => {
+    expect(formatMontoInputWithCaret('12a', 3)).toEqual({ value: '12', caret: 2 });
+    // a second comma is removed
+    expect(formatMontoInputWithCaret('1,5,', 4)).toEqual({ value: '1,5', caret: 3 });
+  });
+
+  it('handles an empty value', () => {
+    expect(formatMontoInputWithCaret('', 0)).toEqual({ value: '', caret: 0 });
   });
 });
 
