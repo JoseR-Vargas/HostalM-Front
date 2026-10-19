@@ -12,3 +12,6 @@ export const TOKEN_STORAGE_KEY = 'mayelewoo_admin_token';
 
 export const HOSTAL_NAME = 'Hostal Mayelewoo';
 export const WHATSAPP_NUMBER = '5493516664584';
+
+// Vouchers that could not be sent are kept here (read by the admin dashboard as a fallback).
+export const PENDING_VOUCHERS_KEY = 'pendingVouchers';
