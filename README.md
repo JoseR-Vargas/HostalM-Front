@@ -19,6 +19,7 @@ En `localhost` la app apunta al backend local `http://localhost:3000`.
 |---|---|
 | Build / dev server | Vite |
 | UI | React 19 |
+| Estilos | Tailwind CSS v4 (`@tailwindcss/vite`) |
 | Rutas | React Router |
 | PDF | html2pdf.js (carga diferida) |
 | Tests unitarios | Vitest + Testing Library (jsdom) |
@@ -40,10 +41,10 @@ En `localhost` la app apunta al backend local `http://localhost:3000`.
 |---|---|
 | `src/app` | `App` y la tabla de rutas (`routes.jsx`) |
 | `src/pages` | Una página por ruta (`Home`, `Login`, `Vouchers`, `Dashboard`, ...) |
-| `src/components` | Header público/admin, `Footer`, `Modal`, plantilla de comprobantes |
+| `src/components` | Primitivos de UI (`ui.jsx`), headers público/admin, `Footer`, `Modal`, tablas, plantilla de comprobantes |
 | `src/lib` | Lógica sin UI: configuración de API, dinero, mediciones, validaciones, PDF |
 | `src/auth` | Contexto de sesión, `ProtectedRoute` y login contra el backend |
-| `src/styles` | CSS global (`styles.css`, `home.css`); ver [`STYLES_GUIDE.md`](STYLES_GUIDE.md) |
+| `src/index.css` | Único CSS: import de Tailwind, tokens (`@theme`) y variantes; ver [`STYLES_GUIDE.md`](STYLES_GUIDE.md) |
 | `e2e` | Tests Playwright y mocks de la API (`e2e/support`) |
 | `public/img` | Imágenes estáticas |
 

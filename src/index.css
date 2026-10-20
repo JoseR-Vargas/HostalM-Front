@@ -1,8 +1,10 @@
 /*
- * Tailwind v4 entry point. Only the theme and utilities layers are imported (no Preflight): the
- * unmigrated admin styles in styles.css still rely on the browser defaults the old stylesheet had.
- * styles.css is NOT in a layer, so its rules win over utilities; migrated markup must not reuse a
- * class name that styles.css still defines.
+ * Tailwind v4 entry point. Only the theme and utilities layers are imported: Tailwind's Preflight
+ * is deliberately left out. It was tried in task S3 (`@import 'tailwindcss'`) and changes the
+ * rendering of every page (a solid border style on every element, form controls and buttons inheriting
+ * the font, line heights, image display), which this production site must not show. Avoiding it
+ * costs nothing: the base layer below carries the few resets the design needs and the rest of the
+ * markup relies on browser defaults. Revisit only together with a visual review of every page.
  */
 @layer theme, base, components, utilities;
 @import 'tailwindcss/theme.css' layer(theme);
@@ -41,6 +43,7 @@
 	--animate-pulse-glow: pulse-glow 2s ease-in-out infinite;
 	--animate-fade-in: fade-in 0.3s ease;
 	--animate-slide-in: slide-in 0.3s ease;
+	--animate-spin-centered: spin-centered 1s linear infinite;
 
 	@keyframes pulse-glow {
 		0%,
@@ -65,6 +68,13 @@
 	@keyframes fade-in {
 		from {
 			opacity: 0;
+		}
+	}
+
+	/* Spinner of a processing button: it stays centred with `translate(-50%, -50%)` while it rotates. */
+	@keyframes spin-centered {
+		to {
+			transform: translate(-50%, -50%) rotate(360deg);
 		}
 	}
 

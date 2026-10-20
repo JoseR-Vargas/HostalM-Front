@@ -163,10 +163,14 @@ const BUTTONS = {
   ],
 };
 
+// While processing the button ignores clicks, fades and shows a spinner (its `::after`) in the centre.
+const PROCESSING =
+  "processing pointer-events-none relative opacity-70 after:absolute after:top-1/2 after:left-1/2 after:size-5 after:[transform:translate(-50%,-50%)] after:animate-spin-centered after:rounded-[50%] after:border-2 after:border-transparent after:border-t-white after:content-['']";
+
 const BUTTON_BASE = 'cursor-pointer border-none bg-transparent bg-brand tracking-[0.05em] text-white uppercase transition-all duration-300';
 
 /** Gradient call-to-action (`cta`, pulsing) or full-width form `submit`. Renders `as` (default `button`). */
 export function Button({ as: Tag = 'button', variant = 'cta', processing = false, className, ...props }) {
   const [hook, styles] = BUTTONS[variant];
-  return <Tag className={cls(hook, BUTTON_BASE, styles, processing && 'processing', className)} {...props} />;
+  return <Tag className={cls(hook, BUTTON_BASE, styles, processing && PROCESSING, className)} {...props} />;
 }
