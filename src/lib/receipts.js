@@ -44,7 +44,7 @@ export function formatReceiptDate(dateString) {
   return `${day}/${month}/${year}`;
 }
 
-/** Today as YYYY-MM-DD (UTC, as the legacy pages did). */
+/** Today as YYYY-MM-DD (UTC, as the original pages did). */
 export function getDefaultReceiptDate(now = new Date()) {
   return now.toISOString().split('T')[0];
 }

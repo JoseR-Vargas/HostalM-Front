@@ -44,7 +44,7 @@ afterEach(() => {
 });
 
 describe('Vouchers', () => {
-  it('renders the legacy form', () => {
+  it('renders the form', () => {
     const { container, getByText } = renderPage();
     expect(getByText('Carga de Comprobante')).toBeTruthy();
     expect(container.querySelector('form#voucherForm.contact-form').hasAttribute('novalidate')).toBe(true);
@@ -117,7 +117,7 @@ describe('Vouchers', () => {
     expect(localStorage.getItem('pendingVouchers')).toBeNull();
   });
 
-  it('on failure saves locally and shows the legacy success banner without resetting', async () => {
+  it('on failure saves locally and shows the success banner without resetting', async () => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response('{}', { status: 500 })));
     const { container } = renderPage();
     fillForm(container);

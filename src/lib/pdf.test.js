@@ -51,7 +51,7 @@ afterEach(() => {
 });
 
 describe('downloadPdf', () => {
-  it('captures the first child of the template with the legacy options', async () => {
+  it('captures the first child of the template with the PDF options', async () => {
     const { wrapper, sheet } = buildTemplate();
 
     const promise = downloadPdf(wrapper, 'Comprobante_Ana_Mayo.pdf');

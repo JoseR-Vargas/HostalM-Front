@@ -1,19 +1,10 @@
-import { existsSync } from 'node:fs';
-import { fileURLToPath } from 'node:url';
 import { defineConfig, devices } from '@playwright/test';
 
-// The same specs run against the original static app (`legacy/`) and the React app to prove
-// behavior parity. Every backend is mocked (see e2e/support): nothing ever leaves localhost.
-const LEGACY_DIR = fileURLToPath(new URL('./legacy', import.meta.url));
-const hasLegacy = existsSync(LEGACY_DIR);
-
-const REACT_URL = 'http://localhost:5173';
-const LEGACY_URL = 'http://localhost:5174';
-
-const desktop = devices['Desktop Chrome'];
+// Every backend is mocked (see e2e/support): nothing ever leaves localhost.
+const APP_URL = 'http://localhost:5173';
 
 // Argentine locale/time zone: dates and number formats match what the hostal staff sees.
-const sharedUse = { ...desktop, locale: 'es-AR', timezoneId: 'America/Argentina/Cordoba' };
+const desktop = { ...devices['Desktop Chrome'], locale: 'es-AR', timezoneId: 'America/Argentina/Cordoba' };
 
 export default defineConfig({
   testDir: 'e2e',
@@ -25,25 +16,10 @@ export default defineConfig({
     trace: 'retain-on-failure',
     screenshot: 'only-on-failure',
   },
-  projects: [
-    // Skipped automatically once `legacy/` is deleted.
-    ...(hasLegacy ? [{ name: 'legacy', use: { ...sharedUse, baseURL: LEGACY_URL } }] : []),
-    { name: 'react', use: { ...sharedUse, baseURL: REACT_URL } },
-  ],
-  webServer: [
-    ...(hasLegacy
-      ? [
-          {
-            command: `node e2e/support/static-server.mjs "${LEGACY_DIR}" 5174`,
-            url: `${LEGACY_URL}/index.html`,
-            reuseExistingServer: true,
-          },
-        ]
-      : []),
-    {
-      command: 'npm run dev -- --port 5173 --strictPort',
-      url: REACT_URL,
-      reuseExistingServer: true,
-    },
-  ],
+  projects: [{ name: 'react', use: { ...desktop, baseURL: APP_URL } }],
+  webServer: {
+    command: 'npm run dev -- --port 5173 --strictPort',
+    url: APP_URL,
+    reuseExistingServer: true,
+  },
 });

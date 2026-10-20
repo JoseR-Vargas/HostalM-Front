@@ -1,6 +1,6 @@
 import { CURRENT_MONTH_LABEL, dayOfMonth, expect, FAKE_TOKEN, test } from './support/fixtures.js';
 
-const PAGE = '/calcular-pago.html';
+const PAGE = '/calcular-pago';
 
 const resident = (overrides) => ({
   nombre: '[TEST] Ana',

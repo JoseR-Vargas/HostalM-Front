@@ -18,16 +18,11 @@ export function dayOfMonth(day, { month = 2, year = 2026 } = {}) {
 
 /**
  * Shared test fixture:
- * - `app`: 'legacy' | 'react' (name of the Playwright project)
  * - `mock`: the mocked backend for this test; the network guard fails the test if anything
  *   tried to reach a non-mocked host (production backends included)
  * - `signIn()`: seeds a fake admin session before the first page load
  */
 export const test = base.extend({
-  app: async ({}, use, testInfo) => {
-    await use(testInfo.project.name);
-  },
-
   mock: [
     async ({ context, baseURL }, use) => {
       const mock = new MockApi({ appOrigin: new URL(baseURL).origin });
@@ -68,12 +63,12 @@ export const test = base.extend({
 
 /** Pages that need a session: used by the guard and mobile specs. */
 export const ADMIN_PAGES = [
-  '/dashboard.html',
-  '/dashboard-calculator.html',
-  '/calcular-pago.html',
-  '/comprobante-pago.html',
-  '/comprobante-servicios.html',
+  '/dashboard',
+  '/dashboard-calculator',
+  '/calcular-pago',
+  '/comprobante-pago',
+  '/comprobante-servicios',
 ];
 
-export const PUBLIC_PAGES = ['/', '/login.html', '/vouchers.html', '/calculator-medidor.html'];
+export const PUBLIC_PAGES = ['/', '/login', '/vouchers', '/calculator-medidor'];
 

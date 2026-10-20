@@ -62,7 +62,7 @@ describe('formatVoucherDate', () => {
   it('shows a dash when there is no usable date', () => {
     expect(formatVoucherDate({})).toBe('—');
     expect(formatVoucherDate({ timestamp: 'garbage' })).toBe('—');
-    // fechaHora is only used for the month grouping, never for the column (legacy)
+    // fechaHora is only used for the month grouping, never for the column
     expect(formatVoucherDate({ fechaHora: '2026-03-10T15:00:00Z' })).toBe('—');
   });
 });

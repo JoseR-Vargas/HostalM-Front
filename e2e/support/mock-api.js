@@ -1,17 +1,11 @@
-import { readFileSync } from 'node:fs';
-import { fileURLToPath } from 'node:url';
 import { PNG_BUFFER } from './files.js';
 import { parseMultipart } from './multipart.js';
 
 /**
- * Every API of the app resolves to this origin on localhost (see src/lib/apiConfig.js and
- * legacy/js/config.js), so one origin is enough to mock all of them.
+ * Every API of the app resolves to this origin on localhost (see src/lib/apiConfig.js),
+ * so one origin is enough to mock all of them.
  */
 export const API_ORIGIN = 'http://localhost:3000';
-
-const HTML2PDF_BUNDLE = fileURLToPath(
-  new URL('../../node_modules/html2pdf.js/dist/html2pdf.bundle.min.js', import.meta.url),
-);
 
 const CORS_HEADERS = {
   'access-control-allow-origin': '*',
@@ -60,7 +54,7 @@ function defaultHandlers() {
  * Fully mocked backend + network guard for one test.
  *
  * - Every request to `API_ORIGIN` is answered here and recorded in `requests`.
- * - Requests to the app itself pass through; fonts and the html2pdf CDN are served locally.
+ * - Requests to the app itself pass through; fonts are served locally.
  * - ANY other request (vercel.app, onrender.com, ...) is aborted and recorded in `violations`,
  *   so the test fails instead of ever reaching a real host.
  */
@@ -110,14 +104,6 @@ export class MockApi {
     }
     if (url.hostname === 'fonts.gstatic.com') {
       return route.fulfill({ status: 200, contentType: 'font/woff2', body: '' });
-    }
-    if (url.hostname === 'cdnjs.cloudflare.com' && url.pathname.includes('html2pdf')) {
-      // The legacy receipts load html2pdf from a CDN: serve the npm copy instead.
-      return route.fulfill({
-        status: 200,
-        contentType: 'text/javascript',
-        body: readFileSync(HTML2PDF_BUNDLE),
-      });
     }
     if (url.hostname === 'wa.me') {
       // WhatsApp redirect on mobile: a blank page stands in for the real site.

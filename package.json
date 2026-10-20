@@ -9,8 +9,6 @@
     "preview": "vite preview",
     "test": "vitest run",
     "e2e": "playwright test",
-    "e2e:react": "playwright test --project=react",
-    "e2e:legacy": "playwright test --project=legacy",
     "e2e:ui": "playwright test --ui"
   },
   "dependencies": {

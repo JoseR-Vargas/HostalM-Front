@@ -14,7 +14,7 @@ const fakeFile = (type, size) => ({ type, size, name: 'f' });
 const MB = 1024 * 1024;
 
 describe('limits', () => {
-  it('exposes the legacy limits', () => {
+  it('exposes the size limits', () => {
     expect(MAX_PHOTO_BYTES).toBe(5 * MB);
     expect(MAX_VOUCHERS_TOTAL_BYTES).toBe(50 * MB);
   });

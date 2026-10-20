@@ -54,7 +54,7 @@ export function readPendingVouchers() {
 }
 
 /**
- * GET /api/vouchers on the vouchers backend. Like the legacy dashboard it sends no
+ * GET /api/vouchers on the vouchers backend. Like the original dashboard it sends no
  * auth header and answers `{ success, data: [...] }`. Any failure falls back to the
  * locally saved pending vouchers.
  */

@@ -51,7 +51,7 @@ const metricValues = (page) => page.locator('#metricsCalculator .metric-value');
 
 async function openPage(page, mock, calculos = CALCULOS) {
   mock.on('GET', '/api/calculos-medidor', { json: { success: true, data: calculos } });
-  await page.goto('/dashboard-calculator.html');
+  await page.goto('/dashboard-calculator');
   await expect(monthLabel(page)).toHaveText(CURRENT_MONTH_LABEL);
 }
 
@@ -181,7 +181,7 @@ test.describe('admin dashboard (meter calculations)', () => {
     await expect(page.locator('.table-container')).toBeVisible();
   });
 
-  test('a record without a date is still listed in every month', async ({ page, mock, app }) => {
+  test('a record without a date is still listed in every month', async ({ page, mock }) => {
     const undated = { ...CALCULOS[0], _id: 'c9', nombre: '[TEST] Sin fecha', fechaRegistro: undefined };
     await openPage(page, mock, [undated]);
 
@@ -189,9 +189,8 @@ test.describe('admin dashboard (meter calculations)', () => {
     await page.locator('#prevMonth').click();
     await expect(rows(page)).toHaveCount(1);
 
-    // INTENTIONAL DEVIATION: an invalid date shows "—" in React; the legacy table printed
-    // the browser's literal "Invalid Date".
-    await expect(rows(page).first().locator('td').nth(7)).toHaveText(app === 'react' ? '—' : 'Invalid Date');
+    // An invalid date shows "—" instead of the browser's literal "Invalid Date".
+    await expect(rows(page).first().locator('td').nth(7)).toHaveText('—');
   });
 
   test('a failed load alerts and hides the loading overlay', async ({ page, mock }) => {
@@ -201,7 +200,7 @@ test.describe('admin dashboard (meter calculations)', () => {
       dialogs.push(dialog.message());
       dialog.accept();
     });
-    await page.goto('/dashboard-calculator.html');
+    await page.goto('/dashboard-calculator');
 
     await expect.poll(() => dialogs).toEqual(['Error al cargar los datos. Por favor, intente nuevamente.']);
     await expect(page.locator('#loadingOverlay')).toBeHidden();
@@ -210,7 +209,7 @@ test.describe('admin dashboard (meter calculations)', () => {
 
   test('the loading overlay covers the page until the data arrives', async ({ page, mock }) => {
     mock.on('GET', '/api/calculos-medidor', { delayMs: 800, json: { success: true, data: CALCULOS } });
-    await page.goto('/dashboard-calculator.html');
+    await page.goto('/dashboard-calculator');
 
     await expect(page.locator('#loadingOverlay')).toBeVisible();
     await expect(page.locator('#loadingOverlay')).toBeHidden();

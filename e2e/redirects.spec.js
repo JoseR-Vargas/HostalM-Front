@@ -1,9 +1,7 @@
 import { expect, test } from './support/fixtures.js';
 
-// React-only: the legacy static site IS the `.html` pages, so there is nothing to redirect.
-test.describe('legacy URL redirects (react)', () => {
-  test.skip(({ app }) => app === 'legacy', 'the static app serves the .html pages directly');
-
+// Old static-site `.html` URLs keep working through client-side redirects.
+test.describe('old .html URL redirects', () => {
   const location = (page) => {
     const url = new URL(page.url());
     return `${url.pathname}${url.search}${url.hash}`;

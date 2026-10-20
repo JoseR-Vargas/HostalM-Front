@@ -45,7 +45,7 @@ afterEach(() => {
 });
 
 describe('ComprobantePago', () => {
-  it('renders the legacy form with today as the default date', () => {
+  it('renders the form with today as the default date', () => {
     const { container, getByText } = renderPage();
     expect(getByText('Comprobante de Pago', { selector: 'h3.section-title' })).toBeTruthy();
     expect(getByText('Completá los datos y descargá el PDF del comprobante')).toBeTruthy();
@@ -109,7 +109,7 @@ describe('ComprobantePago', () => {
     expect(downloadPdf).not.toHaveBeenCalled();
   });
 
-  it('downloads the PDF with the legacy file name and clears previous errors', async () => {
+  it('downloads the PDF with the expected file name and clears previous errors', async () => {
     const { container } = renderPage();
     generate(container);
     expect(erroredGroups(container)).toHaveLength(4);

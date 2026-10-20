@@ -8,6 +8,7 @@ const jsonResponse = (body, status = 200) =>
   });
 
 afterEach(() => {
+  vi.useRealTimers();
   vi.unstubAllGlobals();
 });
 
@@ -52,6 +53,39 @@ describe('authenticate', () => {
     expect(result.message).toBe(
       'El servidor está tardando en responder. Intenta nuevamente en unos segundos.',
     );
+  });
+
+  it('aborts after 12s when the response body stalls', async () => {
+    vi.useFakeTimers();
+    // Headers arrive right away; the body never does until the request is aborted.
+    const stalledBody = vi.fn().mockImplementation((_url, init) =>
+      Promise.resolve({
+        ok: true,
+        json: () =>
+          new Promise((_resolve, reject) => {
+            init.signal.addEventListener('abort', () => {
+              const error = new Error('aborted');
+              error.name = 'AbortError';
+              reject(error);
+            });
+          }),
+      }),
+    );
+    vi.stubGlobal('fetch', stalledBody);
+
+    let result;
+    authenticate({ email: 'a@b.co', password: 'x' }).then((value) => {
+      result = value;
+    });
+
+    await vi.advanceTimersByTimeAsync(11999);
+    expect(result).toBeUndefined();
+
+    await vi.advanceTimersByTimeAsync(1);
+    expect(result).toEqual({
+      success: false,
+      message: 'El servidor está tardando en responder. Intenta nuevamente en unos segundos.',
+    });
   });
 
   it('maps a network failure to the connection message', async () => {

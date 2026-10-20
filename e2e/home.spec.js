@@ -158,7 +158,7 @@ test.describe('home', () => {
     await expect(counter).toContainText('/200 caracteres');
   });
 
-  test('the form rejects blank fields and malformed emails without opening WhatsApp', async ({ page, app }) => {
+  test('the form rejects blank fields and malformed emails without opening WhatsApp', async ({ page }) => {
     await page.goto('/');
     // Whitespace passes the browser `required` check, so the app validation runs.
     await fillContactForm(page, { nombre: '   ', email: 'a@b' });
@@ -169,11 +169,8 @@ test.describe('home', () => {
     await expect(errorBox).toContainText('Por favor corrige los siguientes errores:');
     await expect(errorBox.locator('li')).toHaveText(['El nombre es requerido', 'El correo electrónico no es válido']);
 
-    // INTENTIONAL DEVIATION: the legacy error box was injected without `display: block`, so the
-    // global `.error-message { display: none }` hid it from users. The React app shows it.
-    if (app === 'react') {
-      await expect(errorBox).toBeVisible();
-    }
+    // The box must be visible even though the global `.error-message` rule hides it by default.
+    await expect(errorBox).toBeVisible();
 
     await page.waitForTimeout(1300); // longer than the 1s desktop redirect delay
     expect(await openedUrls(page)).toEqual([]);

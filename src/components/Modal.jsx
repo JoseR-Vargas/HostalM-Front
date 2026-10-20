@@ -1,5 +1,5 @@
 /**
- * Shell shared by the legacy modals (image viewer, photo viewer, result dialog):
+ * Shell shared by the modals (image viewer, photo viewer, result dialog):
  * `.modal` overlay (+ `.show` when open) wrapping a `.modal-content` box.
  * `onBackdropClick` fires only when the overlay itself is clicked.
  */

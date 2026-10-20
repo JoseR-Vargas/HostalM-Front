@@ -69,7 +69,7 @@ export function isValidVoucherAmountFormat(value) {
 
 /**
  * Validates the voucher amount field and returns the list of error messages
- * (empty when valid), in the same order as the legacy form.
+ * (empty when valid), in the same order as the original form.
  *
  * Parity note: the numeric minimum check mirrors the legacy code, which turns the
  * decimal comma into a dot and then strips every dot ("500,50" -> 50050).

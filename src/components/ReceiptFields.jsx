@@ -47,7 +47,7 @@ export function ReceiptAmountField({ name, label, placeholder, errorMessage, has
  * `errors` is the list of invalid field names; `onChange(name, value)` receives the edits.
  */
 export function ReceiptIdentityFields({ values, errors, onChange }) {
-  // The legacy date input is named `fechaRecibo` but the form value is `fecha`.
+  // The date input is named `fechaRecibo` but the form value is `fecha`.
   const handleChange = (event) =>
     onChange(event.target.name === 'fechaRecibo' ? 'fecha' : event.target.name, event.target.value);
 

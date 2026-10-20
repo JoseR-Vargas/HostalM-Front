@@ -52,7 +52,7 @@ afterEach(() => {
 });
 
 describe('CalculatorMedidor', () => {
-  it('renders the legacy form with the logo-only header', () => {
+  it('renders the form with the logo-only header', () => {
     const { container, getByText } = renderPage();
     expect(container.querySelector('header.header a.logo').getAttribute('href')).toBe('/');
     expect(getByText('Calculadora de Medidor')).toBeTruthy();

@@ -25,7 +25,7 @@ describe('fetchCalculos', () => {
     expect(init.headers.Authorization).toBe('Bearer abc');
   });
 
-  it('sends no auth header when there is no token (legacy dashboard behavior)', async () => {
+  it('sends no auth header when there is no token', async () => {
     const fetchMock = vi.fn().mockResolvedValue(json({ data: [] }));
     vi.stubGlobal('fetch', fetchMock);
     await fetchCalculos({});
@@ -75,7 +75,7 @@ describe('filterCalculosByMonth', () => {
     expect(filterCalculosByMonth(records, march).map((r) => r.id)).toEqual([1, 2, 5, 6]);
   });
 
-  it('keeps records with a missing or invalid date in every month (legacy)', () => {
+  it('keeps records with a missing or invalid date in every month', () => {
     expect(filterCalculosByMonth(records, { month: 0, year: 2000 }).map((r) => r.id)).toEqual([5, 6]);
   });
 });

@@ -7,7 +7,7 @@ import { isValidEmail } from './validators';
 
 const REF4_REGEX = /^\d{4}$/;
 
-/** Returns every validation error in legacy order (the form shows only the first). */
+/** Returns every validation error in the original order (the form shows only the first). */
 export function validateVoucherForm(data, files) {
   const errors = [];
   if (!data.nombre) errors.push('El nombre es requerido');

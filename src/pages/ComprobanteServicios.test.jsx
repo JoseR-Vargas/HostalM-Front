@@ -46,7 +46,7 @@ afterEach(() => {
 });
 
 describe('ComprobanteServicios', () => {
-  it('renders the legacy form with today as the default date', () => {
+  it('renders the form with today as the default date', () => {
     const { container, getByText } = renderPage();
     expect(getByText('Comprobante de Servicios', { selector: 'h3.section-title' })).toBeTruthy();
     expect(getByText('Completá los datos y descargá el PDF del comprobante')).toBeTruthy();

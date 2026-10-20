@@ -26,7 +26,7 @@ const pendingVouchers = (page) => page.evaluate(() => JSON.parse(localStorage.ge
 
 test.describe('vouchers (public upload)', () => {
   test('renders the upload form', async ({ page }) => {
-    await page.goto('/vouchers.html');
+    await page.goto('/vouchers');
 
     await expect(page.locator('.section-title')).toHaveText('Carga de Comprobante');
     await expect(page.locator('#voucherForm input:visible')).toHaveCount(8);
@@ -35,7 +35,7 @@ test.describe('vouchers (public upload)', () => {
   });
 
   test('a valid submit sends the multipart voucher to the vouchers API', async ({ page, mock }) => {
-    await page.goto('/vouchers.html');
+    await page.goto('/vouchers');
     await fillVoucher(page, {}, [fakePng('comprobante-1.png'), fakePng('comprobante-2.png')]);
     await page.locator('#submitBtn').click();
 
@@ -68,7 +68,7 @@ test.describe('vouchers (public upload)', () => {
   });
 
   test('a successful submit clears the form', async ({ page }) => {
-    await page.goto('/vouchers.html');
+    await page.goto('/vouchers');
     await fillVoucher(page);
     await page.locator('#submitBtn').click();
 
@@ -84,7 +84,7 @@ test.describe('vouchers (public upload)', () => {
 
   test('the button shows progress while the upload is in flight', async ({ page, mock }) => {
     mock.on('POST', '/api/vouchers', { delayMs: 600, json: { success: true } });
-    await page.goto('/vouchers.html');
+    await page.goto('/vouchers');
     await fillVoucher(page);
     await page.locator('#submitBtn').click();
 
@@ -95,7 +95,7 @@ test.describe('vouchers (public upload)', () => {
   });
 
   test('numeric inputs drop invalid characters while typing', async ({ page }) => {
-    await page.goto('/vouchers.html');
+    await page.goto('/vouchers');
 
     // Typed key by key: `fill` would be cut by maxlength=4 before the filter runs.
     await page.locator('#ref4').pressSequentially('a1b2c3d4e5');
@@ -146,7 +146,7 @@ test.describe('vouchers (public upload)', () => {
 
   for (const { title, overrides, files, message } of INVALID_CASES) {
     test(`invalid: ${title}`, async ({ page, mock }) => {
-      await page.goto('/vouchers.html');
+      await page.goto('/vouchers');
       await fillVoucher(page, overrides, files);
       await page.locator('#submitBtn').click();
 
@@ -160,7 +160,7 @@ test.describe('vouchers (public upload)', () => {
   }
 
   test('a new banner replaces the previous one', async ({ page }) => {
-    await page.goto('/vouchers.html');
+    await page.goto('/vouchers');
     await fillVoucher(page, { nombre: '' });
     await page.locator('#submitBtn').click();
     await expect(banner(page)).toHaveText('El nombre es requerido');
@@ -181,9 +181,9 @@ test.describe('vouchers (public upload)', () => {
   ];
 
   for (const { title, response } of SERVER_FAILURES) {
-    test(`${title} still shows the success banner and keeps the voucher locally (parity)`, async ({ page, mock }) => {
+    test(`${title} still shows the success banner and keeps the voucher locally`, async ({ page, mock }) => {
       mock.on('POST', '/api/vouchers', response);
-      await page.goto('/vouchers.html');
+      await page.goto('/vouchers');
       const data = await fillVoucher(page, {}, [fakePng('comprobante-1.png')]);
       await page.locator('#submitBtn').click();
 
@@ -203,7 +203,7 @@ test.describe('vouchers (public upload)', () => {
 
   test('failed vouchers pile up in the local queue', async ({ page, mock }) => {
     mock.on('POST', '/api/vouchers', { status: 503, json: {} });
-    await page.goto('/vouchers.html');
+    await page.goto('/vouchers');
     await fillVoucher(page);
 
     await page.locator('#submitBtn').click();

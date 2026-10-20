@@ -22,11 +22,17 @@ function describeError(error) {
  * `{ success: true, token, user }` or `{ success: false, message }`.
  */
 export async function authenticate({ email, password }) {
+  // Plain `fetch` on purpose: `apiFetch` stops its timer once the headers arrive, but the login
+  // timeout must also cover reading the body (a stalled body would otherwise hang the form).
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), LOGIN_TIMEOUT_MS);
+
   try {
-    const response = await apiFetch(buildApiUrl(getApiBase(), '/api/auth/login'), {
+    const response = await fetch(buildApiUrl(getApiBase(), '/api/auth/login'), {
       method: 'POST',
-      json: { email, password },
-      timeoutMs: LOGIN_TIMEOUT_MS,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password }),
+      signal: controller.signal,
     });
     const data = await response.json();
 
@@ -36,6 +42,8 @@ export async function authenticate({ email, password }) {
     return { success: false, message: data.message || 'Error de autenticación' };
   } catch (error) {
     return { success: false, message: describeError(error) };
+  } finally {
+    clearTimeout(timeoutId);
   }
 }
 

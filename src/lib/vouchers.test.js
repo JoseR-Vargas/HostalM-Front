@@ -24,7 +24,7 @@ describe('validateVoucherForm', () => {
     expect(validateVoucherForm(data, [image()])).toEqual([]);
   });
 
-  it('reports required fields in legacy order', () => {
+  it('reports required fields in the form order', () => {
     const empty = { nombre: '', apellido: '', dni: '', email: '', ref4: '', hab: '', monto: '' };
     expect(validateVoucherForm(empty, [])).toEqual([
       'El nombre es requerido',
@@ -55,7 +55,7 @@ describe('validateVoucherForm', () => {
     ]);
   });
 
-  it('keeps the legacy quirk where 500,50 passes the minimum check', () => {
+  it('keeps the quirk where 500,50 passes the minimum check', () => {
     expect(validateVoucherForm({ ...data, monto: '500,50' }, [image()])).toEqual([]);
   });
 

@@ -1,7 +1,7 @@
 const NBSP = '\u00A0';
 
 // html2canvas reads computed styles, so the printable sheet is styled inline (as in the
-// legacy pages) and does not depend on any global CSS.
+// original pages) and does not depend on any global CSS.
 const SHEET_STYLE = {
   width: '210mm',
   minHeight: '257mm',

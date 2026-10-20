@@ -36,7 +36,7 @@ afterEach(() => {
 });
 
 describe('Login', () => {
-  it('renders the legacy markup and prewarms the backend on mount', async () => {
+  it('renders the markup and prewarms the backend on mount', async () => {
     const fetchMock = vi.fn().mockResolvedValue(json({}));
     vi.stubGlobal('fetch', fetchMock);
     const { container } = renderLogin();

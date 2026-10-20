@@ -7,7 +7,7 @@ export const MAX_PHOTO_BYTES = 5 * 1024 * 1024;
 // Voucher images: total upload (all images together) up to 50MB.
 export const MAX_VOUCHERS_TOTAL_BYTES = 50 * 1024 * 1024;
 
-// Admin token key in sessionStorage (shared with the legacy app).
+// Admin token key in sessionStorage (shared with the original app).
 export const TOKEN_STORAGE_KEY = 'mayelewoo_admin_token';
 
 export const HOSTAL_NAME = 'Hostal Mayelewoo';

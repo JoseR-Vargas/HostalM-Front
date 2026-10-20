@@ -8,7 +8,7 @@ export const AuthContext = createContext(null);
 
 /**
  * Holds the admin session. The token lives in sessionStorage (cleared when the
- * tab closes) and only its presence is checked, as in the legacy app.
+ * tab closes) and only its presence is checked, as in the original app.
  */
 export function AuthProvider({ children }) {
   const [token, setToken] = useState(() => sessionStorage.getItem(TOKEN_STORAGE_KEY));

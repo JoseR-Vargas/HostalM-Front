@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { ApiError, apiFetch, apiJson } from './apiClient';
+import { apiFetch } from './apiClient';
 
 const okResponse = (body, init = {}) =>
   new Response(JSON.stringify(body), {
@@ -70,29 +70,5 @@ describe('apiFetch', () => {
     const assertion = expect(promise).rejects.toMatchObject({ name: 'AbortError' });
     await vi.advanceTimersByTimeAsync(1000);
     await assertion;
-  });
-});
-
-describe('apiJson', () => {
-  it('returns the parsed body on success', async () => {
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(okResponse({ data: [1] })));
-    await expect(apiJson('https://a.test/x')).resolves.toEqual({ data: [1] });
-  });
-
-  it('throws an ApiError carrying the server message', async () => {
-    vi.stubGlobal(
-      'fetch',
-      vi.fn().mockResolvedValue(okResponse({ message: 'Nope' }, { status: 400 })),
-    );
-    const error = await apiJson('https://a.test/x').catch((e) => e);
-    expect(error).toBeInstanceOf(ApiError);
-    expect(error.status).toBe(400);
-    expect(error.message).toBe('Nope');
-  });
-
-  it('falls back to a status message when the error body is not JSON', async () => {
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response('oops', { status: 502 })));
-    const error = await apiJson('https://a.test/x').catch((e) => e);
-    expect(error.message).toBe('Error del servidor: 502');
   });
 });

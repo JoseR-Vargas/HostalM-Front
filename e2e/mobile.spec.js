@@ -1,7 +1,7 @@
 import { dayOfMonth, expect, test } from './support/fixtures.js';
 
 // Mobile layout checks (skill playwright-mobile-qa): no sideways scroll and reachable controls
-// on a small phone and the narrowest one, in both apps.
+// on a small phone and the narrowest one.
 const VIEWPORTS = [
   { name: 'iPhone SE', width: 375, height: 667 },
   { name: 'narrow phone', width: 320, height: 568 },
@@ -43,23 +43,23 @@ const CALCULOS = [
 
 const PAGES = [
   { path: '/', buttons: ['.hero .cta-button', '.submit-button', '.nav-link', '#whatsappLink'] },
-  { path: '/login.html', buttons: ['#loginBtn', '.nav-link'] },
-  { path: '/vouchers.html', buttons: ['#submitBtn', '.nav-link'] },
-  { path: '/calculator-medidor.html', buttons: ['#submitBtn', '.upload-btn'] },
+  { path: '/login', buttons: ['#loginBtn', '.nav-link'] },
+  { path: '/vouchers', buttons: ['#submitBtn', '.nav-link'] },
+  { path: '/calculator-medidor', buttons: ['#submitBtn', '.upload-btn'] },
   {
-    path: '/dashboard.html',
+    path: '/dashboard',
     admin: true,
     buttons: ['.logout-btn', '#prevMonth', '#nextMonth', '.nav-link'],
     prepare: (mock) => mock.on('GET', '/api/vouchers', { json: { success: true, data: VOUCHERS } }),
   },
   {
-    path: '/dashboard-calculator.html',
+    path: '/dashboard-calculator',
     admin: true,
     buttons: ['.logout-btn', '#prevMonth', '#nextMonth', '.nav-link'],
     prepare: (mock) => mock.on('GET', '/api/calculos-medidor', { json: { success: true, data: CALCULOS } }),
   },
   {
-    path: '/calcular-pago.html',
+    path: '/calcular-pago',
     admin: true,
     buttons: ['.logout-btn', '#btnCalcularPrecio', '.nav-link'],
     prepare: (mock) => mock.on('GET', '/api/calculos-medidor', { json: { success: true, data: CALCULOS } }),
@@ -72,16 +72,16 @@ const PAGES = [
       await expect(page.locator('#residenteSeleccionado')).toBeVisible();
     },
     extraButtons: [
-      // KNOWN DEFECT, identical in both apps: inside the padded "Paso 2" card the month arrows
-      // shrink to ~19px wide on phones (below the 24px WCAG minimum). Parity is kept, so only a
-      // 16px floor is enforced here; the finding is reported separately.
+      // KNOWN DEFECT: inside the padded "Paso 2" card the month arrows shrink to ~19px wide on
+      // phones (below the 24px WCAG minimum). The design is kept as is, so only a 16px floor is
+      // enforced here.
       { selector: '#btnMesAnterior', minSize: 16 },
       { selector: '#btnMesSiguiente', minSize: 16 },
       '#residentesTableBody button',
     ],
   },
-  { path: '/comprobante-pago.html', admin: true, buttons: ['.logout-btn', '#btnGenerar', '.nav-link'] },
-  { path: '/comprobante-servicios.html', admin: true, buttons: ['.logout-btn', '#btnGenerar', '.nav-link'] },
+  { path: '/comprobante-pago', admin: true, buttons: ['.logout-btn', '#btnGenerar', '.nav-link'] },
+  { path: '/comprobante-servicios', admin: true, buttons: ['.logout-btn', '#btnGenerar', '.nav-link'] },
 ];
 
 /** Elements that stick out of the viewport, to make an overflow failure easy to diagnose. */

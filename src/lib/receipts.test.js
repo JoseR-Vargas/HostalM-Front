@@ -30,7 +30,7 @@ describe('parseReceiptAmount', () => {
     expect(parseReceiptAmount(' 8.000 ')).toBe(8000);
   });
 
-  it('keeps a dot that is not a thousands separator as a decimal point (legacy normalizeMoney)', () => {
+  it('keeps a dot that is not a thousands separator as a decimal point', () => {
     expect(parseReceiptAmount('5.5')).toBe(5.5);
   });
 
@@ -120,7 +120,7 @@ describe('getPaymentReceiptFilename', () => {
     expect(getPaymentReceiptFilename('Ana   María  López', 'Mayo')).toBe('Comprobante_Ana_María_López_Mayo.pdf');
   });
 
-  it('does not trim the client name (legacy behavior)', () => {
+  it('does not trim the client name', () => {
     expect(getPaymentReceiptFilename(' Ana ', 'Mayo')).toBe('Comprobante__Ana__Mayo.pdf');
   });
 });

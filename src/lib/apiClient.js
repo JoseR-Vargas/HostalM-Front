@@ -1,13 +1,3 @@
-/** Error thrown by `apiJson` when the server answers with a non-2xx status. */
-export class ApiError extends Error {
-  constructor(message, status, data) {
-    super(message);
-    this.name = 'ApiError';
-    this.status = status;
-    this.data = data;
-  }
-}
-
 /**
  * Thin fetch wrapper. Returns the raw Response.
  *
@@ -47,20 +37,4 @@ export async function apiFetch(
     if (timeoutId) clearTimeout(timeoutId);
     if (signal) signal.removeEventListener('abort', onExternalAbort);
   }
-}
-
-/** Like `apiFetch` but returns the parsed JSON body and throws `ApiError` on non-2xx. */
-export async function apiJson(url, options) {
-  const response = await apiFetch(url, options);
-
-  if (!response.ok) {
-    const data = await response.json().catch(() => null);
-    throw new ApiError(
-      (data && data.message) || `Error del servidor: ${response.status}`,
-      response.status,
-      data,
-    );
-  }
-
-  return response.json();
 }

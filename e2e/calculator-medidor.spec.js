@@ -3,7 +3,7 @@ import { expect, FAKE_TOKEN, FIXED_NOW, test } from './support/fixtures.js';
 import { fileParts, textFields } from './support/multipart.js';
 
 const PRICE_PER_KWH = 439.26;
-const PAGE = '/calculator-medidor.html';
+const PAGE = '/calculator-medidor';
 
 // Synthetic DNI that satisfies the field's native min/max (1000000..99999999).
 const PERSON = {
@@ -137,7 +137,7 @@ test.describe('meter calculator (public)', () => {
     await fillPerson(page);
 
     // Integer entry (35659 -> 3565.9): the live preview normalizes it, but the field itself keeps
-    // what was typed and the strict format check flags it (production behavior, same in both apps).
+    // what was typed and the strict format check flags it (production behavior).
     await page.locator('#medicionAnterior').fill('35659');
     await page.locator('#medicionAnterior').blur();
     await expect(page.locator('#medicionAnterior')).toHaveValue('35659');
@@ -254,7 +254,7 @@ test.describe('meter calculator (public)', () => {
   });
 
   test.describe('validation', () => {
-    test('an empty form flags the required fields and both photos, and sends nothing', async ({ page, mock, app }) => {
+    test('an empty form flags the required fields and both photos, and sends nothing', async ({ page, mock }) => {
       await page.goto(PAGE);
       await submit(page);
 
@@ -271,15 +271,9 @@ test.describe('meter calculator (public)', () => {
       );
       await expect(page.locator('.photo-upload-group.error')).toHaveCount(2);
 
-      // DIFFERENCE (legacy bug): the legacy form clears the "required" error of the current
-      // reading right after setting it (validateCurrentMeasurement runs last), so the field is
-      // silently left unmarked even though the submit is blocked. React keeps the error visible.
-      if (app === 'react') {
-        await expect(group(page, 'medicionActual')).toHaveClass(/error/);
-        await expect(groupError(page, 'medicionActual')).toHaveText('Este campo es requerido');
-      } else {
-        await expect(group(page, 'medicionActual')).not.toHaveClass(/error/);
-      }
+      // The current reading keeps its "required" error visible too.
+      await expect(group(page, 'medicionActual')).toHaveClass(/error/);
+      await expect(groupError(page, 'medicionActual')).toHaveText('Este campo es requerido');
 
       expect(mock.calls('POST', '/api/calculos-medidor')).toHaveLength(0);
       await expect(page.locator('#resultModal')).not.toHaveClass(/show/);
@@ -361,7 +355,7 @@ test.describe('meter calculator (public)', () => {
       await expect(photoGroup(page, 'fotoAnterior').locator('.error-message')).toBeHidden();
     });
 
-    test('a non-image file is refused with an alert', async ({ page, app }) => {
+    test('a non-image file is refused with an alert', async ({ page }) => {
       const dialogs = collectDialogs(page);
       await page.goto(PAGE);
       await attachPhotos(page, { anterior: fakeTextFile('notas.txt'), actual: null });
@@ -370,14 +364,11 @@ test.describe('meter calculator (public)', () => {
       await expect(page.locator('#fotoAnteriorPreview')).toBeHidden();
       await expect(photoGroup(page, 'fotoAnterior')).not.toHaveClass(/has-photo/);
 
-      // INTENTIONAL DEVIATION: React empties the input when a photo is rejected; the legacy page
-      // left the refused file selected (and would have uploaded it on submit).
-      if (app === 'react') {
-        await expect(page.locator('#fotoAnterior')).toHaveValue('');
-      }
+      // The input is emptied when a photo is rejected, so the refused file is never uploaded.
+      await expect(page.locator('#fotoAnterior')).toHaveValue('');
     });
 
-    test('a photo over 5MB is refused with an alert', async ({ page, app }) => {
+    test('a photo over 5MB is refused with an alert', async ({ page }) => {
       const dialogs = collectDialogs(page);
       await page.goto(PAGE);
       await attachPhotos(page, { anterior: fakeOversizedPng(), actual: null });
@@ -386,9 +377,7 @@ test.describe('meter calculator (public)', () => {
         .poll(() => dialogs)
         .toEqual(['La imagen es muy grande. Por favor seleccione una imagen menor a 5MB']);
       await expect(photoGroup(page, 'fotoAnterior')).not.toHaveClass(/has-photo/);
-      if (app === 'react') {
-        await expect(page.locator('#fotoAnterior')).toHaveValue('');
-      }
+      await expect(page.locator('#fotoAnterior')).toHaveValue('');
     });
   });
 

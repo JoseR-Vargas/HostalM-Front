@@ -36,7 +36,7 @@ afterEach(() => {
 });
 
 describe('Home', () => {
-  it('renders the landing sections with the legacy copy and images', () => {
+  it('renders the landing sections with its copy and images', () => {
     const { container } = renderHome();
     expect(screen.getByText('Bienvenido a Hostal Mayelewoo')).toBeTruthy();
     expect(screen.getByText('Humberto Primo 3070, Córdoba, Argentina')).toBeTruthy();

@@ -27,7 +27,7 @@ afterEach(() => {
 });
 
 describe('PublicHeader', () => {
-  it('renders the legacy markup with the given links', () => {
+  it('renders the markup with the given links', () => {
     const { container } = wrap(<PublicHeader links={HOME_LINKS} />);
     expect(container.querySelector('header.header .container .nav h1.logo').textContent).toBe('Hostal Mayelewoo');
     const links = [...container.querySelectorAll('nav.nav-menu a.nav-link')];
@@ -61,7 +61,7 @@ describe('AdminHeader', () => {
     expect(screen.getByText('login page')).toBeTruthy();
   });
 
-  it('has the legacy nav link sets for each admin page', () => {
+  it('has the nav link sets for each admin page', () => {
     const labels = (page) => ADMIN_NAV[page].map((l) => l.label);
     expect(labels('dashboard')).toEqual(['📄 Alquiler', '💧 Servicios', '⚡ Calcular Pago', '🧮 Medidores']);
     expect(labels('dashboard-calculator')).toEqual(['📋 Vouchers', '📄 Comprobante', '💧 Servicios', '⚡ Calcular Pago']);

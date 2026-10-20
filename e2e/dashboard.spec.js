@@ -49,7 +49,7 @@ const monthLabel = (page) => page.locator('#currentMonthLabel');
 
 async function openDashboard(page, mock, vouchers = VOUCHERS) {
   mock.on('GET', '/api/vouchers', { json: { success: true, data: vouchers } });
-  await page.goto('/dashboard.html');
+  await page.goto('/dashboard');
   await expect(monthLabel(page)).toHaveText(CURRENT_MONTH_LABEL);
 }
 
@@ -83,7 +83,7 @@ test.describe('admin dashboard (vouchers)', () => {
 
     const [request] = mock.calls('GET', '/api/vouchers');
     expect(request.origin).toBe(API);
-    // Parity: the vouchers listing never sent an auth header.
+    // The vouchers listing is public: it never sends an auth header.
     expect(request.headers.authorization).toBeUndefined();
   });
 
@@ -192,7 +192,7 @@ test.describe('admin dashboard (vouchers)', () => {
         ],
       );
       mock.on('GET', '/api/vouchers', response);
-      await page.goto('/dashboard.html');
+      await page.goto('/dashboard');
 
       await expect(rows(page)).toHaveCount(1);
       await expect(rows(page).first().locator('td').nth(0)).toHaveText('[TEST] Offline Guardado');
@@ -206,7 +206,7 @@ test.describe('admin dashboard (vouchers)', () => {
 
   test('with no data at all the table is empty', async ({ page, mock }) => {
     mock.on('GET', '/api/vouchers', { status: 500, json: {} });
-    await page.goto('/dashboard.html');
+    await page.goto('/dashboard');
 
     await expect(monthLabel(page)).toHaveText(CURRENT_MONTH_LABEL);
     await expect(rows(page)).toHaveCount(0);

@@ -138,7 +138,7 @@ describe('voucher amount validation', () => {
     ]);
   });
 
-  it('keeps the legacy numeric check that strips every dot (decimal comma becomes a dot first)', () => {
+  it('keeps the numeric check that strips every dot (decimal comma becomes a dot first)', () => {
     // "500,50" -> "500.50" -> "50050" >= 1000, so only the format check applies and it passes.
     expect(validateVoucherAmount('500,50')).toEqual([]);
   });
