@@ -4,3 +4,4 @@ dist
 playwright-report
 test-results
 .env*.local
+e2e/visual/__baseline__
