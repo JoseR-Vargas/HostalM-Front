@@ -1,5 +1,6 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../auth/useAuth';
+import Header from './Header';
 
 /**
  * Admin header. Each page passes its own `links` (see `ADMIN_NAV`).
@@ -15,22 +16,14 @@ export default function AdminHeader({ links }) {
   };
 
   return (
-    <header className="header">
-      <div className="container">
-        <div className="nav nav-centered">
-          <h1 className="logo">Hostal Mayelewoo</h1>
-          <nav className="nav-menu">
-            {links.map(({ to, label }) => (
-              <Link key={to} to={to} className="nav-link">
-                {label}
-              </Link>
-            ))}
-            <button type="button" onClick={handleLogout} className="logout-btn">
-              Cerrar Sesión
-            </button>
-          </nav>
-        </div>
-      </div>
-    </header>
+    <Header centered links={links}>
+      <button
+        type="button"
+        onClick={handleLogout}
+        className="logout-btn cursor-pointer rounded-lg border-none bg-warning px-4 py-2 text-[0.9rem] font-medium text-white hover:bg-[#b7791f] phone:px-[0.8rem] phone:py-[0.35rem] phone:text-[0.85rem]"
+      >
+        Cerrar Sesión
+      </button>
+    </Header>
   );
 }

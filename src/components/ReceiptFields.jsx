@@ -1,16 +1,7 @@
 import { RECEIPT_MONTHS } from '../lib/receipts';
 import { formatMontoInputWithCaret } from '../lib/money';
 import { useCaretRestore } from '../lib/useCaretRestore';
-
-function Field({ group, label, htmlFor, hasError, errorMessage, children }) {
-  return (
-    <div className={hasError ? 'form-group error' : 'form-group'} id={`group-${group}`}>
-      <label htmlFor={htmlFor}>{label}</label>
-      {children}
-      <div className="error-message">{errorMessage}</div>
-    </div>
-  );
-}
+import { Field, FormRow } from './ui';
 
 /**
  * Money input that adds thousands dots while typing and keeps the caret in place.
@@ -26,19 +17,20 @@ export function ReceiptAmountField({ name, label, placeholder, errorMessage, has
   };
 
   return (
-    <Field group={name} label={label} htmlFor={name} hasError={hasError} errorMessage={errorMessage}>
-      <input
-        type="text"
-        id={name}
-        name={name}
-        inputMode="numeric"
-        placeholder={placeholder}
-        autoComplete="off"
-        ref={inputRef}
-        value={value}
-        onChange={handleChange}
-      />
-    </Field>
+    <Field
+      groupId={`group-${name}`}
+      id={name}
+      label={label}
+      type="text"
+      inputMode="numeric"
+      placeholder={placeholder}
+      autoComplete="off"
+      ref={inputRef}
+      value={value}
+      onChange={handleChange}
+      error={hasError}
+      errorMessage={errorMessage}
+    />
   );
 }
 
@@ -51,72 +43,50 @@ export function ReceiptIdentityFields({ values, errors, onChange }) {
   const handleChange = (event) =>
     onChange(event.target.name === 'fechaRecibo' ? 'fecha' : event.target.name, event.target.value);
 
+  const field = (name, label, errorMessage, props, id = name) => (
+    <Field
+      groupId={`group-${name}`}
+      id={id}
+      label={label}
+      value={values[name]}
+      onChange={handleChange}
+      error={errors.includes(name)}
+      errorMessage={errorMessage}
+      {...props}
+    />
+  );
+
   return (
     <>
-      <div className="form-row">
-        <Field
-          group="cliente"
-          label="Cliente"
-          htmlFor="cliente"
-          hasError={errors.includes('cliente')}
-          errorMessage="Ingresá el nombre del cliente"
-        >
-          <input
-            type="text"
-            id="cliente"
-            name="cliente"
-            placeholder="Ej: Jennifer Martínez"
-            autoComplete="off"
-            value={values.cliente}
-            onChange={handleChange}
-          />
-        </Field>
-        <Field
-          group="propiedad"
-          label="Propiedad"
-          htmlFor="propiedad"
-          hasError={errors.includes('propiedad')}
-          errorMessage="Ingresá la dirección o propiedad"
-        >
-          <input
-            type="text"
-            id="propiedad"
-            name="propiedad"
-            placeholder="Ej: Humberto Primo 3070 Habitación 4"
-            autoComplete="off"
-            value={values.propiedad}
-            onChange={handleChange}
-          />
-        </Field>
-      </div>
+      <FormRow>
+        {field('cliente', 'Cliente', 'Ingresá el nombre del cliente', {
+          type: 'text',
+          placeholder: 'Ej: Jennifer Martínez',
+          autoComplete: 'off',
+        })}
+        {field('propiedad', 'Propiedad', 'Ingresá la dirección o propiedad', {
+          type: 'text',
+          placeholder: 'Ej: Humberto Primo 3070 Habitación 4',
+          autoComplete: 'off',
+        })}
+      </FormRow>
 
-      <div className="form-row">
-        <Field
-          group="periodo"
-          label="Período"
-          htmlFor="periodo"
-          hasError={errors.includes('periodo')}
-          errorMessage="Seleccioná el período"
-        >
-          <select id="periodo" name="periodo" value={values.periodo} onChange={handleChange}>
-            <option value="">— Seleccioná el mes —</option>
-            {RECEIPT_MONTHS.map((month) => (
-              <option key={month} value={month}>
-                {month}
-              </option>
-            ))}
-          </select>
-        </Field>
-        <Field
-          group="fecha"
-          label="Fecha del recibo"
-          htmlFor="fechaRecibo"
-          hasError={errors.includes('fecha')}
-          errorMessage="Seleccioná la fecha del recibo"
-        >
-          <input type="date" id="fechaRecibo" name="fechaRecibo" value={values.fecha} onChange={handleChange} />
-        </Field>
-      </div>
+      <FormRow>
+        {field('periodo', 'Período', 'Seleccioná el período', {
+          as: 'select',
+          children: (
+            <>
+              <option value="">— Seleccioná el mes —</option>
+              {RECEIPT_MONTHS.map((month) => (
+                <option key={month} value={month}>
+                  {month}
+                </option>
+              ))}
+            </>
+          ),
+        })}
+        {field('fecha', 'Fecha del recibo', 'Seleccioná la fecha del recibo', { type: 'date' }, 'fechaRecibo')}
+      </FormRow>
     </>
   );
 }

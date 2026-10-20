@@ -71,7 +71,7 @@ describe('Vouchers', () => {
     submit(container);
 
     expect(banner(container).textContent).toBe('El nombre es requerido');
-    expect(banner(container).style.backgroundColor).toBe('rgb(254, 215, 215)');
+    expect(banner(container).dataset.tone).toBe('error');
     expect(fetchMock).not.toHaveBeenCalled();
     expect(container.querySelector('#submitBtn').disabled).toBe(false);
   });
@@ -111,7 +111,7 @@ describe('Vouchers', () => {
       'nombre', 'apellido', 'dni', 'email', 'ref4', 'hab', 'monto', 'timestamp', 'files', 'files',
     ]);
     expect(init.body.getAll('files').map((f) => f.name)).toEqual(['a.png', 'b.png']);
-    expect(banner(container).style.backgroundColor).toBe('rgb(198, 246, 213)');
+    expect(banner(container).dataset.tone).toBe('success');
     expect(container.querySelector('#nombre').value).toBe('');
     expect(container.querySelector('#submitBtn').textContent).toBe('Enviar Voucher');
     expect(container.querySelector('#submitBtn').disabled).toBe(false);
@@ -125,7 +125,7 @@ describe('Vouchers', () => {
     submit(container);
 
     await waitFor(() => expect(banner(container)?.textContent).toBe(FAILURE_MESSAGE));
-    expect(banner(container).style.backgroundColor).toBe('rgb(254, 215, 215)');
+    expect(banner(container).dataset.tone).toBe('error');
     expect(banner(container).textContent).not.toMatch(/correctamente|Guardado/);
     expect(container.querySelector('#nombre').value).toBe('Ana');
     expect(container.querySelector('#monto').value).toBe('50.000');

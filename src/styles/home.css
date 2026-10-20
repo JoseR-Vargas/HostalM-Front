@@ -1,5 +1,0 @@
-/* Highlight for contact-form fields that failed the on-blur check (home page). */
-.error-field {
-	border-color: #e53e3e !important;
-	box-shadow: 0 0 0 3px rgba(229, 62, 62, 0.1) !important;
-}

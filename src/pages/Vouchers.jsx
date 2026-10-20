@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import Footer from '../components/Footer';
 import PublicHeader from '../components/PublicHeader';
 import { VOUCHERS_LINKS } from '../components/navLinks';
+import { Banner, Button, Field, FormCard, FormRow, PageSection } from '../components/ui';
 import { MAX_VOUCHERS_TOTAL_BYTES } from '../lib/constants';
 import { getTotalSize } from '../lib/files';
 import {
@@ -14,23 +15,6 @@ const BANNER_SCROLL_DELAY_MS = 100;
 const SEND_ERROR_MESSAGE = 'No se pudo enviar el comprobante. Revisá tu conexión e intentá nuevamente.';
 
 const EMPTY_FORM = { nombre: '', apellido: '', dni: '', email: '', ref4: '', hab: '', monto: '' };
-
-const BANNER_COLORS = {
-  error: { borderLeft: '4px solid #e53e3e', backgroundColor: '#fed7d7', color: '#c53030' },
-  success: { borderLeft: '4px solid #38a169', backgroundColor: '#c6f6d5', color: '#22543d' },
-};
-
-function bannerStyle(type) {
-  return {
-    marginTop: '1.5rem',
-    padding: '1rem 1.5rem',
-    borderRadius: '8px',
-    ...BANNER_COLORS[type],
-    textAlign: 'center',
-    fontWeight: 600,
-    animation: 'slideIn 0.3s ease-out',
-  };
-}
 
 function trimFields(form) {
   return Object.fromEntries(Object.entries(form).map(([key, value]) => [key, value.trim()]));
@@ -102,159 +86,70 @@ export default function Vouchers() {
     }
   };
 
+  const field = (id, label, props) => (
+    <Field id={id} label={label} type="text" required value={form[id]} onChange={handleChange} {...props} />
+  );
+
   return (
     <>
       <PublicHeader links={VOUCHERS_LINKS} />
 
-      <section className="contact page-top-offset">
-        <div className="container vouchers-center">
-          <h3 className="section-title">Carga de Comprobante</h3>
-          <p className="contact-subtitle">Completa el formulario para validar tu pago</p>
+      <PageSection title="Carga de Comprobante" subtitle="Completa el formulario para validar tu pago">
+        <FormCard as="form" id="voucherForm" encType="multipart/form-data" noValidate onSubmit={handleSubmit}>
+          <FormRow>
+            {field('nombre', 'Nombre*', { autoComplete: 'given-name', inputMode: 'text' })}
+            {field('apellido', 'Apellido*', { autoComplete: 'family-name', inputMode: 'text' })}
+          </FormRow>
 
-          <form
-            id="voucherForm"
-            className="contact-form"
-            encType="multipart/form-data"
-            noValidate
-            onSubmit={handleSubmit}
-          >
-            <div className="form-row">
-              <div className="form-group">
-                <label htmlFor="nombre">Nombre*</label>
-                <input
-                  type="text"
-                  id="nombre"
-                  name="nombre"
-                  autoComplete="given-name"
-                  required
-                  inputMode="text"
-                  value={form.nombre}
-                  onChange={handleChange}
-                />
-              </div>
-              <div className="form-group">
-                <label htmlFor="apellido">Apellido*</label>
-                <input
-                  type="text"
-                  id="apellido"
-                  name="apellido"
-                  autoComplete="family-name"
-                  required
-                  inputMode="text"
-                  value={form.apellido}
-                  onChange={handleChange}
-                />
-              </div>
-            </div>
+          <FormRow>
+            {field('dni', 'DNI*', { inputMode: 'numeric', autoComplete: 'off' })}
+            {field('email', 'Correo Electrónico*', { type: 'email', autoComplete: 'email', inputMode: 'email' })}
+          </FormRow>
 
-            <div className="form-row">
-              <div className="form-group">
-                <label htmlFor="dni">DNI*</label>
-                <input
-                  type="text"
-                  id="dni"
-                  name="dni"
-                  required
-                  inputMode="numeric"
-                  autoComplete="off"
-                  value={form.dni}
-                  onChange={handleChange}
-                />
-              </div>
-              <div className="form-group">
-                <label htmlFor="email">Correo Electrónico*</label>
-                <input
-                  type="email"
-                  id="email"
-                  name="email"
-                  required
-                  autoComplete="email"
-                  inputMode="email"
-                  value={form.email}
-                  onChange={handleChange}
-                />
-              </div>
-            </div>
+          <FormRow>
+            {field('ref4', 'Últimos 4 dígitos del comprobante*', {
+              maxLength: 4,
+              pattern: '\\d{4}',
+              inputMode: 'numeric',
+              onChange: handleRef4Change,
+            })}
+            {field('hab', 'Nro habitación o apartamento*', { inputMode: 'text', autoComplete: 'on' })}
+          </FormRow>
 
-            <div className="form-row">
-              <div className="form-group">
-                <label htmlFor="ref4">Últimos 4 dígitos del comprobante*</label>
-                <input
-                  type="text"
-                  id="ref4"
-                  name="ref4"
-                  required
-                  maxLength={4}
-                  pattern="\d{4}"
-                  inputMode="numeric"
-                  value={form.ref4}
-                  onChange={handleRef4Change}
-                />
-              </div>
-              <div className="form-group">
-                <label htmlFor="hab">Nro habitación o apartamento*</label>
-                <input
-                  type="text"
-                  id="hab"
-                  name="hab"
-                  required
-                  inputMode="text"
-                  autoComplete="on"
-                  value={form.hab}
-                  onChange={handleChange}
-                />
-              </div>
-            </div>
+          {field('monto', 'Monto depositado (ARS)*', {
+            inputMode: 'decimal',
+            placeholder: '10.000',
+            pattern: '^\\d{1,3}(\\.\\d{3})*(,\\d{1,2})?$',
+            title: 'Ingrese el monto con separador de miles. Ejemplo: 1.000, 10.000, 20.000',
+            onChange: handleMontoChange,
+            help: 'Ingrese el monto completo con separador de miles (punto). Ejemplo: 10.000, 15.000, 20.000',
+          })}
 
-            <div className="form-group">
-              <label htmlFor="monto">Monto depositado (ARS)*</label>
-              <input
-                type="text"
-                id="monto"
-                name="monto"
-                required
-                inputMode="decimal"
-                placeholder="10.000"
-                pattern="^\d{1,3}(\.\d{3})*(,\d{1,2})?$"
-                title="Ingrese el monto con separador de miles. Ejemplo: 1.000, 10.000, 20.000"
-                value={form.monto}
-                onChange={handleMontoChange}
-              />
-              <small className="form-help">
-                Ingrese el monto completo con separador de miles (punto). Ejemplo: 10.000, 15.000, 20.000
-              </small>
-            </div>
+          <Field
+            id="fotos"
+            label="Fotos del comprobante (galería)*"
+            type="file"
+            accept="image/*"
+            multiple
+            aria-describedby="fotosHelp"
+            required
+            ref={fileInputRef}
+            onChange={handleFilesChange}
+            helpId="fotosHelp"
+            help="Selecciona una  imágen desde tu galería o cámara. ."
+          />
 
-            <div className="form-group">
-              <label htmlFor="fotos">Fotos del comprobante (galería)*</label>
-              <input
-                type="file"
-                id="fotos"
-                name="fotos"
-                accept="image/*"
-                multiple
-                aria-describedby="fotosHelp"
-                required
-                ref={fileInputRef}
-                onChange={handleFilesChange}
-              />
-              <small id="fotosHelp" className="form-help">
-                Selecciona una  imágen desde tu galería o cámara. .
-              </small>
-            </div>
+          <Button variant="submit" type="submit" id="submitBtn" disabled={submitting}>
+            {submitting ? 'Procesando...' : 'Enviar Voucher'}
+          </Button>
 
-            <button type="submit" className="submit-button" id="submitBtn" disabled={submitting}>
-              {submitting ? 'Procesando...' : 'Enviar Voucher'}
-            </button>
-
-            {banner && (
-              <div className="voucher-banner" style={bannerStyle(banner.type)} ref={bannerRef}>
-                {banner.text}
-              </div>
-            )}
-          </form>
-        </div>
-      </section>
+          {banner && (
+            <Banner tone={banner.type} className="voucher-banner mt-6 px-6 py-4 text-center font-semibold" ref={bannerRef}>
+              {banner.text}
+            </Banner>
+          )}
+        </FormCard>
+      </PageSection>
 
       <Footer variant="vouchers" />
     </>

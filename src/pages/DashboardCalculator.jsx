@@ -3,6 +3,7 @@ import AdminHeader from '../components/AdminHeader';
 import Footer from '../components/Footer';
 import Modal from '../components/Modal';
 import { ADMIN_NAV } from '../components/navLinks';
+import { PageSection, SectionSubtitle } from '../components/ui';
 import { useAuth } from '../auth/useAuth';
 import {
   computeCalculoMetrics,
@@ -132,64 +133,59 @@ export default function DashboardCalculator() {
     <>
       <AdminHeader links={ADMIN_NAV['dashboard-calculator']} />
 
-      <section className="contact page-top-offset">
-        <div className="container vouchers-center">
-          <h3 className="section-title">Calculadora de Medidor</h3>
-          <p className="contact-subtitle">Gestión de cálculos de consumo eléctrico</p>
-
-          <div id="metricsCalculator" className="metrics-grid">
-            {loaded && (
-              <>
-                <MetricCard title="Total Registros" value={metrics.totalRegistros} />
-                <MetricCard title="Consumo Total" value={`${metrics.consumoTotal} kWh`} />
-                <MetricCard title="Promedio Consumo" value={`${metrics.promedioConsumo} kWh`} />
-              </>
-            )}
-          </div>
-
-          <div className="month-pagination">
-            <button type="button" className="month-nav-btn" id="prevMonth" onClick={() => changeMonth(-1)}>
-              ←
-            </button>
-            <span className="month-label" id="currentMonthLabel">
-              {monthLabel}
-            </span>
-            <button type="button" className="month-nav-btn" id="nextMonth" onClick={() => changeMonth(1)}>
-              →
-            </button>
-          </div>
-
-          <h4 className="section-subtitle">Registro de cálculos</h4>
-          {isEmpty ? (
-            <div id="noDataMessage" className="no-data-message">
-              <p>No hay registros de cálculos disponibles</p>
-            </div>
-          ) : (
-            <div className="table-container">
-              <table className="data-table" id="calculatorTable">
-                <thead>
-                  <tr>
-                    <th>Nombre</th>
-                    <th>Apellido</th>
-                    <th>DNI</th>
-                    <th>Habitación</th>
-                    <th>Medición Ant.</th>
-                    <th>Medición Act.</th>
-                    <th>Consumo (kWh)</th>
-                    <th>Fecha</th>
-                    <th>Fotos</th>
-                  </tr>
-                </thead>
-                <tbody id="calculatorTableBody">
-                  {monthCalculos.map((calculo, index) => (
-                    <CalculoRow key={calculo._id ?? index} calculo={calculo} onOpenPhoto={setPhoto} />
-                  ))}
-                </tbody>
-              </table>
-            </div>
+      <PageSection title="Calculadora de Medidor" subtitle="Gestión de cálculos de consumo eléctrico">
+        <div id="metricsCalculator" className="metrics-grid">
+          {loaded && (
+            <>
+              <MetricCard title="Total Registros" value={metrics.totalRegistros} />
+              <MetricCard title="Consumo Total" value={`${metrics.consumoTotal} kWh`} />
+              <MetricCard title="Promedio Consumo" value={`${metrics.promedioConsumo} kWh`} />
+            </>
           )}
         </div>
-      </section>
+
+        <div className="month-pagination">
+          <button type="button" className="month-nav-btn" id="prevMonth" onClick={() => changeMonth(-1)}>
+            ←
+          </button>
+          <span className="month-label" id="currentMonthLabel">
+            {monthLabel}
+          </span>
+          <button type="button" className="month-nav-btn" id="nextMonth" onClick={() => changeMonth(1)}>
+            →
+          </button>
+        </div>
+
+        <SectionSubtitle>Registro de cálculos</SectionSubtitle>
+        {isEmpty ? (
+          <div id="noDataMessage" className="no-data-message">
+            <p>No hay registros de cálculos disponibles</p>
+          </div>
+        ) : (
+          <div className="table-container">
+            <table className="data-table" id="calculatorTable">
+              <thead>
+                <tr>
+                  <th>Nombre</th>
+                  <th>Apellido</th>
+                  <th>DNI</th>
+                  <th>Habitación</th>
+                  <th>Medición Ant.</th>
+                  <th>Medición Act.</th>
+                  <th>Consumo (kWh)</th>
+                  <th>Fecha</th>
+                  <th>Fotos</th>
+                </tr>
+              </thead>
+              <tbody id="calculatorTableBody">
+                {monthCalculos.map((calculo, index) => (
+                  <CalculoRow key={calculo._id ?? index} calculo={calculo} onOpenPhoto={setPhoto} />
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </PageSection>
 
       <Modal id="imageModal" open={photo !== null} onBackdropClick={() => setPhoto(null)}>
         <span className="close-modal" onClick={() => setPhoto(null)}>
@@ -201,8 +197,12 @@ export default function DashboardCalculator() {
         <img id="modalImage" src={photo?.url} alt="Foto ampliada" style={MODAL_IMAGE_STYLE} />
       </Modal>
 
-      <div id="loadingOverlay" style={{ display: loading ? 'flex' : 'none' }}>
-        <div className="loading-spinner"></div>
+      <div
+        id="loadingOverlay"
+        className="fixed inset-0 z-1000 items-center justify-center bg-[rgba(255,255,255,0.9)]"
+        style={{ display: loading ? 'flex' : 'none' }}
+      >
+        <div className="flex min-h-[200px] items-center justify-center rounded-xl bg-card p-8 text-[1.1rem] font-semibold text-ink shadow-hover"></div>
       </div>
 
       <Footer />

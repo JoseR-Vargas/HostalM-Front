@@ -1,0 +1,126 @@
+/*
+ * Tailwind v4 entry point. Only the theme and utilities layers are imported (no Preflight): the
+ * unmigrated admin styles in styles.css still rely on the browser defaults the old stylesheet had.
+ * styles.css is NOT in a layer, so its rules win over utilities; migrated markup must not reuse a
+ * class name that styles.css still defines.
+ */
+@layer theme, base, components, utilities;
+@import 'tailwindcss/theme.css' layer(theme);
+@import 'tailwindcss/utilities.css' layer(utilities);
+
+/* Hover always applies (the old stylesheet did not wait for a hover-capable pointer). */
+@custom-variant hover (&:hover);
+
+/* Same breakpoints as the old stylesheet (max-width, inclusive). */
+@custom-variant tablet (@media (max-width: 768px));
+@custom-variant phone (@media (max-width: 480px));
+@custom-variant short (@media (max-height: 600px));
+
+@theme static {
+	--color-primary: #2b6cb0;
+	--color-primary-dark: #2c5282;
+	--color-secondary: #553c9a;
+	--color-secondary-dark: #44337a;
+	--color-accent: #38a169;
+	--color-warning: #d69e2e;
+	--color-ink: #1a202c;
+	--color-muted: #4a5568;
+	--color-border: #e2e8f0;
+	--color-border-light: #cbd5e0;
+	--font-sans: 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+	--shadow-card: 0 4px 24px rgba(0, 0, 0, 0.08);
+	--shadow-hover: 0 8px 32px rgba(0, 0, 0, 0.12);
+	--shadow-glow: 0 0 20px rgba(43, 108, 176, 0.2);
+	--background-image-page: linear-gradient(135deg, #fefefe 0%, #f8f9fa 25%, #f5f7fa 50%, #f0f4f8 75%, #ebf1f5 100%);
+	--background-image-soft: linear-gradient(135deg, #f8f9fa 0%, #f0f4f8 50%, #e8eff5 100%);
+	--background-image-card: linear-gradient(135deg, #ffffff 0%, #fafbfc 50%, #f5f8fb 100%);
+	--background-image-brand: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+	--background-image-bar: linear-gradient(90deg, var(--color-primary), var(--color-secondary));
+	--background-image-title: linear-gradient(135deg, var(--color-ink) 0%, var(--color-primary) 100%);
+	--background-image-band: linear-gradient(135deg, rgba(248, 249, 250, 0.6) 0%, rgba(240, 244, 248, 0.8) 50%, rgba(235, 241, 245, 0.9) 100%);
+	--animate-pulse-glow: pulse-glow 2s ease-in-out infinite;
+	--animate-fade-in: fade-in 0.3s ease;
+	--animate-slide-in: slide-in 0.3s ease;
+
+	@keyframes pulse-glow {
+		0%,
+		100% {
+			transform: scale(1);
+			box-shadow: var(--shadow-glow);
+			filter: brightness(1);
+		}
+		25%,
+		75% {
+			transform: scale(1.02);
+			box-shadow: 0 0 25px rgba(43, 108, 176, 0.4), var(--shadow-glow);
+			filter: brightness(1.05);
+		}
+		50% {
+			transform: scale(1.05);
+			box-shadow: 0 0 35px rgba(43, 108, 176, 0.6), 0 0 15px rgba(85, 60, 154, 0.4), var(--shadow-hover);
+			filter: brightness(1.15);
+		}
+	}
+
+	@keyframes fade-in {
+		from {
+			opacity: 0;
+		}
+	}
+
+	@keyframes slide-in {
+		from {
+			opacity: 0;
+			transform: translateY(-10px);
+		}
+	}
+}
+
+@layer base {
+	* {
+		@apply m-0 box-border p-0;
+	}
+
+	html {
+		scroll-behavior: smooth;
+	}
+
+	body {
+		@apply min-h-screen bg-page font-sans leading-[1.7] font-normal tracking-[0.02em] text-ink;
+	}
+
+	h1,
+	h2,
+	h3,
+	h4,
+	h5,
+	h6 {
+		@apply leading-[1.2] font-bold tracking-[-0.02em] text-ink;
+	}
+
+	h1 {
+		@apply text-[3.5rem];
+	}
+
+	h2 {
+		@apply text-[2.8rem];
+	}
+
+	h3 {
+		@apply text-[2.2rem];
+	}
+
+	a {
+		@apply relative text-primary no-underline transition-all duration-300;
+
+		&:hover {
+			@apply text-primary-dark;
+			text-shadow: 0 0 8px rgba(43, 108, 176, 0.4);
+		}
+	}
+}
+
+/* Centered page column; the pages keep using the `container` class. */
+@utility container {
+	@apply mx-auto w-full max-w-[1200px] p-0 tablet:max-w-full tablet:px-[15px] phone:px-2.5;
+}

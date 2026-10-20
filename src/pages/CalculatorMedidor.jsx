@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import Modal from '../components/Modal';
 import PublicHeader from '../components/PublicHeader';
+import { Banner, Button, Field, SectionSubtitle, SectionTitle, cls } from '../components/ui';
 import { validateMeterPhoto } from '../lib/files';
 import {
   DNI_ERROR,
@@ -29,11 +30,9 @@ const EMPTY_VALUES = {
   medicionActual: '',
 };
 
+const UPLOAD_BUTTON =
+  'upload-btn cursor-pointer rounded-lg border-2 border-primary bg-transparent px-4 py-3 text-[0.9rem] font-semibold text-primary transition-all duration-300 hover:bg-primary hover:text-white';
 const PHOTO_ERROR_STYLE = { display: 'block', color: '#e74c3c', fontSize: '0.9rem', marginTop: '0.5rem' };
-
-function FieldError({ message }) {
-  return message ? <div className="error-message">{message}</div> : null;
-}
 
 function withoutKey(object, key) {
   const { [key]: removed, ...rest } = object;
@@ -60,42 +59,47 @@ function PhotoUpload({ id, title, description, photo, error, onSelect }) {
     input.click();
   };
 
-  const classes = ['photo-upload-group'];
-  if (photo?.preview) classes.push('has-photo');
-  if (error) classes.push('error');
-
   return (
-    <div className={classes.join(' ')} id={`${id}Group`}>
+    <div
+      id={`${id}Group`}
+      className={cls(
+        'photo-upload-group rounded-xl border-2 bg-soft p-6 text-center transition-all duration-300 hover:bg-card',
+        photo?.preview ? 'has-photo border-solid border-accent' : 'border-dashed border-border hover:border-primary',
+        error && 'error',
+      )}
+    >
       <h4>{title}</h4>
       <p>{description}</p>
-      <div className="upload-buttons">
-        <button type="button" className="upload-btn" onClick={() => openPicker(true)}>
-          Tomar foto
-        </button>
-        <button type="button" className="upload-btn" onClick={() => openPicker(false)}>
-          Galería
-        </button>
+      <div className="mt-4 grid grid-cols-[1fr_1fr] gap-4 tablet:grid-cols-[1fr]">
+        {[
+          ['Tomar foto', true],
+          ['Galería', false],
+        ].map(([label, useCamera]) => (
+          <button key={label} type="button" className={UPLOAD_BUTTON} onClick={() => openPicker(useCamera)}>
+            {label}
+          </button>
+        ))}
       </div>
       <input
         type="file"
         id={id}
         name={id}
         accept="image/*"
-        style={{ display: 'none' }}
+        className="hidden"
         ref={inputRef}
         onChange={(event) => onSelect(event.target)}
       />
       <img
         id={`${id}Preview`}
-        className="photo-preview"
+        className="mt-4 max-h-[200px] max-w-full rounded-lg object-cover shadow-card"
         src={photo?.preview || undefined}
         alt=""
         style={{ display: photo?.preview ? 'block' : 'none' }}
       />
       {error && (
-        <div className="error-message" style={PHOTO_ERROR_STYLE}>
+        <Banner tone="error" className="error-message p-3 leading-[1.3]" style={PHOTO_ERROR_STYLE}>
           {error}
-        </div>
+        </Banner>
       )}
     </div>
   );
@@ -217,106 +221,63 @@ export default function CalculatorMedidor() {
     }
   };
 
-  const groupClass = (field) => (errors[field] ? 'form-group error' : 'form-group');
-  const measurementClass = (field) =>
-    errors[field] ? 'form-group measurement-input error' : 'form-group measurement-input';
+  const field = (id, label, props) => (
+    <Field
+      id={id}
+      label={label}
+      type="text"
+      value={values[id]}
+      error={Boolean(errors[id])}
+      errorMessage={errors[id]}
+      onChange={handleTextChange}
+      {...props}
+    />
+  );
+  const measurement = (id, label, placeholder) =>
+    field(id, label, {
+      inputMode: 'decimal',
+      placeholder,
+      unit: 'kWh',
+      onChange: handleMeasurementChange,
+      onBlur: handleMeasurementBlur,
+    });
 
   return (
-    <div className="page-top-offset">
+    <div className="pt-[120px] tablet:pt-[140px] phone:pt-[170px]">
       <PublicHeader logoOnly />
 
-      <main className="calculator-section">
+      <main>
         <div className="container">
-          <div className="calculator-container">
-            <h1 className="section-title">Calculadora de Medidor</h1>
-            <p className="section-subtitle">Calcula tu consumo de electricidad mensual</p>
+          <div className="mx-auto max-w-[600px] rounded-xl border border-border bg-card px-4 py-8 shadow-card tablet:m-4 tablet:py-6">
+            <SectionTitle as="h1" className="mb-8 phone:mb-6">
+              Calculadora de Medidor
+            </SectionTitle>
+            <SectionSubtitle as="p">Calcula tu consumo de electricidad mensual</SectionSubtitle>
 
-            <form id="calculatorForm" className="calculator-form" onSubmit={handleSubmit}>
-              <div className={groupClass('nombre')}>
-                <label htmlFor="nombre">Nombre *</label>
-                <input type="text" id="nombre" name="nombre" value={values.nombre} onChange={handleTextChange} />
-                <FieldError message={errors.nombre} />
-              </div>
+            <form id="calculatorForm" onSubmit={handleSubmit}>
+              {field('nombre', 'Nombre *')}
+              {field('apellido', 'Apellido *')}
+              {field('dni', 'DNI *', { type: 'number', min: '1000000', max: '99999999', onChange: handleDniChange })}
+              {field('habitacion', 'Nro de Habitación/Apartamento - Direccion Nro Puerta*', {
+                placeholder: 'Ej: Apto 1, Hab 5 / Humberto Primo 3070 - 3068',
+              })}
+              {measurement('medicionAnterior', 'Medición del mes anterior *', 'Ej: 003565.3 o 003565,3')}
+              {measurement('medicionActual', 'Medición del mes actual *', 'Ej: 003625.2 o 003625,2')}
 
-              <div className={groupClass('apellido')}>
-                <label htmlFor="apellido">Apellido *</label>
-                <input
-                  type="text"
-                  id="apellido"
-                  name="apellido"
-                  value={values.apellido}
-                  onChange={handleTextChange}
-                />
-                <FieldError message={errors.apellido} />
-              </div>
-
-              <div className={groupClass('dni')}>
-                <label htmlFor="dni">DNI *</label>
-                <input
-                  type="number"
-                  id="dni"
-                  name="dni"
-                  min="1000000"
-                  max="99999999"
-                  value={values.dni}
-                  onChange={handleDniChange}
-                />
-                <FieldError message={errors.dni} />
-              </div>
-
-              <div className={groupClass('habitacion')}>
-                <label htmlFor="habitacion">Nro de Habitación/Apartamento - Direccion Nro Puerta*</label>
-                <input
-                  type="text"
-                  id="habitacion"
-                  name="habitacion"
-                  placeholder="Ej: Apto 1, Hab 5 / Humberto Primo 3070 - 3068"
-                  value={values.habitacion}
-                  onChange={handleTextChange}
-                />
-                <FieldError message={errors.habitacion} />
-              </div>
-
-              <div className={measurementClass('medicionAnterior')}>
-                <label htmlFor="medicionAnterior">Medición del mes anterior *</label>
-                <input
-                  type="text"
-                  id="medicionAnterior"
-                  name="medicionAnterior"
-                  inputMode="decimal"
-                  placeholder="Ej: 003565.3 o 003565,3"
-                  value={values.medicionAnterior}
-                  onChange={handleMeasurementChange}
-                  onBlur={handleMeasurementBlur}
-                />
-                <span className="measurement-unit">kWh</span>
-                <FieldError message={errors.medicionAnterior} />
-              </div>
-
-              <div className={measurementClass('medicionActual')}>
-                <label htmlFor="medicionActual">Medición del mes actual *</label>
-                <input
-                  type="text"
-                  id="medicionActual"
-                  name="medicionActual"
-                  inputMode="decimal"
-                  placeholder="Ej: 003625.2 o 003625,2"
-                  value={values.medicionActual}
-                  onChange={handleMeasurementChange}
-                  onBlur={handleMeasurementBlur}
-                />
-                <span className="measurement-unit">kWh</span>
-                <FieldError message={errors.medicionActual} />
-              </div>
-
-              <div id="calculationPreview" className={consumption === null ? 'calculation-result' : 'calculation-result show'}>
+              <div
+                id="calculationPreview"
+                className={cls(
+                  'my-6 rounded-xl border-2 border-accent bg-card p-6 text-center',
+                  consumption === null ? 'hidden' : 'show animate-slide-in',
+                )}
+              >
                 <h3>Consumo calculado:</h3>
-                <div className="result-amount" id="consumoCalculado">
+                <div className="my-2 text-[2rem] font-bold text-primary" id="consumoCalculado">
                   {formatKwh(consumption ?? 0)}
                 </div>
               </div>
 
-              <div className="photo-upload-container">
+              <div className="my-6 grid gap-6">
                 <PhotoUpload
                   id="fotoAnterior"
                   title="Foto del medidor - Mes anterior *"
@@ -335,14 +296,9 @@ export default function CalculatorMedidor() {
                 />
               </div>
 
-              <button
-                type="submit"
-                className={submitting ? 'cta-button processing' : 'cta-button'}
-                id="submitBtn"
-                disabled={submitting}
-              >
+              <Button type="submit" id="submitBtn" disabled={submitting} processing={submitting}>
                 {submitting ? 'Procesando...' : 'Enviar'}
-              </button>
+              </Button>
             </form>
           </div>
         </div>
@@ -351,15 +307,15 @@ export default function CalculatorMedidor() {
       <Modal id="resultModal" open={modalOpen}>
         <div className="modal-title">✅ Datos enviados correctamente</div>
         <p>Consumo calculado:</p>
-        <div className="modal-amount" id="modalAmount">
+        <div className="my-4 text-[2.5rem] font-extrabold text-primary" id="modalAmount">
           {formatKwh(resultKwh ?? 0)}
         </div>
         <p>
           <strong>Fecha tope de pago 05 de cada mes</strong>
         </p>
-        <button type="button" className="cta-button close-modal" onClick={() => setResultKwh(null)}>
+        <Button className="close-modal" onClick={() => setResultKwh(null)}>
           Cerrar
-        </button>
+        </Button>
       </Modal>
     </div>
   );

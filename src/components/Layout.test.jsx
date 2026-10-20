@@ -51,7 +51,7 @@ describe('AdminHeader', () => {
     expect(links.map((a) => a.textContent)).toEqual(['📋 Vouchers', '🧮 Medidor']);
     expect(links.map((a) => a.getAttribute('href'))).toEqual(['/dashboard', '/dashboard-calculator']);
     expect(container.querySelector('.nav.nav-centered')).not.toBeNull();
-    expect(screen.getByRole('button', { name: 'Cerrar Sesión' }).className).toBe('logout-btn');
+    expect(screen.getByRole('button', { name: 'Cerrar Sesión' }).classList.contains('logout-btn')).toBe(true);
   });
 
   it('logout clears the token and goes to /login', () => {
@@ -105,7 +105,8 @@ describe('Modal', () => {
       </Modal>,
     );
     const modal = container.querySelector('#imageModal');
-    expect(modal.className).toBe('modal');
+    expect(modal.classList.contains('modal')).toBe(true);
+    expect(modal.classList.contains('show')).toBe(false);
 
     rerender(
       <AuthProvider>
@@ -117,7 +118,7 @@ describe('Modal', () => {
       </AuthProvider>,
     );
     const shown = container.querySelector('#imageModal');
-    expect(shown.className).toBe('modal show');
+    expect(shown.classList.contains('show')).toBe(true);
 
     fireEvent.click(screen.getByText('body'));
     expect(closed).toBe(0);

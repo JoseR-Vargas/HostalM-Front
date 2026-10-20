@@ -4,6 +4,7 @@ import Footer from '../components/Footer';
 import { ReceiptAmountField, ReceiptIdentityFields } from '../components/ReceiptFields';
 import ReceiptTemplate from '../components/ReceiptTemplate';
 import { ADMIN_NAV } from '../components/navLinks';
+import { Button, FormCard, FormRow, PageSection, SectionSubtitle } from '../components/ui';
 import {
   buildPaymentReceipt,
   getDefaultReceiptDate,
@@ -42,41 +43,30 @@ export default function ComprobantePago() {
     <>
       <AdminHeader links={ADMIN_NAV['comprobante-pago']} />
 
-      <section className="contact page-top-offset">
-        <div className="container vouchers-center">
-          <h3 className="section-title">Comprobante de Pago</h3>
-          <p className="contact-subtitle">Completá los datos y descargá el PDF del comprobante</p>
+      <PageSection title="Comprobante de Pago" subtitle="Completá los datos y descargá el PDF del comprobante">
+        <FormCard>
+          <SectionSubtitle>Datos del comprobante</SectionSubtitle>
 
-          <div className="contact-form">
-            <h4 className="section-subtitle">Datos del comprobante</h4>
+          <ReceiptIdentityFields values={values} errors={errors} onChange={handleChange} />
 
-            <ReceiptIdentityFields values={values} errors={errors} onChange={handleChange} />
-
-            <div className="form-row">
-              <ReceiptAmountField
-                name="monto"
-                label="Monto ($)"
-                placeholder="Ej: 200.000 o 200000,50"
-                errorMessage="Ingresá un monto válido mayor a cero"
-                hasError={errors.includes('monto')}
-                value={values.monto}
-                onChange={handleChange}
-              />
-              <div className="form-group" style={{ display: 'flex', alignItems: 'flex-end' }}>
-                <button
-                  type="button"
-                  className={processing ? 'cta-button processing' : 'cta-button'}
-                  id="btnGenerar"
-                  onClick={handleGenerate}
-                  style={{ width: '100%' }}
-                >
-                  {processing ? PROCESSING_LABEL : BUTTON_LABEL}
-                </button>
-              </div>
+          <FormRow>
+            <ReceiptAmountField
+              name="monto"
+              label="Monto ($)"
+              placeholder="Ej: 200.000 o 200000,50"
+              errorMessage="Ingresá un monto válido mayor a cero"
+              hasError={errors.includes('monto')}
+              value={values.monto}
+              onChange={handleChange}
+            />
+            <div className="mb-8 flex items-end">
+              <Button type="button" id="btnGenerar" className="w-full" processing={processing} onClick={handleGenerate}>
+                {processing ? PROCESSING_LABEL : BUTTON_LABEL}
+              </Button>
             </div>
-          </div>
-        </div>
-      </section>
+          </FormRow>
+        </FormCard>
+      </PageSection>
 
       <ReceiptTemplate
         ref={templateRef}

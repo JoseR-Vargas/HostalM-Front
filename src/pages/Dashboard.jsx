@@ -3,6 +3,7 @@ import AdminHeader from '../components/AdminHeader';
 import Footer from '../components/Footer';
 import Modal from '../components/Modal';
 import { ADMIN_NAV } from '../components/navLinks';
+import { PageSection, SectionSubtitle } from '../components/ui';
 import { getVouchersBase } from '../lib/apiConfig';
 import { useMonthPager } from '../lib/useMonthPager';
 import {
@@ -120,58 +121,53 @@ export default function Dashboard() {
     <>
       <AdminHeader links={ADMIN_NAV.dashboard} />
 
-      <section className="contact page-top-offset">
-        <div className="container vouchers-center">
-          <h3 className="section-title">Dashboard Administrativo</h3>
-          <p className="contact-subtitle">Gestión de datos de usuarios</p>
-
-          <div className="month-pagination">
-            <button type="button" className="month-nav-btn" id="prevMonth" onClick={() => changeMonth(-1)}>
-              ←
-            </button>
-            <span className="month-label" id="currentMonthLabel">
-              {monthLabel}
-            </span>
-            <button type="button" className="month-nav-btn" id="nextMonth" onClick={() => changeMonth(1)}>
-              →
-            </button>
-          </div>
-
-          <h4 className="section-subtitle">Datos de Usuarios Registrados</h4>
-          {loadFailed ? (
-            <div id="vouchersLoadError" className="no-data-message" role="alert">
-              <p>No se pudieron cargar los comprobantes.</p>
-            </div>
-          ) : (
-            <div className="table-container">
-              <table className="data-table" id="voucherTable">
-                <thead>
-                  <tr>
-                    <th>Nombre</th>
-                    <th>DNI</th>
-                    <th>Email</th>
-                    <th>Ref 4</th>
-                    <th>Hab/Apto</th>
-                    <th>Monto</th>
-                    <th>Fecha</th>
-                    <th>Archivos</th>
-                  </tr>
-                </thead>
-                <tbody id="voucherTableBody">
-                  {monthVouchers.map((voucher, index) => (
-                    <VoucherRow
-                      key={voucher._id ?? index}
-                      voucher={voucher}
-                      vouchersBase={vouchersBase}
-                      onOpenImage={(url, name) => setImage({ url, name })}
-                    />
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
+      <PageSection title="Dashboard Administrativo" subtitle="Gestión de datos de usuarios">
+        <div className="month-pagination">
+          <button type="button" className="month-nav-btn" id="prevMonth" onClick={() => changeMonth(-1)}>
+            ←
+          </button>
+          <span className="month-label" id="currentMonthLabel">
+            {monthLabel}
+          </span>
+          <button type="button" className="month-nav-btn" id="nextMonth" onClick={() => changeMonth(1)}>
+            →
+          </button>
         </div>
-      </section>
+
+        <SectionSubtitle>Datos de Usuarios Registrados</SectionSubtitle>
+        {loadFailed ? (
+          <div id="vouchersLoadError" className="no-data-message" role="alert">
+            <p>No se pudieron cargar los comprobantes.</p>
+          </div>
+        ) : (
+          <div className="table-container">
+            <table className="data-table" id="voucherTable">
+              <thead>
+                <tr>
+                  <th>Nombre</th>
+                  <th>DNI</th>
+                  <th>Email</th>
+                  <th>Ref 4</th>
+                  <th>Hab/Apto</th>
+                  <th>Monto</th>
+                  <th>Fecha</th>
+                  <th>Archivos</th>
+                </tr>
+              </thead>
+              <tbody id="voucherTableBody">
+                {monthVouchers.map((voucher, index) => (
+                  <VoucherRow
+                    key={voucher._id ?? index}
+                    voucher={voucher}
+                    vouchersBase={vouchersBase}
+                    onOpenImage={(url, name) => setImage({ url, name })}
+                  />
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </PageSection>
 
       <Footer />
 

@@ -4,6 +4,7 @@ import Footer from '../components/Footer';
 import { ReceiptAmountField, ReceiptIdentityFields } from '../components/ReceiptFields';
 import ReceiptTemplate from '../components/ReceiptTemplate';
 import { ADMIN_NAV } from '../components/navLinks';
+import { Button, FormCard, FormRow, PageSection, SectionSubtitle } from '../components/ui';
 import {
   buildServicesReceipt,
   getDefaultReceiptDate,
@@ -43,53 +44,42 @@ export default function ComprobanteServicios() {
     <>
       <AdminHeader links={ADMIN_NAV['comprobante-servicios']} />
 
-      <section className="contact page-top-offset">
-        <div className="container vouchers-center">
-          <h3 className="section-title">Comprobante de Servicios</h3>
-          <p className="contact-subtitle">Completá los datos y descargá el PDF del comprobante</p>
+      <PageSection title="Comprobante de Servicios" subtitle="Completá los datos y descargá el PDF del comprobante">
+        <FormCard>
+          <SectionSubtitle>Datos del comprobante</SectionSubtitle>
 
-          <div className="contact-form">
-            <h4 className="section-subtitle">Datos del comprobante</h4>
+          <ReceiptIdentityFields values={values} errors={errors} onChange={handleChange} />
 
-            <ReceiptIdentityFields values={values} errors={errors} onChange={handleChange} />
+          <FormRow>
+            <ReceiptAmountField
+              name="montoAgua"
+              label="Monto Agua ($)"
+              placeholder="Ej: 5.000 o 5000,50"
+              errorMessage="Ingresá un monto de agua válido mayor a cero"
+              hasError={errors.includes('montoAgua')}
+              value={values.montoAgua}
+              onChange={handleChange}
+            />
+            <ReceiptAmountField
+              name="montoLuz"
+              label="Monto Luz ($)"
+              placeholder="Ej: 8.000 o 8000,50"
+              errorMessage="Ingresá un monto de luz válido mayor a cero"
+              hasError={errors.includes('montoLuz')}
+              value={values.montoLuz}
+              onChange={handleChange}
+            />
+          </FormRow>
 
-            <div className="form-row">
-              <ReceiptAmountField
-                name="montoAgua"
-                label="Monto Agua ($)"
-                placeholder="Ej: 5.000 o 5000,50"
-                errorMessage="Ingresá un monto de agua válido mayor a cero"
-                hasError={errors.includes('montoAgua')}
-                value={values.montoAgua}
-                onChange={handleChange}
-              />
-              <ReceiptAmountField
-                name="montoLuz"
-                label="Monto Luz ($)"
-                placeholder="Ej: 8.000 o 8000,50"
-                errorMessage="Ingresá un monto de luz válido mayor a cero"
-                hasError={errors.includes('montoLuz')}
-                value={values.montoLuz}
-                onChange={handleChange}
-              />
+          <FormRow>
+            <div className="mb-8 flex items-end">
+              <Button type="button" id="btnGenerar" className="w-full" processing={processing} onClick={handleGenerate}>
+                {processing ? PROCESSING_LABEL : BUTTON_LABEL}
+              </Button>
             </div>
-
-            <div className="form-row">
-              <div className="form-group" style={{ display: 'flex', alignItems: 'flex-end' }}>
-                <button
-                  type="button"
-                  className={processing ? 'cta-button processing' : 'cta-button'}
-                  id="btnGenerar"
-                  onClick={handleGenerate}
-                  style={{ width: '100%' }}
-                >
-                  {processing ? PROCESSING_LABEL : BUTTON_LABEL}
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+          </FormRow>
+        </FormCard>
+      </PageSection>
 
       <ReceiptTemplate
         ref={templateRef}
