@@ -1,94 +1,306 @@
-# Guía de Estilos — Hostal Mayelewoo Frontend
+# Guía de Estilos y Estructura — Hostal Mayelewoo Frontend
 
-Los estilos usan **Tailwind CSS v4**: utilidades en el JSX, tokens de diseño en [`src/index.css`](src/index.css) y componentes pequeños que repiten el mismo markup en un solo lugar. No quedan hojas CSS por página.
+> Referencia para cambios seguros en `css/styles.css` y las páginas HTML.
+> Última revisión: 2026-03-27
 
-## Ruta rápida
+---
 
-1. Los tokens (colores, sombras, gradientes, fuente, animaciones) están en `@theme` de `src/index.css`. Usalos como utilidades: `text-primary`, `bg-brand`, `shadow-card`, `animate-fade-in`.
-2. Armá las pantallas con los componentes de `src/components/` (tabla de abajo) en vez de repetir clases.
-3. Para cambiar el aspecto de algo compartido, editá el componente o el token, no cada página.
+## 1. Variables CSS (`:root`)
 
-## Cómo se carga el CSS
+Todas las páginas dependen de estas variables. **Cambiar un valor afecta a todo el sitio.**
 
-| Pieza | Detalle |
-|---|---|
-| `src/index.css` | Único archivo CSS. Lo importa `src/main.jsx` una sola vez |
-| Plugin | `@tailwindcss/vite` en `vite.config.js`; no hay `tailwind.config.js` |
-| Capas | `theme` y `utilities` de Tailwind **sin Preflight** (ver abajo) + una capa `base` propia |
-| Fuente | Open Sans desde Google Fonts en `index.html` (única hoja externa) |
-
-**Sin Preflight.** Probar `@import 'tailwindcss'` (con Preflight) cambia el render de todas las páginas: borde `solid` en cada elemento, botones e inputs que heredan la fuente, otros `line-height`. Se descartó porque el sitio no puede cambiar visualmente. La capa `base` de `index.css` trae los pocos resets que el diseño necesita (`margin/padding: 0`, `box-sizing`, tipografía de `body`, `h1`–`h3`, links).
-
-## Tokens (`@theme` en `src/index.css`)
-
-| Grupo | Tokens |
-|---|---|
-| Colores | `primary`, `primary-dark`, `secondary`, `secondary-dark`, `accent` (verde), `warning` (dorado), `ink` (texto), `muted` (texto secundario), `border`, `border-light` |
-| Fuente | `font-sans` (Open Sans + fallbacks del sistema) |
-| Sombras | `shadow-card`, `shadow-hover`, `shadow-glow` |
-| Gradientes | `bg-page`, `bg-soft`, `bg-card`, `bg-brand`, `bg-bar`, `bg-title`, `bg-band` |
-| Animaciones | `animate-pulse-glow` (botón CTA), `animate-fade-in`, `animate-slide-in`, `animate-spin-centered` (spinner de `processing`) |
-
-Cambiar un valor afecta a todo el sitio.
-
-## Variantes propias (breakpoints)
-
-Los breakpoints del CSS original son `max-width` **inclusivos**, por eso no se usan `sm:`/`md:` de Tailwind.
-
-| Variante | Media query | Uso |
+| Variable | Valor | Uso actual |
 |---|---|---|
-| `tablet:` | `max-width: 768px` | `tablet:text-center`, `tablet:grid-cols-[1fr]` |
-| `phone:` | `max-width: 480px` | `phone:py-[0.8rem]` |
-| `short:` | `max-height: 600px` | pantallas bajas (login) |
-| `hover:` | `:hover` siempre | el sitio original no esperaba un puntero con hover |
+| `--bg-primary` | gradiente blanco perlado | `body` background |
+| `--bg-secondary` | gradiente gris perla claro | inputs focus, fondos secundarios |
+| `--bg-card` | gradiente blanco cristal | `.contact-form`, `.metric-card`, `.table-container`, `.calculator-container` |
+| `--text-primary` | `#1A202C` | texto general, headings |
+| `--text-secondary` | `#4A5568` | subtítulos, labels, placeholders |
+| `--color-primary` | `#2B6CB0` | botones, links, bordes activos, `.metric-value`, `.result-amount` |
+| `--color-primary-dark` | `#2C5282` | hover de botones y links |
+| `--color-secondary` | `#553C9A` | acentos, gradientes, `.section-subtitle` |
+| `--color-secondary-dark` | `#44337A` | hover secundario |
+| `--color-accent` | `#38A169` | verde — highlights, `.calculation-result` border, `.consumo-cell`, `.modal-title` |
+| `--color-warning` | `#D69E2E` | dorado — `.logout-btn` |
+| `--color-border` | `#E2E8F0` | bordes de cards, inputs, separadores |
+| `--color-border-light` | `#CBD5E0` | bordes más visibles |
+| `--font-family` | Open Sans + system fallbacks | todo el sitio |
+| `--max-width` | `1200px` | `.container` |
+| `--border-radius` | `12px` | cards, modales, botones CTA |
+| `--border-radius-sm` | `8px` | inputs, botones pequeños |
+| `--shadow` | `0 4px 24px rgba(0,0,0,0.08)` | estado normal de cards |
+| `--shadow-hover` | `0 8px 32px rgba(0,0,0,0.12)` | hover de cards |
+| `--shadow-glow` | `0 0 20px rgba(43,108,176,0.2)` | botón CTA, hover |
+| `--transition` | `all 0.3s cubic-bezier(0.4,0,0.2,1)` | todas las transiciones |
 
-Para mobile se apila en este orden: base, `tablet:`, `phone:`.
+---
 
-## Componentes compartidos
+## 2. Layout base compartido por todas las páginas
 
-| Componente | Rol |
-|---|---|
-| `ui.jsx` | Primitivos: `cls`, `SectionTitle`, `SectionSubtitle`, `PageHeading`, `PageSection` (sección bajo el header fijo), `Banner` (`tone` = `error`/`success`), `FormCard`, `FormRow`, `Field` (label + control + ayuda/error/unidad), `Button` (`variant` = `cta`/`submit`, `processing`) |
-| `PublicHeader` / `AdminHeader` | Header fijo sobre `Header`. Links por página en `navLinks.js`; el admin agrega el botón de logout |
-| `Footer` | `home`, `vouchers` o mínimo (copyright, páginas admin) |
-| `Modal` | Overlay + caja. Props: `open`, `onBackdropClick`, `contentClassName`; `ModalTitle` |
-| `DataTable` (`Tr`, `Td`, `EmptyState`) | Tabla en tarjeta; hasta 768px cada fila es una tarjeta y la celda muestra su `label` |
-| `MetricCard` / `Metric` | Tarjeta de estadística |
-| `MonthPager` | Selector `← Mes Año →` de las páginas admin |
-| `Reveal` | Fade-in al entrar al viewport |
-| `ReceiptFields` | Campos compartidos de los dos formularios de comprobantes |
-| `ReceiptTemplate` | Hoja A4 del PDF (excepción, ver abajo) |
+```
+<body>
+  <header class="header">          ← fijo, z-index 1000, backdrop blur
+    .container
+      .nav [.nav-centered]         ← .nav-centered centra el logo (admin)
+        .logo
+        .nav-menu
+  </header>
 
-## Convenciones
+  <section class="contact page-top-offset">   ← sección principal
+    .container [.vouchers-center]
+      ...contenido...
+  </section>
 
-- **Clases-gancho se mantienen.** Los specs y tests seleccionan por clases como `.header`, `.nav-link`, `.cta-button`, `.submit-button`, `.form-group`, `.error-message`, `.modal`, `.modal-content`, `.contact-form`. No llevan estilos: viven junto a las utilidades. No las renombres sin actualizar `e2e/` y los tests.
-- **Clases de estado solo mientras están activas.** `error`, `show` y `processing` se agregan cuando el estado aplica y se quitan después (los specs comprueban `not.toHaveClass`). El grupo de un `Field` lleva `error` solo con error; el `Modal` lleva `show` solo abierto.
-- **El CSS sin capa le gana a las utilidades.** Las utilidades de Tailwind están en `@layer utilities`; cualquier CSS fuera de capa que se agregue a futuro las pisaría. Mantené todo en capas o en utilidades.
-- **Los tamaños con nombre fijan `line-height`.** `text-lg`, `text-xl`… traen su propio `line-height`; para conservar el original usá valores arbitrarios (`text-[1.05rem]`) y, si hace falta, `leading-*`.
-- **Valores arbitrarios para paridad.** El diseño original usa `rem`/`px` puntuales; se copian tal cual (`px-[1.2rem]`) en lugar de redondear a la escala de Tailwind.
-- **`ReceiptTemplate` conserva estilos inline.** `html2canvas` (vía `html2pdf.js`) lee estilos computados de la hoja del PDF, que no debe depender de CSS global ni de clases. No la migres a Tailwind.
-- **Botón `processing`.** `Button processing` agrega la clase `processing`, `pointer-events-none`, opacidad 0.7 y un spinner `::after`. El `keyframes` está en `index.css`.
+  <footer class="footer footer-centered">
+    .container
+      .footer-bottom
+  </footer>
+</body>
+```
 
-## Cómo agregar una página
+### Reglas que NO deben romperse
 
-1. Crear `src/pages/MiPagina.jsx` y registrar la ruta en `src/app/routes.jsx` (las admin cuelgan de `ProtectedRoute`).
-2. Estructura: header (`PublicHeader`/`AdminHeader`) → `PageSection title subtitle` → `FormCard` con `Field`/`FormRow`/`Button` (o `DataTable`) → `Footer`.
-3. Si hay un patrón repetido en 2+ páginas, extraelo a `src/components/` en vez de copiar clases.
-4. Agregar clases-gancho solo si un test las necesita y tests en `*.test.jsx` / `e2e/`.
-5. Verificar en 375, 768 y 1280 px: sin scroll horizontal y con el header fijo sin tapar contenido.
+- **`.header` es `position: fixed`** → todas las páginas necesitan `page-top-offset` (`padding-top: 120px`) en la sección principal, o el contenido queda tapado.
+- **`.nav-centered`** solo aplica en páginas admin. En `index.html` y `login.html` el nav usa `.nav` sin ese modificador.
+- **`.footer-centered`** centra el `footer-bottom` solo. Si el footer tiene `.footer-content` (3 columnas), no usar `footer-centered` en desktop.
 
-## Mapa de páginas
+---
 
-| Ruta | Componente | Acceso |
+## 3. Mapa de páginas
+
+| Archivo HTML | Tipo | Scripts cargados | Auth requerida |
+|---|---|---|---|
+| [index.html](index.html) | Pública — landing | `script.js` | No |
+| [login.html](login.html) | Pública — acceso admin | `config.js`, `login.js` | No |
+| [vouchers.html](vouchers.html) | Pública — residentes | `vouchers.js` (incluye `config.js` internamente) | No |
+| [calculator-medidor.html](calculator-medidor.html) | Pública — residentes | `config.js`, `calculator-medidor.js` | No |
+| [contadores-luz.html](contadores-luz.html) | Pública — residentes | `config.js` (ausente en HTML actual), `contadores-luz.js` | No |
+| [dashboard.html](dashboard.html) | Admin — vouchers | `config.js`, `login.js`, `dashboard.js` | Sí (`requireAuth()`) |
+| [dashboard-calculator.html](dashboard-calculator.html) | Admin — medidores | `config.js`, `login.js`, `dashboard-calculator.js` | Sí |
+| [calcular-pago.html](calcular-pago.html) | Admin — calculadora electricidad | `config.js`, `login.js`, `calcular-pago.js` | Sí |
+| [comprobante-pago.html](comprobante-pago.html) | Admin — PDF comprobante | `config.js`, `login.js`, `comprobante-pago.js`, `html2pdf` CDN | Sí |
+| [dashboard-luz.html](dashboard-luz.html) | Admin — contadores | `login.js`, `dashboard-luz.js` | Sí |
+
+> **Nota:** `dashboard-luz.html` no carga `config.js` — si `dashboard-luz.js` lo necesita, falta esa dependencia.
+
+---
+
+## 4. Clases CSS críticas por contexto
+
+### 4.1 Header y Navegación
+
+| Clase | Efecto | Rompe si se elimina |
 |---|---|---|
-| `/` | `Home` | Público |
-| `/login` | `Login` | Público |
-| `/vouchers` | `Vouchers` | Público |
-| `/calculator-medidor` | `CalculatorMedidor` | Público |
-| `/dashboard` | `Dashboard` | Admin |
-| `/dashboard-calculator` | `DashboardCalculator` | Admin |
-| `/calcular-pago` | `CalcularPago` | Admin |
-| `/comprobante-pago` | `ComprobantePago` | Admin |
-| `/comprobante-servicios` | `ComprobanteServicios` | Admin |
+| `.header` | Header fijo con glassmorphism | Todo el sitio queda sin navbar |
+| `.nav` | Flexbox logo + menú | Layout del header |
+| `.nav-centered` | Centra el logo (admin) | Logo descentrado en admin |
+| `.logo` | Gradiente azul-morado en texto | Pierde identidad visual del título |
+| `.nav-link` | Link con underline animado hover | Navegación sin estilo, pierde el `::after` animado |
+| `.logout-btn` | Botón dorado (`--color-warning`) | Botón de logout sin distinción visual |
 
-Los PDF se generan con `html2pdf.js` (carga diferida en `src/lib/pdf.js`).
+### 4.2 Secciones y contenedores
+
+| Clase | Efecto | Rompe si se elimina |
+|---|---|---|
+| `.page-top-offset` | `padding-top: 120px` (↑140px tablet, ↑170px mobile) | Contenido tapado por el header fijo |
+| `.contact` | Background de sección con `padding: 100px 0` | Fondo y espaciado desaparecen |
+| `.vouchers-center` | `flex-column + align-items: center` | Formularios y tablas pierden centrado |
+| `.container` | `max-width: 1200px; margin: 0 auto` | Contenido se expande al 100% |
+| `.contact-form` | Tarjeta blanca, `max-width: 700px`, borde top gradiente | Formularios sin tarjeta; el `::before` agrega la barra de color |
+| `.form-row` | Grid 2 columnas (`1fr 1fr`) → 1 col en mobile | Inputs en fila de dos |
+| `.form-group` | Bloque label+input con `margin-bottom: 2rem` | Espaciado entre campos |
+| `.form-group.error` | Muestra `.error-message` (rojo) y borde rojo en input | Validación visual no funciona |
+| `.error-message` | Oculto por defecto (`display: none`); se muestra con `.error` en padre | Mensajes de error siempre visibles |
+
+### 4.3 Botones
+
+| Clase | Efecto | Rompe si se elimina |
+|---|---|---|
+| `.cta-button` | Gradiente azul-morado, mayúsculas, `animation: pulse-glow` | Botón principal sin estilo; animación se pierde |
+| `.cta-button:hover` | `translateY(-3px) scale(1.08)`, brillo | Hover sin feedback |
+| `.submit-button` | Similar a CTA pero `width: 100%`, sin animación de pulso | Botón de envío en formularios públicos |
+| `.btn-secondary` / `.button-secondary` | Outline azul → relleno en hover | Botones secundarios |
+| `.logout-btn` | Dorado (`#D69E2E`) | Sin distinción del botón de cerrar sesión |
+
+> **Atención:** `.login-form .cta-button` sobreescribe la animación `pulse-glow` con `animation: none`. Esto es intencional para que el botón de login no pulse.
+
+### 4.4 Tablas (páginas admin)
+
+| Clase | Efecto | Rompe si se elimina |
+|---|---|---|
+| `.table-container` | Tarjeta con `overflow-x: auto`, barra top gradiente vía `::before` | Tabla sin scroll horizontal en mobile |
+| `.data-table` | `border-collapse: collapse`, `width: 100%` | Tabla sin estilos base |
+| `.data-table thead th` | Azul (`--color-primary`), fondo gris suave | Encabezados sin diferenciación |
+| `.data-table tbody tr:hover` | Fondo gris + borde izquierdo azul de 3px | Sin feedback visual en filas |
+| **mobile (`≤768px`)** | `thead` se oculta; cada `tr` es un bloque; `td::before` muestra `data-label` | Las celdas en mobile necesitan atributo `data-label` en el HTML |
+
+### 4.5 Métricas (dashboard-calculator)
+
+| Clase | Efecto | Uso |
+|---|---|---|
+| `.metrics-grid` | Grid `auto-fit minmax(250px)`, `margin: 2rem 0 3rem` | Contenedor de metric-cards |
+| `.metric-card` | Tarjeta con barra top gradiente vía `::before`, hover con elevación | Card de estadística |
+| `.metric-title` | Texto secundario, `font-weight: 600` | Etiqueta de la métrica |
+| `.metric-value` | `2.5rem`, azul, text-shadow glow | Número grande de la métrica |
+
+### 4.6 Paginación mensual
+
+| Clase | Efecto | Páginas que la usan |
+|---|---|---|
+| `.month-pagination` | Flexbox centrado, `gap: 1.5rem`, `margin: 1.5rem 0` | dashboard.html, dashboard-calculator.html, calcular-pago.html |
+| `.month-nav-btn` | Cuadrado azul 40×40px, hover oscurece + glow | Botones ← → |
+| `.month-label` | `min-width: 180px`, centrado, `font-weight: 600` | Texto "Mes Año" |
+
+### 4.7 Calculadora de medidor (`calculator-medidor.html`)
+
+| Clase | Efecto |
+|---|---|
+| `.calculator-container` | Tarjeta centrada `max-width: 600px` |
+| `.calculator-section` | Sección `main` — usa `.calculator-container` dentro de `.container` |
+| `.measurement-input` | `position: relative` para ubicar la unidad kWh |
+| `.measurement-unit` | "kWh" absoluto a la derecha del input |
+| `.photo-upload-container` | Grid de grupos de foto |
+| `.photo-upload-group` | Borde punteado → sólido verde con `.has-photo` |
+| `.upload-buttons` | Grid 2 col → 1 col en mobile |
+| `.upload-btn` | Outline azul → relleno en hover |
+| `.photo-preview` | `max-height: 200px`, `object-fit: cover` |
+| `.calculation-result` | Oculto por defecto; `.show` lo muestra con animación slide |
+| `.result-amount` | `2rem`, azul, `font-weight: 700` |
+| `.processing` | Opacidad 0.7, `pointer-events: none`, spinner `::after` |
+
+### 4.8 Modal
+
+| Clase | Efecto | Activación |
+|---|---|---|
+| `.modal` | `display: none`, overlay negro con blur | JS agrega `.show` |
+| `.modal.show` | `display: flex`, centrado, `fadeInModal` animación | `classList.add('show')` |
+| `.modal-content` | Tarjeta centrada `max-width: 400px` | — |
+| `.image-modal-content` | Variante para imágenes: `max-width: fit-content` | dashboard.html |
+| `.modal-image` | `max-width: 85vw, max-height: 80vh, object-fit: contain` | — |
+| `.close-modal-btn` | X circular absoluto top-right, rota 90° en hover | dashboard.html |
+| `.close-modal` | Clase para el botón de cierre en modal de calculadora | `margin-top: 1.5rem` |
+
+> **Dos patrones de cierre modal coexisten:**
+> - `dashboard.html` usa `.close-modal-btn` (X circular, `onclick="closeImageModal()"`)
+> - `calculator-medidor.html` usa `.close-modal` con clase CTA (`onclick="closeModal()"`)
+
+### 4.9 Login
+
+| Clase | Efecto | Nota |
+|---|---|---|
+| `.login` / `.login-page` | Sección centrada verticalmente, `padding-top: 120px` | Solo en `login.html` |
+| `.login-container` | `max-width: 420px` | — |
+| `.login-card` | Tarjeta blanca con `border-radius: 16px` | — |
+| `.login-form .cta-button` | Sobreescribe el CTA: sin animación, sin transform, fondo azul sólido | Intencional — evitar la animación pulse en login |
+
+### 4.10 Fotos de medidor (tablas admin)
+
+| Clase | Efecto |
+|---|---|
+| `.foto-medidor-preview` | Thumbnail 60×60px, `cursor: pointer`, escala en hover |
+| `.foto-ampliada` | Fixed, centrado con `translate(-50%,-50%)`, `z-index: 9999` |
+| `.sin-foto` | Estilo italic gris para celdas sin imagen |
+| `.imagen-error` | Rojo para errores de carga de imagen |
+
+### 4.11 Utilidades
+
+| Clase | Efecto |
+|---|---|
+| `.section-title` | `3rem`, gradiente text, `letter-spacing: -0.02em` |
+| `.section-subtitle` | `1.5rem`, morado (`--color-secondary`), centrado |
+| `.contact-subtitle` | `1.3rem`, centrado, texto secundario, `margin-bottom: 4rem` |
+| `.no-data-message` | Fondo gris degradado, borde punteado, centrado |
+| `.form-help` | `display: block`, texto gris pequeño debajo del input |
+| `.badge` / `.highlight` / `.alert` | Gradiente verde-dorado, texto blanco, mayúsculas |
+| `.status-badge` | Badge de estado, pill shape |
+| `.status-active` | Verde suave (`--color-accent`) |
+| `.consumo-cell` | Verde (`--color-accent`), `font-weight: 600` |
+| `.loading-spinner` | Spinner animado (contexto de overlay) o texto "Cargando…" |
+| `#loadingOverlay` | Full-screen overlay blanco con spinner, `z-index: 1000` |
+
+---
+
+## 5. Responsive — breakpoints definidos
+
+| Breakpoint | Cambios clave |
+|---|---|
+| `≤768px` | `.nav` stacks vertical; `.hero` 1 col; `.form-row` 1 col; `.data-table` convierte a cards; `.metrics-grid` 1 col; `.footer-centered` centra secciones; `.page-top-offset` sube a 140px |
+| `≤480px` | Tamaños de fuente reducidos; padding comprimido; `.page-top-offset` sube a 170px; `.login-form input` fija `font-size: 16px` (evita zoom iOS) |
+| `≥769px–1199px` | `.login` ajusta `padding-top: 8.5rem` |
+| `≥1200px` | `.login` ajusta `padding-top: 9rem` |
+| `height ≤600px` | `.login` `align-items: flex-start` |
+
+---
+
+## 6. Fuente externa
+
+Todas las páginas cargan Open Sans desde Google Fonts:
+
+```html
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+```
+
+> Si se cambia la fuente, actualizar también `--font-family` en `:root`.
+> `calculator-medidor.html` carga pesos adicionales (800, 900) que otras páginas no necesitan.
+
+---
+
+## 7. Dependencia externa única
+
+Solo `comprobante-pago.html` carga una librería de terceros:
+
+```html
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+```
+
+Usada para generar el PDF del comprobante. Sin esta librería `generarComprobante()` falla silenciosamente.
+
+---
+
+## 8. Patrones que pueden romperse fácilmente
+
+### 8.1 Acumulación de `.data-table` — hay dos definiciones
+
+El CSS define `.data-table` y `.table-container` **dos veces** (líneas ~1125 y ~1804). La segunda definición sobreescribe parcialmente a la primera. Si se edita una sola ocurrencia, el resultado puede ser inesperado.
+
+- Primera definición (línea ~1125): `thead th` con `color: var(--color-primary)`, fondo rgba; `tbody td` con bordes individuales.
+- Segunda definición (línea ~1804): `th` y `td` unificados, encabezados con `background: var(--bg-secondary)`.
+
+### 8.2 `.loading-spinner` — dos roles distintos
+
+- En `.login-form .cta-button`: spinner circular small (16px, `border-radius: 50%`, `animation: spin`).
+- Como componente global: texto "Cargando…" con `min-height: 200px`, sin borde circular.
+
+Ambos usan la misma clase. Cambiar `.loading-spinner` genéricamente puede afectar a ambos contextos.
+
+### 8.3 `.contact-form` con `transform: none !important`
+
+El formulario tiene múltiples reglas `!important` para anular transformaciones en hover. Esto fue agregado para evitar que la tarjeta se mueva cuando el usuario interactúa. **No agregar `transform` a `.contact-form` ni a sus hijos directos.**
+
+### 8.4 `.cta-button` y `animation: pulse-glow`
+
+El botón CTA pulsa por defecto. La página de login sobreescribe esto con `animation: none` dentro de `.login-form .cta-button`. Si se agrega un `.cta-button` en login sin ese contexto, pulsará.
+
+### 8.5 Tablas mobile — `data-label` obligatorio
+
+En mobile (`≤768px`) los `thead` se ocultan y el contenido se lee desde `td::before { content: attr(data-label) }`. Si se agrega una columna nueva sin el atributo `data-label` en el `<td>`, esa celda no tendrá etiqueta en mobile.
+
+### 8.6 Footer: `.footer-centered` vs `.footer-content`
+
+- `index.html` y `vouchers.html` usan footer con las 3 columnas (`.footer-content`).
+- Las páginas admin solo tienen `.footer-bottom` (copyright). Usan `.footer-centered`.
+- Mezclar ambos en la misma página puede producir un footer con columnas desalineadas en mobile.
+
+---
+
+## 10. Orden de carga de scripts (regla general)
+
+```html
+<script src="js/config.js"></script>   <!-- Siempre primero: define APP_CONFIG y CONFIG -->
+<script src="js/login.js"></script>    <!-- Segundo en páginas admin: expone requireAuth(), logout() -->
+<script src="js/[módulo].js"></script> <!-- Último: lógica de la página -->
+```
+
+> `vouchers.html` no carga `config.js` por separado — `vouchers.js` puede incluirlo internamente o asumir que no hay cambios de backend URL.

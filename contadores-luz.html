@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+	<title>Contadores de Luz - Hostal Mayelewoo</title>
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+	<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+	<header class="header">
+		<div class="container">
+			<div class="nav">
+				<h1 class="logo">Hostal Mayelewoo</h1>
+				<nav class="nav-menu">
+					<a href="index.html#inicio" class="nav-link">Inicio</a>
+				</nav>
+			</div>
+		</div>
+	</header>
+
+	<section class="contact page-top-offset">
+		<div class="container vouchers-center">
+			<h3 class="section-title">Medición de Contadores</h3>
+			<p class="contact-subtitle">Registra la lectura del medidor de tu habitación o apartamento</p>
+
+			<form id="contadorForm" class="contact-form" enctype="multipart/form-data" novalidate>
+				<div class="form-row">
+					<div class="form-group">
+						<label for="nombre">Nombre*</label>
+						<input type="text" id="nombre" name="nombre" autocomplete="given-name" required inputmode="text">
+					</div>
+					<div class="form-group">
+						<label for="apellido">Apellido*</label>
+						<input type="text" id="apellido" name="apellido" autocomplete="family-name" required inputmode="text">
+					</div>
+				</div>
+
+				<div class="form-row">
+					<div class="form-group">
+						<label for="dni">DNI*</label>
+						<input type="text" id="dni" name="dni" required inputmode="numeric" autocomplete="off" aria-describedby="dniHelp">
+					</div>
+					<div class="form-group">
+						<label for="numeroMedicion">Número de la medición*</label>
+						<input type="text" id="numeroMedicion" name="numeroMedicion" required inputmode="decimal" placeholder="0000.0" aria-describedby="medicionHelp">
+						<small id="medicionHelp" class="form-help">Ingresa la lectura actual del medidor (ej: 1234.5)</small>
+					</div>
+				</div>
+
+				<div class="form-group">
+					<label for="nroApartamento">Nro de habitación o apartamento*</label>
+					<input type="text" id="nroApartamento" name="nroApartamento" required inputmode="text" autocomplete="on">
+				</div>
+
+				<div class="form-group">
+					<label for="fotoMedidor">Foto del medidor*</label>
+					<input type="file" id="fotoMedidor" name="fotoMedidor" accept="image/*" aria-describedby="fotoHelp" required>
+					<small id="fotoHelp" class="form-help">Toma una foto clara del medidor donde se vea el número de medición. Tamaño máx. 5 MB.</small>
+				</div>
+
+				<input type="hidden" id="timestamp" name="timestamp" value="">
+
+				<button type="submit" class="submit-button" id="submitBtn">Enviar Medición</button>
+			</form>
+		</div>
+	</section>
+
+	<footer class="footer footer-centered">
+		<div class="container">
+			<div class="footer-content">
+				<div class="footer-section">
+					<h4>Hostal Mayelewoo</h4>
+					<p>Humberto Primo 3070<br>Córdoba, Argentina</p>
+				</div>
+				<div class="footer-section">
+					<h4>Contacto</h4>
+					<div class="contact-info">
+						<a href="index.html#contacto" class="contact-link whatsapp">
+							<span class="contact-icon">📱</span>
+							WhatsApp
+						</a>
+					</div>
+				</div>
+				<div class="footer-section">
+					<h4>Volver</h4>
+					<div class="social-links">
+						<a href="index.html#inicio" class="social-link" target="_self">
+							<span class="social-icon">🏠</span>
+							Inicio
+						</a>
+					</div>
+				</div>
+			</div>
+			<div class="footer-bottom">
+				<p>&copy; 2024 Hostal Mayelewoo. Todos los derechos reservados.</p>
+			</div>
+		</div>
+	</footer>
+
+	<script src="js/contadores-luz.js"></script>
+</body>
+</html>
