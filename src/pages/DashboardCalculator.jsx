@@ -1,9 +1,12 @@
 import { useEffect, useMemo, useState } from 'react';
 import AdminHeader from '../components/AdminHeader';
+import { DataTable, EmptyState, Td, Tr } from '../components/DataTable';
 import Footer from '../components/Footer';
-import Modal from '../components/Modal';
+import { Metric } from '../components/MetricCard';
+import Modal, { ModalTitle } from '../components/Modal';
+import MonthPager from '../components/MonthPager';
 import { ADMIN_NAV } from '../components/navLinks';
-import { PageSection, SectionSubtitle } from '../components/ui';
+import { cls, PageSection, SectionSubtitle } from '../components/ui';
 import { useAuth } from '../auth/useAuth';
 import {
   computeCalculoMetrics,
@@ -23,16 +26,23 @@ const PHOTO_KINDS = [
   { kind: 'actual', label: 'Medición Actual', missing: 'Sin foto act.' },
 ];
 
-const MODAL_IMAGE_STYLE = { width: '100%', borderRadius: '8px', marginTop: '1rem' };
+const COLUMNS = [
+  'Nombre',
+  'Apellido',
+  'DNI',
+  'Habitación',
+  'Medición Ant.',
+  'Medición Act.',
+  'Consumo (kWh)',
+  'Fecha',
+  'Fotos',
+];
 
-function MetricCard({ title, value }) {
-  return (
-    <div className="metric-card">
-      <h4 className="metric-title">{title}</h4>
-      <p className="metric-value">{value}</p>
-    </div>
-  );
-}
+const PHOTO =
+  'foto-medidor-preview size-[60px] cursor-pointer object-cover shadow-[0_2px_4px_rgba(0,0,0,0.1)] transition-all duration-300 ease-[ease] hover:scale-110 hover:border-current hover:shadow-[0_4px_12px_rgba(0,0,0,0.2)]';
+const PHOTO_OK = 'rounded-lg border-2 border-[#e9ecef]';
+const PHOTO_FAILED =
+  'imagen-error rounded-sm border border-[#f5c6cb] bg-[#f8d7da] px-2.5 py-1.5 text-center text-[0.8rem] text-[#dc3545] italic';
 
 /** Meter photo thumbnail; shows the error state when the image cannot be loaded. */
 function MeterPhoto({ src, alt, onOpen }) {
@@ -42,7 +52,7 @@ function MeterPhoto({ src, alt, onOpen }) {
     <img
       src={failed ? undefined : src}
       alt={failed ? 'Error al cargar' : alt}
-      className={failed ? 'foto-medidor-preview imagen-error' : 'foto-medidor-preview'}
+      className={cls(PHOTO, failed ? PHOTO_FAILED : PHOTO_OK)}
       onClick={onOpen}
       onError={() => setFailed(true)}
     />
@@ -51,17 +61,17 @@ function MeterPhoto({ src, alt, onOpen }) {
 
 function CalculoRow({ calculo, onOpenPhoto }) {
   return (
-    <tr>
-      <td>{calculo.nombre}</td>
-      <td>{calculo.apellido}</td>
-      <td>{calculo.dni}</td>
-      <td>{calculo.habitacion}</td>
-      <td>{formatDecimal1(calculo.medicionAnterior)}</td>
-      <td>{formatDecimal1(calculo.medicionActual)}</td>
-      <td className="consumo-cell">{formatDecimal1(calculo.consumoCalculado)}</td>
-      <td>{formatCalculoDate(calculo)}</td>
-      <td>
-        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+    <Tr>
+      <Td>{calculo.nombre}</Td>
+      <Td>{calculo.apellido}</Td>
+      <Td>{calculo.dni}</Td>
+      <Td>{calculo.habitacion}</Td>
+      <Td>{formatDecimal1(calculo.medicionAnterior)}</Td>
+      <Td>{formatDecimal1(calculo.medicionActual)}</Td>
+      <Td className="consumo-cell font-semibold">{formatDecimal1(calculo.consumoCalculado)}</Td>
+      <Td>{formatCalculoDate(calculo)}</Td>
+      <Td>
+        <div className="flex flex-wrap gap-2">
           {PHOTO_KINDS.map(({ kind, label, missing }) =>
             hasFoto(calculo, kind) ? (
               <MeterPhoto
@@ -76,14 +86,17 @@ function CalculoRow({ calculo, onOpenPhoto }) {
                 }
               />
             ) : (
-              <span key={kind} className="sin-foto">
+              <span
+                key={kind}
+                className="sin-foto min-w-20 rounded-md border border-[#e9ecef] bg-[#f8f9fa] px-3 py-2 text-center text-[0.9rem] text-muted italic"
+              >
                 {missing}
               </span>
             ),
           )}
         </div>
-      </td>
-    </tr>
+      </Td>
+    </Tr>
   );
 }
 
@@ -134,56 +147,30 @@ export default function DashboardCalculator() {
       <AdminHeader links={ADMIN_NAV['dashboard-calculator']} />
 
       <PageSection title="Calculadora de Medidor" subtitle="Gestión de cálculos de consumo eléctrico">
-        <div id="metricsCalculator" className="metrics-grid">
+        <div
+          id="metricsCalculator"
+          className="mt-8 mb-12 grid w-full grid-cols-[repeat(auto-fit,minmax(250px,1fr))] gap-4 px-4 tablet:grid-cols-2 tablet:px-0"
+        >
           {loaded && (
             <>
-              <MetricCard title="Total Registros" value={metrics.totalRegistros} />
-              <MetricCard title="Consumo Total" value={`${metrics.consumoTotal} kWh`} />
-              <MetricCard title="Promedio Consumo" value={`${metrics.promedioConsumo} kWh`} />
+              <Metric title="Total Registros" value={metrics.totalRegistros} />
+              <Metric title="Consumo Total" value={`${metrics.consumoTotal} kWh`} />
+              <Metric title="Promedio Consumo" value={`${metrics.promedioConsumo} kWh`} />
             </>
           )}
         </div>
 
-        <div className="month-pagination">
-          <button type="button" className="month-nav-btn" id="prevMonth" onClick={() => changeMonth(-1)}>
-            ←
-          </button>
-          <span className="month-label" id="currentMonthLabel">
-            {monthLabel}
-          </span>
-          <button type="button" className="month-nav-btn" id="nextMonth" onClick={() => changeMonth(1)}>
-            →
-          </button>
-        </div>
+        <MonthPager label={monthLabel} onChange={changeMonth} />
 
         <SectionSubtitle>Registro de cálculos</SectionSubtitle>
         {isEmpty ? (
-          <div id="noDataMessage" className="no-data-message">
-            <p>No hay registros de cálculos disponibles</p>
-          </div>
+          <EmptyState id="noDataMessage">No hay registros de cálculos disponibles</EmptyState>
         ) : (
-          <div className="table-container">
-            <table className="data-table" id="calculatorTable">
-              <thead>
-                <tr>
-                  <th>Nombre</th>
-                  <th>Apellido</th>
-                  <th>DNI</th>
-                  <th>Habitación</th>
-                  <th>Medición Ant.</th>
-                  <th>Medición Act.</th>
-                  <th>Consumo (kWh)</th>
-                  <th>Fecha</th>
-                  <th>Fotos</th>
-                </tr>
-              </thead>
-              <tbody id="calculatorTableBody">
-                {monthCalculos.map((calculo, index) => (
-                  <CalculoRow key={calculo._id ?? index} calculo={calculo} onOpenPhoto={setPhoto} />
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <DataTable id="calculatorTable" bodyId="calculatorTableBody" columns={COLUMNS}>
+            {monthCalculos.map((calculo, index) => (
+              <CalculoRow key={calculo._id ?? index} calculo={calculo} onOpenPhoto={setPhoto} />
+            ))}
+          </DataTable>
         )}
       </PageSection>
 
@@ -191,10 +178,10 @@ export default function DashboardCalculator() {
         <span className="close-modal" onClick={() => setPhoto(null)}>
           &times;
         </span>
-        <h3 className="modal-title" id="imageModalTitle">
+        <ModalTitle as="h3" id="imageModalTitle">
           {photo ? photo.title : 'Foto del Medidor'}
-        </h3>
-        <img id="modalImage" src={photo?.url} alt="Foto ampliada" style={MODAL_IMAGE_STYLE} />
+        </ModalTitle>
+        <img id="modalImage" className="mt-4 w-full rounded-lg" src={photo?.url} alt="Foto ampliada" />
       </Modal>
 
       <div

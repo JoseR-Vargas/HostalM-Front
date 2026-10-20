@@ -121,7 +121,7 @@ describe('DashboardCalculator', () => {
       '10.5',
       now.toLocaleDateString('es-AR'),
     ]);
-    expect(rows(container)[0].querySelectorAll('td')[6].className).toBe('consumo-cell');
+    expect(rows(container)[0].querySelectorAll('td')[6].classList.contains('consumo-cell')).toBe(true);
   });
 
   it('shows the empty state instead of the table when the month has no records', async () => {

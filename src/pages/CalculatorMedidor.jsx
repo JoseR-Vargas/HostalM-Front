@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import Modal from '../components/Modal';
+import Modal, { ModalTitle } from '../components/Modal';
 import PublicHeader from '../components/PublicHeader';
 import { Banner, Button, Field, SectionSubtitle, SectionTitle, cls } from '../components/ui';
 import { validateMeterPhoto } from '../lib/files';
@@ -305,7 +305,7 @@ export default function CalculatorMedidor() {
       </main>
 
       <Modal id="resultModal" open={modalOpen}>
-        <div className="modal-title">✅ Datos enviados correctamente</div>
+        <ModalTitle>✅ Datos enviados correctamente</ModalTitle>
         <p>Consumo calculado:</p>
         <div className="my-4 text-[2.5rem] font-extrabold text-primary" id="modalAmount">
           {formatKwh(resultKwh ?? 0)}
@@ -313,7 +313,7 @@ export default function CalculatorMedidor() {
         <p>
           <strong>Fecha tope de pago 05 de cada mes</strong>
         </p>
-        <Button className="close-modal" onClick={() => setResultKwh(null)}>
+        <Button className="close-modal mt-6" onClick={() => setResultKwh(null)}>
           Cerrar
         </Button>
       </Modal>

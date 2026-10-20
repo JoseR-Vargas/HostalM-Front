@@ -206,7 +206,7 @@ describe('CalcularPago step 2', () => {
     expect(container.querySelector('#residentePrecioKwhDisplay').textContent).toBe('$444,44');
     // 100 kWh x (200000 / 450) = 44444.44...
     expect(container.querySelector('#residenteTotalDisplay').textContent).toBe('$44.444,44');
-    expect(container.querySelector('#residenteTotalDisplay').className).toBe('result-amount');
+    expect(container.querySelector('#residenteTotalDisplay').classList.contains('result-amount')).toBe(true);
     expect(rows(container)[1].style.backgroundColor).not.toBe('');
     expect(rows(container)[1].style.borderLeft).toContain('3px solid');
     expect(rows(container)[0].style.backgroundColor).toBe('');

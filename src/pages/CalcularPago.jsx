@@ -1,6 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import AdminHeader from '../components/AdminHeader';
+import { DataTable, Td, Tr } from '../components/DataTable';
 import Footer from '../components/Footer';
+import { MetricCard } from '../components/MetricCard';
+import MonthPager from '../components/MonthPager';
 import { ADMIN_NAV } from '../components/navLinks';
 import { Button, Field, FormCard, FormRow, PageSection, SectionSubtitle } from '../components/ui';
 import { useAuth } from '../auth/useAuth';
@@ -22,31 +25,13 @@ const KWH_ERROR = 'Ingresá los kWh totales de la factura (mayor a cero)';
 const NOT_AUTHENTICATED_MESSAGE = 'No estás autenticado. Por favor, iniciá sesión nuevamente.';
 const LOAD_ERROR_MESSAGE = 'No se pudo cargar la lista de residentes. Verificá tu conexión e intentá de nuevo.';
 
-const READONLY_INPUT_STYLE = { background: 'var(--background-image-soft)', cursor: 'default' };
-const STEP2_STYLE = {
-  width: '100%',
-  maxWidth: '950px',
-  marginTop: '1.5rem',
-  background: 'var(--background-image-card)',
-  border: '1px solid var(--color-border)',
-  borderRadius: '12px',
-  boxShadow: 'var(--shadow-card)',
-  padding: '2.5rem',
-};
-const MUTED_BLOCK_STYLE = { textAlign: 'center', padding: '2rem', color: 'var(--color-muted)' };
-const ERROR_BLOCK_STYLE = {
-  padding: '1rem',
-  background: '#FFF5F5',
-  border: '1px solid #FC8181',
-  borderRadius: '8px',
-  color: '#C53030',
-  margin: '1rem 0',
-};
-const SELECT_BUTTON_STYLE = { padding: '0.5rem 1rem', fontSize: '0.85rem', animation: 'none' };
+const COLUMNS = ['Nombre', 'Apellido', 'Habitación', 'Consumo (kWh)', 'Acción'];
+const MONTH_IDS = { prev: 'btnMesAnterior', label: 'residentesMonthLabel', next: 'btnMesSiguiente' };
 const SELECTED_ROW_STYLE = {
   backgroundColor: 'rgba(43, 108, 176, 0.1)',
   borderLeft: '3px solid var(--color-primary)',
 };
+const DETAIL = 'text-[0.95rem] text-muted';
 
 export default function CalcularPago() {
   const { token } = useAuth();
@@ -181,7 +166,7 @@ export default function CalcularPago() {
               type="text"
               readOnly
               placeholder="—"
-              style={READONLY_INPUT_STYLE}
+              controlClass="cursor-default bg-soft"
               value={precioKwh === null ? '' : formatMoney(precioKwh)}
             />
             <div className="mb-8 flex items-end">
@@ -193,112 +178,88 @@ export default function CalcularPago() {
         </FormCard>
 
         {step2Visible && (
-          <div id="step2Section" style={STEP2_STYLE}>
+          <div
+            id="step2Section"
+            className="mt-6 w-full max-w-[950px] rounded-xl border border-border bg-card p-10 shadow-card"
+          >
             <SectionSubtitle>Paso 2 — Residentes del mes</SectionSubtitle>
 
-            <div className="month-pagination">
-              <button type="button" className="month-nav-btn" id="btnMesAnterior" onClick={() => handleChangeMonth(-1)}>
-                ←
-              </button>
-              <span className="month-label" id="residentesMonthLabel">
-                {monthLabel}
-              </span>
-              <button type="button" className="month-nav-btn" id="btnMesSiguiente" onClick={() => handleChangeMonth(1)}>
-                →
-              </button>
-            </div>
+            <MonthPager label={monthLabel} onChange={handleChangeMonth} ids={MONTH_IDS} />
 
             {status === 'loading' && (
-              <div id="residentesLoading" style={MUTED_BLOCK_STYLE}>
+              <div id="residentesLoading" className="p-8 text-center text-muted">
                 Cargando residentes...
               </div>
             )}
 
             {status === 'error' && (
-              <div id="residentesError" style={ERROR_BLOCK_STYLE}>
+              <div
+                id="residentesError"
+                className="my-4 rounded-lg border border-[#fc8181] bg-[#fff5f5] p-4 text-[#c53030]"
+              >
                 <p id="residentesErrorMsg">{errorMessage}</p>
               </div>
             )}
 
             {status === 'loaded' && residents.length > 0 && (
-              <div id="residentesTableContainer" className="table-container">
-                <table className="data-table" id="residentesTable">
-                  <thead>
-                    <tr>
-                      <th>Nombre</th>
-                      <th>Apellido</th>
-                      <th>Habitación</th>
-                      <th>Consumo (kWh)</th>
-                      <th>Acción</th>
-                    </tr>
-                  </thead>
-                  <tbody id="residentesTableBody">
-                    {residents.map((resident) => (
-                      <tr
-                        key={resident.habitacion}
-                        id={`fila-${resident.habitacion}`}
-                        style={resident.habitacion === selectedHabitacion ? SELECTED_ROW_STYLE : undefined}
+              <DataTable
+                containerId="residentesTableContainer"
+                id="residentesTable"
+                bodyId="residentesTableBody"
+                columns={COLUMNS}
+              >
+                {residents.map((resident) => (
+                  <Tr
+                    key={resident.habitacion}
+                    id={`fila-${resident.habitacion}`}
+                    style={resident.habitacion === selectedHabitacion ? SELECTED_ROW_STYLE : undefined}
+                  >
+                    <Td>{resident.nombre}</Td>
+                    <Td>{resident.apellido}</Td>
+                    <Td>{resident.habitacion}</Td>
+                    <Td>{formatDecimal1(resident.consumoCalculado)} kWh</Td>
+                    <Td>
+                      {/* Compact: the important modifiers beat the Button's own padding, size and pulse. */}
+                      <Button
+                        type="button"
+                        className="animate-none! px-4! py-2! text-[0.85rem]!"
+                        onClick={() => handleSelect(resident.habitacion)}
                       >
-                        <td>{resident.nombre}</td>
-                        <td>{resident.apellido}</td>
-                        <td>{resident.habitacion}</td>
-                        <td>{formatDecimal1(resident.consumoCalculado)} kWh</td>
-                        <td>
-                          <Button
-                            type="button"
-                            style={SELECT_BUTTON_STYLE}
-                            onClick={() => handleSelect(resident.habitacion)}
-                          >
-                            Seleccionar
-                          </Button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                        Seleccionar
+                      </Button>
+                    </Td>
+                  </Tr>
+                ))}
+              </DataTable>
             )}
 
             {status === 'loaded' && residents.length === 0 && (
-              <div id="residentesEmpty" style={MUTED_BLOCK_STYLE}>
+              <div id="residentesEmpty" className="p-8 text-center text-muted">
                 <p>No hay registros de consumo para este mes.</p>
               </div>
             )}
 
             {selectedResident && precioKwh !== null && (
-              <div id="residenteSeleccionado" style={{ marginTop: '2rem' }}>
+              <div id="residenteSeleccionado" className="mt-8">
                 <SectionSubtitle>Resultado</SectionSubtitle>
-                <div className="metric-card" style={{ maxWidth: '500px', margin: '0 auto', textAlign: 'center' }}>
-                  <p
-                    id="residenteNombreDisplay"
-                    style={{
-                      fontSize: '1.1rem',
-                      fontWeight: 600,
-                      color: 'var(--color-ink)',
-                      marginBottom: '0.25rem',
-                    }}
-                  >
+                <MetricCard className="mx-auto max-w-[500px]">
+                  <p id="residenteNombreDisplay" className="mb-1 text-[1.1rem] font-semibold text-ink">
                     {`${selectedResident.nombre} ${selectedResident.apellido}`}
                   </p>
-                  <p
-                    id="residenteHabitacionDisplay"
-                    style={{ fontSize: '0.95rem', color: 'var(--color-muted)', marginBottom: '1rem' }}
-                  >
+                  <p id="residenteHabitacionDisplay" className={`mb-4 ${DETAIL}`}>
                     {`Habitación: ${selectedResident.habitacion}`}
                   </p>
-                  <p style={{ fontSize: '0.95rem', color: 'var(--color-muted)' }}>
+                  <p className={DETAIL}>
                     Consumo: <strong id="residenteConsumoDisplay">{`${formatDecimal1(selectedResident.consumoCalculado)} kWh`}</strong>
                   </p>
-                  <p style={{ fontSize: '0.95rem', color: 'var(--color-muted)', marginTop: '0.25rem' }}>
+                  <p className={`mt-1 ${DETAIL}`}>
                     Precio kWh: <strong id="residentePrecioKwhDisplay">{`$${formatMoney(precioKwh)}`}</strong>
                   </p>
-                  <p className="result-amount" id="residenteTotalDisplay" style={{ marginTop: '1rem' }}>
+                  <p id="residenteTotalDisplay" className="result-amount mt-4 mb-2 text-[2rem] font-bold text-primary">
                     {`$${formatMoney(calcularTotalAPagar(selectedResident.consumoCalculado, precioKwh))}`}
                   </p>
-                  <p style={{ fontSize: '0.85rem', color: 'var(--color-muted)', marginTop: '0.25rem' }}>
-                    Total a Pagar
-                  </p>
-                </div>
+                  <p className="mt-1 text-[0.85rem] text-muted">Total a Pagar</p>
+                </MetricCard>
               </div>
             )}
           </div>

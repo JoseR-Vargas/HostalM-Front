@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
 import AdminHeader from '../components/AdminHeader';
+import { DataTable, EmptyState, Td, Tr } from '../components/DataTable';
 import Footer from '../components/Footer';
 import Modal from '../components/Modal';
+import MonthPager from '../components/MonthPager';
 import { ADMIN_NAV } from '../components/navLinks';
 import { PageSection, SectionSubtitle } from '../components/ui';
 import { getVouchersBase } from '../lib/apiConfig';
@@ -14,14 +16,12 @@ import {
   normalizeVoucherFiles,
 } from '../lib/voucherDashboard';
 
-const THUMBNAIL_STYLE = {
-  width: '40px',
-  height: '40px',
-  objectFit: 'cover',
-  borderRadius: '4px',
-  cursor: 'pointer',
-  border: '1px solid #ccc',
-};
+const COLUMNS = ['Nombre', 'DNI', 'Email', 'Ref 4', 'Hab/Apto', 'Monto', 'Fecha', 'Archivos'];
+
+const IMAGE_BOX =
+  'relative flex w-[90%] max-h-fit max-w-fit flex-col items-center justify-center rounded-xl border border-border bg-white p-8 text-center shadow-[0_20px_60px_rgba(0,0,0,0.4)] tablet:m-4 tablet:max-h-[95vh] tablet:max-w-[95vw] tablet:p-4';
+const CLOSE_BUTTON =
+  'close-modal-btn absolute top-2 right-2 z-10001 flex size-10 cursor-pointer items-center justify-center rounded-full border-2 border-border bg-white text-[2rem] leading-none font-bold text-ink shadow-[0_2px_8px_rgba(0,0,0,0.2)] transition-all duration-300 ease-[ease] hover:scale-110 hover:rotate-90 hover:border-primary hover:bg-primary hover:text-white hover:shadow-[0_6px_24px_rgba(43,108,176,0.6)] tablet:top-1 tablet:right-1 tablet:size-[35px] tablet:text-[1.75rem]';
 
 function fileLabel(file, index) {
   return file.name || `Archivo ${index + 1}`;
@@ -33,13 +33,14 @@ function ImageThumbnail({ file, index, onOpen }) {
   const name = file.name || `Imagen ${index + 1}`;
 
   return (
-    <div style={{ display: 'inline-block', margin: '2px' }}>
+    <div className="m-0.5 inline-block">
       <img
         src={file.url}
         alt={name}
         title="Clic para ver completa"
         loading="lazy"
-        style={{ ...THUMBNAIL_STYLE, display: failed ? 'none' : undefined }}
+        className="size-10 cursor-pointer rounded-sm border border-[#ccc] object-cover"
+        style={failed ? { display: 'none' } : undefined}
         onClick={() => onOpen(file.url, name)}
         onError={() => setFailed(true)}
       />
@@ -59,7 +60,7 @@ function FileLink({ file, index }) {
       download={file.name || ''}
       target={file.url ? '_blank' : '_self'}
       rel="noopener"
-      style={{ margin: '0 5px' }}
+      className="mx-[5px]"
     >
       {fileLabel(file, index)}
     </a>
@@ -68,17 +69,24 @@ function FileLink({ file, index }) {
 
 function VoucherRow({ voucher, vouchersBase, onOpenImage }) {
   const files = normalizeVoucherFiles(voucher, vouchersBase);
+  const values = [
+    `${voucher.nombre || ''} ${voucher.apellido || ''}`.trim(),
+    voucher.dni || '—',
+    voucher.email || '—',
+    voucher.ref4 || '—',
+    voucher.hab || '—',
+    voucher.monto || '—',
+    formatVoucherDate(voucher),
+  ];
 
   return (
-    <tr>
-      <td data-label="Nombre">{`${voucher.nombre || ''} ${voucher.apellido || ''}`.trim()}</td>
-      <td data-label="DNI">{voucher.dni || '—'}</td>
-      <td data-label="Email">{voucher.email || '—'}</td>
-      <td data-label="Ref 4">{voucher.ref4 || '—'}</td>
-      <td data-label="Hab/Apto">{voucher.hab || '—'}</td>
-      <td data-label="Monto">{voucher.monto || '—'}</td>
-      <td data-label="Fecha">{formatVoucherDate(voucher)}</td>
-      <td data-label="Archivos">
+    <Tr>
+      {values.map((value, index) => (
+        <Td key={COLUMNS[index]} label={COLUMNS[index]}>
+          {value}
+        </Td>
+      ))}
+      <Td label="Archivos">
         {files.length === 0
           ? '—'
           : files.map((file, index) =>
@@ -88,8 +96,27 @@ function VoucherRow({ voucher, vouchersBase, onOpenImage }) {
                 <FileLink key={index} file={file} index={index} />
               ),
             )}
-      </td>
-    </tr>
+      </Td>
+    </Tr>
+  );
+}
+
+function ImageModal({ image, onClose }) {
+  return (
+    <Modal id="imageModal" open={image !== null} onBackdropClick={onClose} contentClassName={IMAGE_BOX}>
+      <span className={CLOSE_BUTTON} onClick={onClose}>
+        &times;
+      </span>
+      <img
+        id="modalImage"
+        className="block h-auto max-h-[80vh] w-auto max-w-[85vw] rounded-lg object-contain tablet:max-h-[75vh] tablet:max-w-[90vw]"
+        src={image?.url}
+        alt="Vista completa"
+      />
+      <p id="modalImageName" className="mt-6 text-[1.1rem] font-semibold text-primary tablet:mt-4 tablet:text-[0.95rem]">
+        {image ? image.name || 'Imagen' : ''}
+      </p>
+    </Modal>
   );
 }
 
@@ -122,69 +149,30 @@ export default function Dashboard() {
       <AdminHeader links={ADMIN_NAV.dashboard} />
 
       <PageSection title="Dashboard Administrativo" subtitle="Gestión de datos de usuarios">
-        <div className="month-pagination">
-          <button type="button" className="month-nav-btn" id="prevMonth" onClick={() => changeMonth(-1)}>
-            ←
-          </button>
-          <span className="month-label" id="currentMonthLabel">
-            {monthLabel}
-          </span>
-          <button type="button" className="month-nav-btn" id="nextMonth" onClick={() => changeMonth(1)}>
-            →
-          </button>
-        </div>
+        <MonthPager label={monthLabel} onChange={changeMonth} />
 
         <SectionSubtitle>Datos de Usuarios Registrados</SectionSubtitle>
         {loadFailed ? (
-          <div id="vouchersLoadError" className="no-data-message" role="alert">
-            <p>No se pudieron cargar los comprobantes.</p>
-          </div>
+          <EmptyState id="vouchersLoadError" role="alert">
+            No se pudieron cargar los comprobantes.
+          </EmptyState>
         ) : (
-          <div className="table-container">
-            <table className="data-table" id="voucherTable">
-              <thead>
-                <tr>
-                  <th>Nombre</th>
-                  <th>DNI</th>
-                  <th>Email</th>
-                  <th>Ref 4</th>
-                  <th>Hab/Apto</th>
-                  <th>Monto</th>
-                  <th>Fecha</th>
-                  <th>Archivos</th>
-                </tr>
-              </thead>
-              <tbody id="voucherTableBody">
-                {monthVouchers.map((voucher, index) => (
-                  <VoucherRow
-                    key={voucher._id ?? index}
-                    voucher={voucher}
-                    vouchersBase={vouchersBase}
-                    onOpenImage={(url, name) => setImage({ url, name })}
-                  />
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <DataTable id="voucherTable" bodyId="voucherTableBody" columns={COLUMNS}>
+            {monthVouchers.map((voucher, index) => (
+              <VoucherRow
+                key={voucher._id ?? index}
+                voucher={voucher}
+                vouchersBase={vouchersBase}
+                onOpenImage={(url, name) => setImage({ url, name })}
+              />
+            ))}
+          </DataTable>
         )}
       </PageSection>
 
       <Footer />
 
-      <Modal
-        id="imageModal"
-        open={image !== null}
-        onBackdropClick={() => setImage(null)}
-        contentClassName="image-modal-content"
-      >
-        <span className="close-modal-btn" onClick={() => setImage(null)}>
-          &times;
-        </span>
-        <img id="modalImage" className="modal-image" src={image?.url} alt="Vista completa" />
-        <p id="modalImageName" className="modal-image-name">
-          {image ? image.name || 'Imagen' : ''}
-        </p>
-      </Modal>
+      <ImageModal image={image} onClose={() => setImage(null)} />
     </>
   );
 }
