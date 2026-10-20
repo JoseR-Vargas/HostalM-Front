@@ -8,6 +8,8 @@ const VIEWPORTS = [
 ];
 
 const MIN_TARGET_PX = 24; // WCAG 2.2 SC 2.5.8
+const MIN_ARROW_PX = 40; // month arrows are the primary controls of their card
+const MAX_HEADER_RATIO = 0.3; // the fixed header may take at most ~30% of the viewport height
 
 const VOUCHERS = [
   {
@@ -72,11 +74,8 @@ const PAGES = [
       await expect(page.locator('#residenteSeleccionado')).toBeVisible();
     },
     extraButtons: [
-      // KNOWN DEFECT: inside the padded "Paso 2" card the month arrows shrink to ~19px wide on
-      // phones (below the 24px WCAG minimum). The design is kept as is, so only a 16px floor is
-      // enforced here.
-      { selector: '#btnMesAnterior', minSize: 16 },
-      { selector: '#btnMesSiguiente', minSize: 16 },
+      { selector: '#btnMesAnterior', minSize: MIN_ARROW_PX },
+      { selector: '#btnMesSiguiente', minSize: MIN_ARROW_PX },
       '#residentesTableBody button',
     ],
   },
@@ -111,6 +110,14 @@ async function expectNoHorizontalOverflow(page) {
     widths.viewport + 1,
   );
   expect(widths.body, 'body wider than the viewport').toBeLessThanOrEqual(widths.viewport + 1);
+}
+
+/** The fixed header must leave room for the page: at most ~30% of the viewport height. */
+async function expectCompactHeader(page, viewportHeight) {
+  const height = await page.locator('header.header').evaluate((element) => element.getBoundingClientRect().height);
+  expect(height / viewportHeight, `fixed header takes ${Math.round(height)}px of ${viewportHeight}px`).toBeLessThanOrEqual(
+    MAX_HEADER_RATIO,
+  );
 }
 
 /** Visible, inside the viewport, big enough and not covered by anything else. */
@@ -160,6 +167,7 @@ for (const viewport of VIEWPORTS) {
         await pageDef.run?.(page);
 
         await expectNoHorizontalOverflow(page);
+        await expectCompactHeader(page, viewport.height);
 
         for (const entry of [...pageDef.buttons, ...(pageDef.extraButtons ?? [])]) {
           const { selector, minSize } = typeof entry === 'string' ? { selector: entry } : entry;

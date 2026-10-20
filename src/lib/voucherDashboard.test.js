@@ -5,7 +5,6 @@ import {
   formatVoucherDate,
   isImageFile,
   normalizeVoucherFiles,
-  readPendingVouchers,
 } from './voucherDashboard';
 
 const BASE = 'https://vouchers.example.com';
@@ -107,22 +106,6 @@ describe('normalizeVoucherFiles', () => {
   });
 });
 
-describe('readPendingVouchers', () => {
-  it('reads the snapshots saved by the voucher form', () => {
-    const snapshot = { nombre: 'Ana', files: [{ name: 'a.png', size: 1, type: 'image/png' }] };
-    localStorage.setItem('pendingVouchers', JSON.stringify([snapshot]));
-    expect(readPendingVouchers()).toEqual([snapshot]);
-  });
-
-  it('returns an empty list when missing, corrupt or not an array', () => {
-    expect(readPendingVouchers()).toEqual([]);
-    localStorage.setItem('pendingVouchers', '{oops');
-    expect(readPendingVouchers()).toEqual([]);
-    localStorage.setItem('pendingVouchers', '{"a":1}');
-    expect(readPendingVouchers()).toEqual([]);
-  });
-});
-
 describe('fetchVouchers', () => {
   it('GETs /api/vouchers on the vouchers backend without an auth header and unwraps data', async () => {
     const fetchMock = vi.fn().mockResolvedValue(json({ success: true, data: [{ nombre: 'Ana' }] }));
@@ -141,16 +124,16 @@ describe('fetchVouchers', () => {
     await expect(fetchVouchers()).resolves.toEqual([{ nombre: 'Ana' }]);
   });
 
-  it('falls back to the pending vouchers when the request fails', async () => {
+  it('rejects when the request fails, with no local fallback', async () => {
     localStorage.setItem('pendingVouchers', JSON.stringify([{ nombre: 'Local' }]));
     vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new TypeError('network')));
-    await expect(fetchVouchers()).resolves.toEqual([{ nombre: 'Local' }]);
+    await expect(fetchVouchers()).rejects.toThrow('network');
   });
 
-  it('falls back on a non-2xx status', async () => {
+  it('rejects on a non-2xx status, with no local fallback', async () => {
     localStorage.setItem('pendingVouchers', JSON.stringify([{ nombre: 'Local' }]));
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(json({}, 500)));
-    await expect(fetchVouchers()).resolves.toEqual([{ nombre: 'Local' }]);
+    await expect(fetchVouchers()).rejects.toThrow('HTTP 500');
   });
 
   it('returns an empty list when the payload is not an array', async () => {

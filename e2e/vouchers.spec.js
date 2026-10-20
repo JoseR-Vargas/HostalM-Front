@@ -180,35 +180,41 @@ test.describe('vouchers (public upload)', () => {
     { title: 'an unreachable server', response: { abort: 'failed' } },
   ];
 
+  const FAILURE_MESSAGE = 'No se pudo enviar el comprobante. Revisá tu conexión e intentá nuevamente.';
+
   for (const { title, response } of SERVER_FAILURES) {
-    test(`${title} still shows the success banner and keeps the voucher locally`, async ({ page, mock }) => {
+    test(`${title} shows an error banner, keeps the form and stores nothing locally`, async ({ page, mock }) => {
       mock.on('POST', '/api/vouchers', response);
       await page.goto('/vouchers');
       const data = await fillVoucher(page, {}, [fakePng('comprobante-1.png')]);
       await page.locator('#submitBtn').click();
 
-      await expect(banner(page)).toHaveText('Guardado localmente. Se enviará cuando el backend esté disponible.');
+      await expect(banner(page)).toHaveText(FAILURE_MESSAGE);
+      await expect(banner(page)).toHaveCSS('background-color', 'rgb(254, 215, 215)');
       await expect(page.locator('#submitBtn')).toHaveText('Enviar Voucher');
       await expect(page.locator('#submitBtn')).toBeEnabled();
-      // The form is NOT reset on failure: the user keeps what was typed.
-      await expect(page.locator('#nombre')).toHaveValue(data.nombre);
-
-      const [saved] = await pendingVouchers(page);
-      expect(await pendingVouchers(page)).toHaveLength(1);
-      expect(saved).toMatchObject(data);
-      expect(saved.files).toEqual([{ name: 'comprobante-1.png', size: fakePng().buffer.length, type: 'image/png' }]);
-      expect(saved.timestamp).toBe('2026-03-15T15:00:00.000Z');
+      // The form is NOT reset on failure: the user keeps what was typed and the selected file.
+      for (const [field, value] of Object.entries(data)) {
+        await expect(page.locator(`#${field}`)).toHaveValue(value);
+      }
+      expect(await page.locator('#fotos').evaluate((input) => input.files.length)).toBe(1);
+      expect(await pendingVouchers(page)).toEqual([]);
     });
   }
 
-  test('failed vouchers pile up in the local queue', async ({ page, mock }) => {
+  test('after a failure the user can retry with the same data and it succeeds', async ({ page, mock }) => {
     mock.on('POST', '/api/vouchers', { status: 503, json: {} });
     await page.goto('/vouchers');
     await fillVoucher(page);
+    await page.locator('#submitBtn').click();
+    await expect(banner(page)).toHaveText(FAILURE_MESSAGE);
 
+    mock.on('POST', '/api/vouchers', { json: { success: true } });
     await page.locator('#submitBtn').click();
-    await expect(banner(page)).toContainText('Guardado localmente');
-    await page.locator('#submitBtn').click();
-    await expect.poll(async () => (await pendingVouchers(page)).length).toBe(2);
+    await expect(banner(page)).toHaveText('¡Voucher enviado correctamente!');
+    expect(mock.calls('POST', '/api/vouchers')).toHaveLength(2);
+    expect(fileParts(mock.calls('POST', '/api/vouchers')[1].multipart)).toHaveLength(1);
+    expect(await pendingVouchers(page)).toEqual([]);
+    await expect(page.locator('#nombre')).toHaveValue('');
   });
 });

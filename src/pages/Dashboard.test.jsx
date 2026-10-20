@@ -162,21 +162,23 @@ describe('Dashboard', () => {
     await waitFor(() => expect(rows(container)).toHaveLength(2));
   });
 
-  it('falls back to the pending vouchers saved by the public form when the request fails', async () => {
-    localStorage.setItem(
-      'pendingVouchers',
-      JSON.stringify([
-        { ...ana, nombre: 'Local', files: [{ name: 'a.png', size: 10, type: 'image/png' }] },
-      ]),
-    );
+  it('shows an error state instead of the table when the vouchers cannot be loaded (no local fallback)', async () => {
+    localStorage.setItem('pendingVouchers', JSON.stringify([{ ...ana, nombre: 'Local' }]));
     vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new TypeError('offline')));
     const { container } = renderPage();
-    await loaded(container);
 
-    expect(cells(rows(container)[0])[0]).toBe('Local Pérez');
-    // snapshots have no url: no thumbnail, just the file name
-    expect(rows(container)[0].querySelector('img')).toBeNull();
-    expect(rows(container)[0].querySelector('a').textContent).toBe('a.png');
+    await waitFor(() => expect(container.querySelector('#vouchersLoadError')).not.toBeNull());
+    expect(container.querySelector('#vouchersLoadError').textContent).toBe(
+      'No se pudieron cargar los comprobantes.',
+    );
+    expect(container.querySelector('#voucherTable')).toBeNull();
+    expect(container.textContent).not.toContain('Local');
+  });
+
+  it('shows the error state on a non-2xx response', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(json({}, 500)));
+    const { container } = renderPage();
+    await waitFor(() => expect(container.querySelector('#vouchersLoadError')).not.toBeNull());
   });
 
   it('pages through the months', async () => {

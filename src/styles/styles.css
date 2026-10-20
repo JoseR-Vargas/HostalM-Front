@@ -883,6 +883,17 @@ a:hover {
 	
 	.nav {
 		padding: 0 10px;
+		gap: 0.4rem;
+	}
+	
+	/* Compact nav on narrow phones: keep every link reachable without a tall header */
+	.nav-menu {
+		gap: 0.1rem 0.9rem;
+	}
+	
+	.nav-link {
+		padding: 0.3rem 0;
+		font-size: 0.9rem;
 	}
 	
 	.logo {
@@ -1434,6 +1445,7 @@ a:hover {
 }
 
 .month-nav-btn {
+	flex-shrink: 0;
 	background: var(--color-primary);
 	color: #fff;
 	border: none;
@@ -1459,6 +1471,18 @@ a:hover {
 	color: var(--text-primary);
 	min-width: 180px;
 	text-align: center;
+}
+
+/* Narrow cards (e.g. "Paso 2" of calcular-pago): the arrows keep 40px, the label gives way */
+@media (max-width: 480px) {
+	.month-pagination {
+		gap: 0.75rem;
+	}
+
+	.month-label {
+		min-width: 0;
+		font-size: 1.05rem;
+	}
 }
 
 /* Estilos para las fotos del medidor */
@@ -1647,6 +1671,13 @@ a:hover {
 
 .logout-btn:hover {
 	background-color: #B7791F;
+}
+
+@media (max-width: 480px) {
+	.logout-btn {
+		padding: 0.35rem 0.8rem;
+		font-size: 0.85rem;
+	}
 }
 
 /* ==================== DASHBOARD STYLES ==================== */

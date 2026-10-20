@@ -138,8 +138,13 @@ describe('voucher amount validation', () => {
     ]);
   });
 
-  it('keeps the numeric check that strips every dot (decimal comma becomes a dot first)', () => {
-    // "500,50" -> "500.50" -> "50050" >= 1000, so only the format check applies and it passes.
-    expect(validateVoucherAmount('500,50')).toEqual([]);
+  it('parses the Argentine format: a decimal comma is a decimal, so 500,50 is under the minimum', () => {
+    const minimumError = 'Por favor, coloque el monto completo (ejemplo: 50.000, 100.000, 200.000)';
+    expect(validateVoucherAmount('500,50')).toEqual([minimumError]);
+    expect(validateVoucherAmount('999,99')).toEqual([minimumError]);
+  });
+
+  it.each(['1.000', '1.000,50', '12.500', '10.000,5'])('still accepts %s', (amount) => {
+    expect(validateVoucherAmount(amount)).toEqual([]);
   });
 });

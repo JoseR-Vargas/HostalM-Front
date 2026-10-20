@@ -174,41 +174,33 @@ test.describe('admin dashboard (vouchers)', () => {
   ];
 
   for (const { title, response } of FAILURES) {
-    test(`${title} falls back to the vouchers saved in localStorage`, async ({ page, mock, context }) => {
+    test(`${title} shows an error state, even with vouchers saved in localStorage`, async ({ page, mock, context }) => {
+      // Stale data from older versions must never be used as a fallback.
       await context.addInitScript(
         (pending) => localStorage.setItem('pendingVouchers', JSON.stringify(pending)),
-        [
-          {
-            nombre: '[TEST] Offline',
-            apellido: 'Guardado',
-            dni: '10000009',
-            email: 'offline@example.invalid',
-            ref4: '0001',
-            hab: 'Hab 7',
-            monto: '12.000',
-            files: [{ name: 'foto.png', size: 68, type: 'image/png' }],
-            timestamp: dayOfMonth(14),
-          },
-        ],
+        [{ nombre: '[TEST] Offline', apellido: 'Guardado', hab: 'Hab 7', timestamp: dayOfMonth(14) }],
       );
       mock.on('GET', '/api/vouchers', response);
       await page.goto('/dashboard');
 
-      await expect(rows(page)).toHaveCount(1);
-      await expect(rows(page).first().locator('td').nth(0)).toHaveText('[TEST] Offline Guardado');
-      await expect(rows(page).first().locator('td').nth(5)).toHaveText('12.000');
-      await expect(rows(page).first().locator('td').nth(6)).toHaveText('14/3/2026');
-      // Local snapshots keep only name/size/type, so the file is a plain link without a URL.
-      await expect(rows(page).first().locator('td').nth(7).locator('a')).toHaveText('foto.png');
-      await expect(rows(page).first().locator('img')).toHaveCount(0);
+      await expect(page.locator('#vouchersLoadError')).toHaveText('No se pudieron cargar los comprobantes.');
+      await expect(page.locator('#voucherTable')).toHaveCount(0);
+      await expect(page.getByText('[TEST] Offline')).toHaveCount(0);
+      await expect(monthLabel(page)).toHaveText(CURRENT_MONTH_LABEL);
     });
   }
 
-  test('with no data at all the table is empty', async ({ page, mock }) => {
-    mock.on('GET', '/api/vouchers', { status: 500, json: {} });
-    await page.goto('/dashboard');
+  test('entering an admin route prewarms the backend once', async ({ page, mock }) => {
+    await openDashboard(page, mock, []);
 
-    await expect(monthLabel(page)).toHaveText(CURRENT_MONTH_LABEL);
+    await expect.poll(() => mock.calls('GET', '/health').length).toBe(1);
+  });
+
+  test('an empty successful answer still renders the empty table, not the error state', async ({ page, mock }) => {
+    await openDashboard(page, mock, []);
+
+    await expect(page.locator('#voucherTable')).toBeVisible();
     await expect(rows(page)).toHaveCount(0);
+    await expect(page.locator('#vouchersLoadError')).toHaveCount(0);
   });
 });

@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { buildVoucherFormData, savePendingVoucher, sendVoucher, validateVoucherForm } from './vouchers';
+import { buildVoucherFormData, sendVoucher, validateVoucherForm } from './vouchers';
 
 const data = {
   nombre: 'Ana',
@@ -55,8 +55,11 @@ describe('validateVoucherForm', () => {
     ]);
   });
 
-  it('keeps the quirk where 500,50 passes the minimum check', () => {
-    expect(validateVoucherForm({ ...data, monto: '500,50' }, [image()])).toEqual([]);
+  it('rejects 500,50 (500.5) as below the minimum and accepts 1.000,50', () => {
+    expect(validateVoucherForm({ ...data, monto: '500,50' }, [image()])).toEqual([
+      'Por favor, coloque el monto completo (ejemplo: 50.000, 100.000, 200.000)',
+    ]);
+    expect(validateVoucherForm({ ...data, monto: '1.000,50' }, [image()])).toEqual([]);
   });
 
   it('rejects non-image files and uploads above 50MB in total', () => {
@@ -106,21 +109,5 @@ describe('sendVoucher', () => {
   it('throws on a non-2xx status', async () => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(okResponse({}, 500)));
     await expect(sendVoucher(new FormData())).rejects.toThrow('HTTP 500');
-  });
-});
-
-describe('savePendingVoucher', () => {
-  it('appends a snapshot with file summaries to localStorage.pendingVouchers', () => {
-    savePendingVoucher(data, [image('a.png', 7)]);
-    savePendingVoucher(data, [image('b.png', 8)]);
-
-    const stored = JSON.parse(localStorage.getItem('pendingVouchers'));
-    expect(stored).toHaveLength(2);
-    expect(stored[0]).toMatchObject({
-      ...data,
-      files: [{ name: 'a.png', size: 7, type: 'image/png' }],
-    });
-    expect(Number.isNaN(Date.parse(stored[0].timestamp))).toBe(false);
-    expect(stored[1].files[0].name).toBe('b.png');
   });
 });

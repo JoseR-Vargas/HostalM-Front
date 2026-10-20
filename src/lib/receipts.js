@@ -44,9 +44,11 @@ export function formatReceiptDate(dateString) {
   return `${day}/${month}/${year}`;
 }
 
-/** Today as YYYY-MM-DD (UTC, as the original pages did). */
+/** Today as YYYY-MM-DD in the local calendar (the format of `<input type="date">`). */
 export function getDefaultReceiptDate(now = new Date()) {
-  return now.toISOString().split('T')[0];
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const day = String(now.getDate()).padStart(2, '0');
+  return `${now.getFullYear()}-${month}-${day}`;
 }
 
 function receiptFilename(prefix, cliente, periodo) {

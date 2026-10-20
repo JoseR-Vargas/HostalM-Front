@@ -8,7 +8,6 @@ import {
   buildMeterCalculation,
   getConsumptionPreview,
   loadSavedPersonalData,
-  queuePendingCalculation,
   saveCalculationHistory,
   submitMeterCalculation,
   validateMeterForm,
@@ -207,11 +206,10 @@ export default function CalculatorMedidor() {
       resetForm();
     } catch (serverError) {
       console.error('Error al comunicarse con el servidor:', serverError);
-      queuePendingCalculation(calculation);
       window.alert(
         'No se pudo enviar la medición al servidor.\n\n' +
-          'El registro fue guardado localmente y se sincronizará automáticamente ' +
-          'cuando la conexión se restablezca.\n\n' +
+          'La lectura NO fue registrada. Podés intentar nuevamente cuando tengas conexión; ' +
+          'los datos del formulario se conservaron.\n\n' +
           `Detalle: ${serverError.message || 'Error de conexión'}`,
       );
     } finally {

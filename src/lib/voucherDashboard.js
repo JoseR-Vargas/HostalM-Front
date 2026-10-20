@@ -1,6 +1,5 @@
 import { apiFetch } from './apiClient';
 import { buildApiUrl, getVouchersBase } from './apiConfig';
-import { PENDING_VOUCHERS_KEY } from './constants';
 import { VOUCHER_DATE_FIELDS, filterByMonth, getRecordDate } from './dates';
 
 const IMAGE_FILE_REGEX = /\.(jpg|jpeg|png|gif|webp)$/i;
@@ -26,7 +25,6 @@ export function formatVoucherDate(voucher) {
  * Files to show for a voucher, as `{ name, url? }`.
  * - Raw backend vouchers only carry `fotos` (file names): the url is built on the vouchers base.
  * - Relative urls (`/uploads/...`) are prefixed with the vouchers base.
- * - Local snapshots (pending vouchers) have no url, only name/size/type.
  */
 export function normalizeVoucherFiles(voucher, base) {
   let files = Array.isArray(voucher.files) ? voucher.files : [];
@@ -43,31 +41,14 @@ export function normalizeVoucherFiles(voucher, base) {
   );
 }
 
-/** Vouchers that the public form could not send (see `savePendingVoucher`). */
-export function readPendingVouchers() {
-  try {
-    const pending = JSON.parse(localStorage.getItem(PENDING_VOUCHERS_KEY) || '[]');
-    return Array.isArray(pending) ? pending : [];
-  } catch {
-    return [];
-  }
-}
-
 /**
  * GET /api/vouchers on the vouchers backend. Like the original dashboard it sends no
- * auth header and answers `{ success, data: [...] }`. Any failure falls back to the
- * locally saved pending vouchers.
+ * auth header and answers `{ success, data: [...] }`. Rejects when the request fails.
  */
 export async function fetchVouchers({ signal } = {}) {
-  try {
-    const response = await apiFetch(buildApiUrl(getVouchersBase(), '/api/vouchers'), { signal });
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    const body = await response.json();
-    const vouchers = body.data || body;
-    return Array.isArray(vouchers) ? vouchers : [];
-  } catch (error) {
-    if (signal?.aborted) throw error;
-    console.error('Error al obtener vouchers:', error);
-    return readPendingVouchers();
-  }
+  const response = await apiFetch(buildApiUrl(getVouchersBase(), '/api/vouchers'), { signal });
+  if (!response.ok) throw new Error(`HTTP ${response.status}`);
+  const body = await response.json();
+  const vouchers = body.data || body;
+  return Array.isArray(vouchers) ? vouchers : [];
 }

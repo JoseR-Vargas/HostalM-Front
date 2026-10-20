@@ -1,6 +1,5 @@
 import { apiFetch } from './apiClient';
 import { buildApiUrl, getVouchersBase } from './apiConfig';
-import { PENDING_VOUCHERS_KEY } from './constants';
 import { validateVoucherFiles } from './files';
 import { validateVoucherAmount } from './money';
 import { isValidEmail } from './validators';
@@ -38,16 +37,4 @@ export async function sendVoucher(formData) {
   });
   if (!response.ok) throw new Error(`HTTP ${response.status}`);
   return response.json().catch(() => ({}));
-}
-
-/** Keeps a snapshot (without the image bytes) of a voucher that could not be sent. */
-export function savePendingVoucher(data, files) {
-  const snapshots = JSON.parse(localStorage.getItem(PENDING_VOUCHERS_KEY) || '[]');
-  const fileSummaries = Array.from(files).map((file) => ({
-    name: file.name,
-    size: file.size,
-    type: file.type,
-  }));
-  snapshots.push({ ...data, files: fileSummaries, timestamp: new Date().toISOString() });
-  localStorage.setItem(PENDING_VOUCHERS_KEY, JSON.stringify(snapshots));
 }

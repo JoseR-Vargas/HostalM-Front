@@ -389,7 +389,7 @@ test.describe('meter calculator (public)', () => {
     ];
 
     for (const { title, response, detail } of FAILURES) {
-      test(`${title} alerts, queues the calculation and shows no result`, async ({ page, mock }) => {
+      test(`${title} alerts that the reading was NOT registered and shows no result`, async ({ page, mock }) => {
         mock.on('POST', '/api/calculos-medidor', response);
         const dialogs = collectDialogs(page);
         await page.goto(PAGE);
@@ -402,8 +402,8 @@ test.describe('meter calculator (public)', () => {
           .poll(() => dialogs)
           .toEqual([
             'No se pudo enviar la medición al servidor.\n\n' +
-              'El registro fue guardado localmente y se sincronizará automáticamente ' +
-              'cuando la conexión se restablezca.\n\n' +
+              'La lectura NO fue registrada. Podés intentar nuevamente cuando tengas conexión; ' +
+              'los datos del formulario se conservaron.\n\n' +
               `Detalle: ${detail}`,
           ]);
         await expect(page.locator('#resultModal')).not.toHaveClass(/show/);
@@ -412,9 +412,7 @@ test.describe('meter calculator (public)', () => {
         // The form keeps its data for another try.
         await expect(page.locator('#nombre')).toHaveValue(PERSON.nombre);
 
-        const pending = await stored(page, 'pendingSyncCalculations');
-        expect(pending).toHaveLength(1);
-        expect(pending[0]).toMatchObject({ ...PERSON, medicionActual: 1060.5 });
+        expect(await stored(page, 'pendingSyncCalculations')).toBeNull();
         expect(await stored(page, 'meterCalculations')).toBeNull();
       });
     }

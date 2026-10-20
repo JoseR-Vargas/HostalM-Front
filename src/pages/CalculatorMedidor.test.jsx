@@ -204,7 +204,7 @@ describe('CalculatorMedidor', () => {
     expect(document.body.style.overflow).not.toBe('hidden');
   });
 
-  it('queues the calculation locally and alerts when the server fails', async () => {
+  it('tells the truth when the server fails: not registered, can retry, nothing queued', async () => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(json({ message: 'Servidor caído' }, 503)));
     const { container } = renderPage();
     fillValues(container);
@@ -212,11 +212,12 @@ describe('CalculatorMedidor', () => {
     submit(container);
 
     await waitFor(() => expect(window.alert).toHaveBeenCalled());
-    expect(window.alert.mock.calls[0][0]).toContain('No se pudo enviar la medición al servidor.');
-    expect(window.alert.mock.calls[0][0]).toContain('Detalle: Servidor caído');
-    const pending = JSON.parse(localStorage.getItem('pendingSyncCalculations'));
-    expect(pending).toHaveLength(1);
-    expect(pending[0].consumoCalculado).toBe(10.5);
+    const message = window.alert.mock.calls[0][0];
+    expect(message).toContain('La lectura NO fue registrada.');
+    expect(message).toContain('Podés intentar nuevamente');
+    expect(message).toContain('Detalle: Servidor caído');
+    expect(message).not.toMatch(/sincroniz|guardado localmente/i);
+    expect(localStorage.getItem('pendingSyncCalculations')).toBeNull();
     expect(localStorage.getItem('meterCalculations')).toBeNull();
     expect(container.querySelector('#resultModal').classList.contains('show')).toBe(false);
     expect(container.querySelector('#nombre').value).toBe('Ana');

@@ -1,10 +1,11 @@
-import { describe, expect, it } from 'vitest';
+import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 import {
   RECEIPT_MONTHS,
   buildPaymentReceipt,
   buildServicesReceipt,
   formatReceiptDate,
   formatReceiptMoney,
+  getDefaultReceiptDate,
   getPaymentReceiptFilename,
   getServicesReceiptFilename,
   parseReceiptAmount,
@@ -61,6 +62,28 @@ describe('formatReceiptDate', () => {
   it('returns an empty string without a date', () => {
     expect(formatReceiptDate('')).toBe('');
     expect(formatReceiptDate(undefined)).toBe('');
+  });
+});
+
+describe('getDefaultReceiptDate', () => {
+  const originalTz = process.env.TZ;
+  beforeAll(() => {
+    process.env.TZ = 'America/Argentina/Cordoba';
+  });
+  afterAll(() => {
+    if (originalTz === undefined) delete process.env.TZ;
+    else process.env.TZ = originalTz;
+  });
+  afterEach(() => vi.useRealTimers());
+
+  it('uses the local calendar date, not the UTC date, late in the evening (UTC-3)', () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-03-15T23:30:00-03:00')); // 2026-03-16T02:30Z
+    expect(getDefaultReceiptDate()).toBe('2026-03-15');
+  });
+
+  it('zero-pads month and day and accepts an explicit date', () => {
+    expect(getDefaultReceiptDate(new Date(2026, 0, 5, 0, 10))).toBe('2026-01-05');
   });
 });
 

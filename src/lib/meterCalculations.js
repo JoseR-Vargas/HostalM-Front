@@ -12,7 +12,6 @@ import {
 
 const HISTORY_KEY = 'meterCalculations';
 const LAST_CALCULATION_KEY = 'lastCalculation';
-const PENDING_SYNC_KEY = 'pendingSyncCalculations';
 const HISTORY_LIMIT = 50;
 
 const REQUIRED_MESSAGE = 'Este campo es requerido';
@@ -143,17 +142,6 @@ export function saveCalculationHistory(calculation) {
     localStorage.setItem(LAST_CALCULATION_KEY, JSON.stringify(record));
   } catch (error) {
     console.error('Error al guardar en localStorage:', error);
-  }
-}
-
-/** Keeps a calculation that could not be sent in the pending queue. */
-export function queuePendingCalculation(calculation) {
-  try {
-    const pending = readList(PENDING_SYNC_KEY);
-    pending.push(withoutPhotos(calculation));
-    localStorage.setItem(PENDING_SYNC_KEY, JSON.stringify(pending));
-  } catch (error) {
-    console.error('No se pudo guardar en localStorage:', error);
   }
 }
 

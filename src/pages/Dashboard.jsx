@@ -94,6 +94,7 @@ function VoucherRow({ voucher, vouchersBase, onOpenImage }) {
 
 export default function Dashboard() {
   const [vouchers, setVouchers] = useState([]);
+  const [loadFailed, setLoadFailed] = useState(false);
   const [image, setImage] = useState(null);
   const { monthKey, monthLabel, changeMonth } = useMonthPager({ capitalize: true });
   const vouchersBase = getVouchersBase();
@@ -102,7 +103,11 @@ export default function Dashboard() {
     const controller = new AbortController();
     fetchVouchers({ signal: controller.signal })
       .then(setVouchers)
-      .catch(() => {});
+      .catch((error) => {
+        if (controller.signal.aborted) return;
+        console.error('Error al obtener vouchers:', error);
+        setLoadFailed(true);
+      });
     return () => controller.abort();
   }, []);
 
@@ -133,32 +138,38 @@ export default function Dashboard() {
           </div>
 
           <h4 className="section-subtitle">Datos de Usuarios Registrados</h4>
-          <div className="table-container">
-            <table className="data-table" id="voucherTable">
-              <thead>
-                <tr>
-                  <th>Nombre</th>
-                  <th>DNI</th>
-                  <th>Email</th>
-                  <th>Ref 4</th>
-                  <th>Hab/Apto</th>
-                  <th>Monto</th>
-                  <th>Fecha</th>
-                  <th>Archivos</th>
-                </tr>
-              </thead>
-              <tbody id="voucherTableBody">
-                {monthVouchers.map((voucher, index) => (
-                  <VoucherRow
-                    key={voucher._id ?? index}
-                    voucher={voucher}
-                    vouchersBase={vouchersBase}
-                    onOpenImage={(url, name) => setImage({ url, name })}
-                  />
-                ))}
-              </tbody>
-            </table>
-          </div>
+          {loadFailed ? (
+            <div id="vouchersLoadError" className="no-data-message" role="alert">
+              <p>No se pudieron cargar los comprobantes.</p>
+            </div>
+          ) : (
+            <div className="table-container">
+              <table className="data-table" id="voucherTable">
+                <thead>
+                  <tr>
+                    <th>Nombre</th>
+                    <th>DNI</th>
+                    <th>Email</th>
+                    <th>Ref 4</th>
+                    <th>Hab/Apto</th>
+                    <th>Monto</th>
+                    <th>Fecha</th>
+                    <th>Archivos</th>
+                  </tr>
+                </thead>
+                <tbody id="voucherTableBody">
+                  {monthVouchers.map((voucher, index) => (
+                    <VoucherRow
+                      key={voucher._id ?? index}
+                      voucher={voucher}
+                      vouchersBase={vouchersBase}
+                      onOpenImage={(url, name) => setImage({ url, name })}
+                    />
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       </section>
 

@@ -3,7 +3,6 @@ import {
   buildMeterCalculation,
   getConsumptionPreview,
   loadSavedPersonalData,
-  queuePendingCalculation,
   saveCalculationHistory,
   submitMeterCalculation,
   validateMeterForm,
@@ -176,14 +175,6 @@ describe('local persistence', () => {
     expect(history).toHaveLength(50);
     expect(history[0].timestamp).toBe(3);
     expect(history[49].timestamp).toBe(52);
-  });
-
-  it('queues failed submissions in pendingSyncCalculations without photos', () => {
-    queuePendingCalculation(calc(1));
-    queuePendingCalculation(calc(2));
-    const pending = JSON.parse(localStorage.getItem('pendingSyncCalculations'));
-    expect(pending.map((item) => item.timestamp)).toEqual([1, 2]);
-    expect(pending[0].fotoActual).toBeUndefined();
   });
 
   it('loads only the personal fields from the last calculation', () => {

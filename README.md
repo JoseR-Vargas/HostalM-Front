@@ -88,7 +88,7 @@ Orden de prioridad (de mayor a menor):
 
 - Login: `POST {backend principal}/api/auth/login`.
 - El token se guarda en `sessionStorage` bajo la clave `mayelewoo_admin_token` (se pierde al cerrar la pestaña).
-- `ProtectedRoute` solo comprueba que exista el token; el logout lo elimina.
+- `ProtectedRoute` solo comprueba que exista el token; el logout lo elimina. Al entrar a una ruta Admin además llama a `GET /health` una vez (precalienta el backend; sin UI, los errores se ignoran).
 
 ## Deploy (Vercel)
 

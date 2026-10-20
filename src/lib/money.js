@@ -71,14 +71,14 @@ export function isValidVoucherAmountFormat(value) {
  * Validates the voucher amount field and returns the list of error messages
  * (empty when valid), in the same order as the original form.
  *
- * Parity note: the numeric minimum check mirrors the legacy code, which turns the
- * decimal comma into a dot and then strips every dot ("500,50" -> 50050).
+ * The minimum check reads the Argentine format: dots are thousands separators and
+ * the comma is the decimal ("500,50" -> 500.5, "1.000,50" -> 1000.5).
  */
 export function validateVoucherAmount(monto) {
   if (!monto) return ['El monto depositado es requerido'];
 
   const errors = [];
-  const numeric = parseFloat(monto.replace(',', '.').replace(/\./g, ''));
+  const numeric = parseFloat(monto.replace(/\./g, '').replace(',', '.'));
   if (numeric < 1000) {
     errors.push('Por favor, coloque el monto completo (ejemplo: 50.000, 100.000, 200.000)');
   }

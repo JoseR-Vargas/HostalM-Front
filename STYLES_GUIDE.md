@@ -168,7 +168,7 @@ Cada página compone el mismo esqueleto con los componentes de `src/components/`
 | Clase | Efecto | Páginas que la usan |
 |---|---|---|
 | `.month-pagination` | Flexbox centrado, `gap: 1.5rem`, `margin: 1.5rem 0` | `Dashboard`, `DashboardCalculator`, `CalcularPago` |
-| `.month-nav-btn` | Cuadrado azul 40×40px, hover oscurece + glow | Botones ← → |
+| `.month-nav-btn` | Cuadrado azul 40×40px (`flex-shrink: 0`: no se achica en tarjetas angostas), hover oscurece + glow | Botones ← → |
 | `.month-label` | `min-width: 180px`, centrado, `font-weight: 600` | Texto "Mes Año" |
 
 ### 5.7 Calculadora de medidor (`/calculator-medidor`)
@@ -249,7 +249,7 @@ Cada página compone el mismo esqueleto con los componentes de `src/components/`
 | Breakpoint | Cambios clave |
 |---|---|
 | `≤768px` | `.nav` stacks vertical; `.hero` 1 col; `.form-row` 1 col; `.data-table` convierte a cards; `.metrics-grid` 1 col; `.footer-centered` centra secciones; `.page-top-offset` sube a 140px |
-| `≤480px` | Tamaños de fuente reducidos; padding comprimido; `.page-top-offset` sube a 170px; `.login-form input` fija `font-size: 16px` (evita zoom iOS) |
+| `≤480px` | Tamaños de fuente reducidos; padding comprimido; `.page-top-offset` sube a 170px; el nav del header se compacta (gaps y padding de links/logout menores) para que el header fijo no pase de ~30% del alto en 320×568; `.month-label` pierde su `min-width`; `.login-form input` fija `font-size: 16px` (evita zoom iOS) |
 | `≥769px–1199px` | `.login` ajusta `padding-top: 8.5rem` |
 | `≥1200px` | `.login` ajusta `padding-top: 9rem` |
 | `height ≤600px` | `.login` `align-items: flex-start` |

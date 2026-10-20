@@ -6,12 +6,12 @@ import { MAX_VOUCHERS_TOTAL_BYTES } from '../lib/constants';
 import { getTotalSize } from '../lib/files';
 import {
   buildVoucherFormData,
-  savePendingVoucher,
   sendVoucher,
   validateVoucherForm,
 } from '../lib/vouchers';
 
 const BANNER_SCROLL_DELAY_MS = 100;
+const SEND_ERROR_MESSAGE = 'No se pudo enviar el comprobante. Revisá tu conexión e intentá nuevamente.';
 
 const EMPTY_FORM = { nombre: '', apellido: '', dni: '', email: '', ref4: '', hab: '', monto: '' };
 
@@ -95,11 +95,8 @@ export default function Vouchers() {
       setForm(EMPTY_FORM);
       fileInputRef.current.value = '';
     } catch {
-      // parity: legacy behavior
-      // A failed upload is stored locally (the admin dashboard falls back to it)
-      // and the user still sees a success banner. There is no resend mechanism.
-      savePendingVoucher(data, files);
-      showBanner('success', 'Guardado localmente. Se enviará cuando el backend esté disponible.');
+      // Keep the form values and selected files so the user can retry.
+      showBanner('error', SEND_ERROR_MESSAGE);
     } finally {
       setSubmitting(false);
     }

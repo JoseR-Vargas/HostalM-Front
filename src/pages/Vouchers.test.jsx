@@ -32,6 +32,7 @@ const fillForm = (container, overrides = {}, files = [image()]) => {
   if (files) fireEvent.change(container.querySelector('#fotos'), { target: { files } });
 };
 const submit = (container) => fireEvent.submit(container.querySelector('#voucherForm'));
+const FAILURE_MESSAGE = 'No se pudo enviar el comprobante. Revisá tu conexión e intentá nuevamente.';
 const banner = (container) => container.querySelector('.voucher-banner');
 
 beforeEach(() => {
@@ -117,31 +118,40 @@ describe('Vouchers', () => {
     expect(localStorage.getItem('pendingVouchers')).toBeNull();
   });
 
-  it('on failure saves locally and shows the success banner without resetting', async () => {
+  it('on a server error shows an honest error banner, keeps the form and stores nothing', async () => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response('{}', { status: 500 })));
     const { container } = renderPage();
     fillForm(container);
     submit(container);
 
-    await waitFor(() =>
-      expect(banner(container)?.textContent).toBe(
-        'Guardado localmente. Se enviará cuando el backend esté disponible.',
-      ),
-    );
-    const stored = JSON.parse(localStorage.getItem('pendingVouchers'));
-    expect(stored).toHaveLength(1);
-    expect(stored[0]).toMatchObject({ nombre: 'Ana', monto: '50.000', files: [{ name: 'a.png' }] });
-    expect(banner(container).style.backgroundColor).toBe('rgb(198, 246, 213)');
+    await waitFor(() => expect(banner(container)?.textContent).toBe(FAILURE_MESSAGE));
+    expect(banner(container).style.backgroundColor).toBe('rgb(254, 215, 215)');
+    expect(banner(container).textContent).not.toMatch(/correctamente|Guardado/);
     expect(container.querySelector('#nombre').value).toBe('Ana');
+    expect(container.querySelector('#monto').value).toBe('50.000');
+    expect(container.querySelector('#fotos').files).toHaveLength(1);
     expect(container.querySelector('#submitBtn').disabled).toBe(false);
+    expect(localStorage.getItem('pendingVouchers')).toBeNull();
   });
 
-  it('saves locally when the network is down', async () => {
-    vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new TypeError('Failed to fetch')));
+  it('shows the same error when the network is down and lets the user retry with the same data', async () => {
+    const fetchMock = vi
+      .fn()
+      .mockRejectedValueOnce(new TypeError('Failed to fetch'))
+      .mockResolvedValueOnce(new Response('{}', { status: 201 }));
+    vi.stubGlobal('fetch', fetchMock);
     const { container } = renderPage();
     fillForm(container);
     submit(container);
-    await waitFor(() => expect(JSON.parse(localStorage.getItem('pendingVouchers'))).toHaveLength(1));
+    await waitFor(() => expect(banner(container)?.textContent).toBe(FAILURE_MESSAGE));
+    expect(localStorage.getItem('pendingVouchers')).toBeNull();
+
+    submit(container);
+    await waitFor(() => expect(banner(container)?.textContent).toBe('¡Voucher enviado correctamente!'));
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(fetchMock.mock.calls[1][1].body.get('nombre')).toBe('Ana');
+    expect(fetchMock.mock.calls[1][1].body.getAll('files')).toHaveLength(1);
+    expect(container.querySelector('#nombre').value).toBe('');
   });
 
   it('trims the text fields before validating and sending', async () => {
