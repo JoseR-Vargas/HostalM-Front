@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+	<title>Calcular Pago Electricidad - Hostal Mayelewoo</title>
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+	<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+	<header class="header">
+		<div class="container">
+			<div class="nav nav-centered">
+				<h1 class="logo">Hostal Mayelewoo</h1>
+				<nav class="nav-menu">
+					<a href="dashboard.html" class="nav-link">📋 Vouchers</a>
+					<a href="dashboard-calculator.html" class="nav-link">🧮 Medidor</a>
+					<a href="comprobante-pago.html" class="nav-link">📄 Comprobante</a>
+					<button onclick="logout()" class="logout-btn">Cerrar Sesión</button>
+				</nav>
+			</div>
+		</div>
+	</header>
+
+	<section class="contact page-top-offset">
+		<div class="container vouchers-center">
+			<h3 class="section-title">Calculadora de Pago de Electricidad</h3>
+			<p class="contact-subtitle">Calculá cuánto debe abonar cada residente según la factura del mes</p>
+
+			<!-- Paso 1: Datos de la factura -->
+			<div class="contact-form">
+				<h4 class="section-subtitle">Paso 1 — Datos de la factura</h4>
+				<div class="form-row">
+					<div class="form-group">
+						<label for="montoFactura">Monto de la Factura EPEC ($)</label>
+						<input
+							type="text"
+							id="montoFactura"
+							name="montoFactura"
+							inputmode="numeric"
+							placeholder="Ej: 15.000 o 200.000,50"
+							autocomplete="off">
+						<div class="error-message">Ingresá un monto válido mayor a cero</div>
+					</div>
+					<div class="form-group">
+						<label for="totalKwhFactura">Total kWh de la Factura</label>
+						<input
+							type="text"
+							id="totalKwhFactura"
+							name="totalKwhFactura"
+							inputmode="decimal"
+							placeholder="Ej: 450 o 450,5"
+							autocomplete="off">
+						<div class="error-message">Ingresá los kWh totales de la factura</div>
+					</div>
+				</div>
+
+				<div class="form-row">
+					<div class="form-group">
+						<label for="precioKwh">Precio por kWh ($)</label>
+						<input
+							type="text"
+							id="precioKwh"
+							name="precioKwh"
+							readonly
+							placeholder="—"
+							style="background: var(--bg-secondary, #f7f8fa); cursor: default;">
+					</div>
+					<div class="form-group" style="display: flex; align-items: flex-end;">
+						<button
+							type="button"
+							class="cta-button"
+							id="btnCalcularPrecio"
+							onclick="calcularPrecioKwh()"
+							style="width: 100%;">
+							Calcular Precio kWh
+						</button>
+					</div>
+				</div>
+			</div>
+
+			<!-- Paso 2: Residentes del mes (fuera de .contact-form para no quedar limitado por max-width: 700px y overflow: hidden) -->
+			<div id="step2Section" style="display: none; width: 100%; max-width: 950px; margin-top: 1.5rem; background: var(--bg-card); border: 1px solid var(--color-border); border-radius: var(--border-radius); box-shadow: var(--shadow); padding: 2.5rem;">
+
+				<h4 class="section-subtitle">Paso 2 — Residentes del mes</h4>
+
+				<div class="month-pagination">
+					<button class="month-nav-btn" id="btnMesAnterior" onclick="cambiarMesResidentes(-1)">←</button>
+					<span class="month-label" id="residentesMonthLabel"></span>
+					<button class="month-nav-btn" id="btnMesSiguiente" onclick="cambiarMesResidentes(1)">→</button>
+				</div>
+
+				<div id="residentesLoading" style="display: none; text-align: center; padding: 2rem; color: var(--text-secondary);">
+					Cargando residentes...
+				</div>
+
+				<div id="residentesError" style="display: none; padding: 1rem; background: #FFF5F5; border: 1px solid #FC8181; border-radius: var(--border-radius-sm); color: #C53030; margin: 1rem 0;">
+					<p id="residentesErrorMsg"></p>
+				</div>
+
+				<div id="residentesTableContainer" class="table-container" style="display: none;">
+					<table class="data-table" id="residentesTable">
+						<thead>
+							<tr>
+								<th>Nombre</th>
+								<th>Apellido</th>
+								<th>Habitación</th>
+								<th>Consumo (kWh)</th>
+								<th>Acción</th>
+							</tr>
+						</thead>
+						<tbody id="residentesTableBody"></tbody>
+					</table>
+				</div>
+
+				<div id="residentesEmpty" style="display: none; text-align: center; padding: 2rem; color: var(--text-secondary);">
+					<p>No hay registros de consumo para este mes.</p>
+				</div>
+
+				<div id="residenteSeleccionado" style="display: none; margin-top: 2rem;">
+					<h4 class="section-subtitle">Resultado</h4>
+					<div class="metric-card" style="max-width: 500px; margin: 0 auto; text-align: center;">
+						<p id="residenteNombreDisplay" style="font-size: 1.1rem; font-weight: 600; color: var(--text-primary); margin-bottom: 0.25rem;"></p>
+						<p id="residenteHabitacionDisplay" style="font-size: 0.95rem; color: var(--text-secondary); margin-bottom: 1rem;"></p>
+						<p style="font-size: 0.95rem; color: var(--text-secondary);">Consumo: <strong id="residenteConsumoDisplay"></strong></p>
+						<p style="font-size: 0.95rem; color: var(--text-secondary); margin-top: 0.25rem;">Precio kWh: <strong id="residentePrecioKwhDisplay"></strong></p>
+						<p class="result-amount" id="residenteTotalDisplay" style="margin-top: 1rem;">—</p>
+						<p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.25rem;">Total a Pagar</p>
+					</div>
+				</div>
+
+			</div>
+
+		</div>
+	</section>
+
+	<footer class="footer footer-centered">
+		<div class="container">
+			<div class="footer-bottom">
+				<p>&copy; 2024 Hostal Mayelewoo. Todos los derechos reservados.</p>
+			</div>
+		</div>
+	</footer>
+
+	<script src="js/config.js"></script>
+	<script src="js/login.js"></script>
+	<script src="js/calcular-pago.js"></script>
+</body>
+</html>

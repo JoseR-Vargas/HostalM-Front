@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+	<title>Comprobante de Servicios - Hostal Mayelewoo</title>
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+	<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+	<header class="header">
+		<div class="container">
+			<div class="nav nav-centered">
+				<h1 class="logo">Hostal Mayelewoo</h1>
+				<nav class="nav-menu">
+					<a href="dashboard.html" class="nav-link">📋 Vouchers</a>
+					<a href="dashboard-calculator.html" class="nav-link">🧮 Medidor</a>
+					<a href="comprobante-pago.html" class="nav-link">📄 Alquiler</a>
+					<button onclick="logout()" class="logout-btn">Cerrar Sesión</button>
+				</nav>
+			</div>
+		</div>
+	</header>
+
+	<section class="contact page-top-offset">
+		<div class="container vouchers-center">
+			<h3 class="section-title">Comprobante de Servicios</h3>
+			<p class="contact-subtitle">Completá los datos y descargá el PDF del comprobante</p>
+
+			<div class="contact-form">
+				<h4 class="section-subtitle">Datos del comprobante</h4>
+
+				<div class="form-row">
+					<div class="form-group" id="group-cliente">
+						<label for="cliente">Cliente</label>
+						<input
+							type="text"
+							id="cliente"
+							name="cliente"
+							placeholder="Ej: Jennifer Martínez"
+							autocomplete="off">
+						<div class="error-message">Ingresá el nombre del cliente</div>
+					</div>
+					<div class="form-group" id="group-propiedad">
+						<label for="propiedad">Propiedad</label>
+						<input
+							type="text"
+							id="propiedad"
+							name="propiedad"
+							placeholder="Ej: Humberto Primo 3070 Habitación 4"
+							autocomplete="off">
+						<div class="error-message">Ingresá la dirección o propiedad</div>
+					</div>
+				</div>
+
+				<div class="form-row">
+					<div class="form-group" id="group-periodo">
+						<label for="periodo">Período</label>
+						<select id="periodo" name="periodo">
+							<option value="">— Seleccioná el mes —</option>
+							<option value="Enero">Enero</option>
+							<option value="Febrero">Febrero</option>
+							<option value="Marzo">Marzo</option>
+							<option value="Abril">Abril</option>
+							<option value="Mayo">Mayo</option>
+							<option value="Junio">Junio</option>
+							<option value="Julio">Julio</option>
+							<option value="Agosto">Agosto</option>
+							<option value="Septiembre">Septiembre</option>
+							<option value="Octubre">Octubre</option>
+							<option value="Noviembre">Noviembre</option>
+							<option value="Diciembre">Diciembre</option>
+						</select>
+						<div class="error-message">Seleccioná el período</div>
+					</div>
+					<div class="form-group" id="group-fecha">
+						<label for="fechaRecibo">Fecha del recibo</label>
+						<input
+							type="date"
+							id="fechaRecibo"
+							name="fechaRecibo">
+						<div class="error-message">Seleccioná la fecha del recibo</div>
+					</div>
+				</div>
+
+				<div class="form-row">
+					<div class="form-group" id="group-montoAgua">
+						<label for="montoAgua">Monto Agua ($)</label>
+						<input
+							type="text"
+							id="montoAgua"
+							name="montoAgua"
+							inputmode="numeric"
+							placeholder="Ej: 5.000 o 5000,50"
+							autocomplete="off">
+						<div class="error-message">Ingresá un monto de agua válido mayor a cero</div>
+					</div>
+					<div class="form-group" id="group-montoLuz">
+						<label for="montoLuz">Monto Luz ($)</label>
+						<input
+							type="text"
+							id="montoLuz"
+							name="montoLuz"
+							inputmode="numeric"
+							placeholder="Ej: 8.000 o 8000,50"
+							autocomplete="off">
+						<div class="error-message">Ingresá un monto de luz válido mayor a cero</div>
+					</div>
+				</div>
+
+				<div class="form-row">
+					<div class="form-group" style="display: flex; align-items: flex-end;">
+						<button
+							type="button"
+							class="cta-button"
+							id="btnGenerar"
+							onclick="generarComprobanteServicios()"
+							style="width: 100%;">
+							📄 Generar Comprobante de Servicios
+						</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<!-- Plantilla PDF (oculta, se muestra temporalmente durante la generación) -->
+	<div id="pdfTemplate" style="display: none; position: absolute; top: 0; left: -9999px;">
+		<div style="
+			width: 210mm;
+			min-height: 257mm;
+			padding: 20mm 20mm;
+			background: #ffffff;
+			font-family: Arial, Helvetica, sans-serif;
+			font-size: 11pt;
+			color: #1a1a1a;
+			position: relative;
+			box-sizing: border-box;
+		">
+			<!-- Sello PAGADO -->
+			<div style="
+				position: absolute;
+				top: 36mm;
+				right: 18mm;
+				width: 92px;
+				height: 92px;
+				border: 5px solid rgba(0, 130, 0, 0.48);
+				border-radius: 50%;
+				transform: rotate(-18deg);
+				pointer-events: none;
+				user-select: none;
+				box-sizing: border-box;
+			">
+				<div style="
+					position: absolute;
+					top: 5px; left: 5px; right: 5px; bottom: 5px;
+					border: 2px solid rgba(0, 130, 0, 0.48);
+					border-radius: 50%;
+					display: flex;
+					align-items: center;
+					justify-content: center;
+				">
+					<span style="
+						font-size: 11pt;
+						font-weight: 900;
+						color: rgba(0, 130, 0, 0.52);
+						letter-spacing: 3px;
+					">PAGADO</span>
+				</div>
+			</div>
+
+			<!-- Encabezado -->
+			<div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 28px;">
+				<div style="font-size: 13pt; font-weight: 700; letter-spacing: 1px;">COMPROBANTE DE SERVICIOS</div>
+				<div style="font-size: 11pt; font-weight: 600;">FECHA &nbsp;<span id="pdf-fecha"></span></div>
+			</div>
+
+			<!-- Datos del cliente -->
+			<div style="margin-bottom: 24px;">
+				<p style="margin: 0 0 6px 0; font-size: 11pt;">
+					<span style="font-weight: 700;">CLIENTE:</span>
+					&nbsp;<span id="pdf-cliente" style="color: #c05e00;"></span>
+				</p>
+				<p style="margin: 0; font-size: 11pt;">
+					<span style="font-weight: 700;">PROPIEDAD:</span>
+					&nbsp;<span id="pdf-propiedad" style="color: #c05e00;"></span>
+				</p>
+			</div>
+
+			<!-- Divisor -->
+			<hr style="border: none; border-top: 1.5px solid #1a1a1a; margin: 0;">
+
+			<!-- Tabla -->
+			<table style="width: 100%; border-collapse: collapse; margin-top: 0;">
+				<thead>
+					<tr style="border-bottom: 1px solid #555;">
+						<th style="text-align: left; padding: 10px 0 8px 0; font-size: 11pt; font-weight: 700; width: 50%;">Concepto</th>
+						<th style="text-align: center; padding: 10px 0 8px 0; font-size: 11pt; font-weight: 700; width: 25%;">PERIODO</th>
+						<th style="text-align: right; padding: 10px 0 8px 0; font-size: 11pt; font-weight: 700; width: 25%;">MONTO</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td style="padding: 12px 0 8px 0; font-size: 11pt; vertical-align: top;">Agua:</td>
+						<td style="padding: 12px 0 8px 0; font-size: 11pt; text-align: center; vertical-align: top;" id="pdf-periodo"></td>
+						<td style="padding: 12px 0 8px 0; font-size: 11pt; text-align: right; vertical-align: top;" id="pdf-monto-agua"></td>
+					</tr>
+					<tr>
+						<td style="padding: 8px 0; font-size: 11pt; vertical-align: top;">Luz Eléctrica:</td>
+						<td style="padding: 8px 0; font-size: 11pt; text-align: center; vertical-align: top;" id="pdf-periodo-luz"></td>
+						<td style="padding: 8px 0; font-size: 11pt; text-align: right; vertical-align: top;" id="pdf-monto-luz"></td>
+					</tr>
+					<tr>
+						<td style="padding: 8px 0; border-top: 1px dashed #999;"></td>
+						<td style="padding: 8px 0; text-align: center; font-weight: 700; font-size: 11pt; border-top: 1px dashed #999;">TOTAL</td>
+						<td style="padding: 8px 0; text-align: right; font-weight: 700; font-size: 11pt; border-top: 1px dashed #999;" id="pdf-total"></td>
+					</tr>
+				</tbody>
+			</table>
+
+		</div>
+	</div>
+
+	<footer class="footer footer-centered">
+		<div class="container">
+			<div class="footer-bottom">
+				<p>&copy; 2024 Hostal Mayelewoo. Todos los derechos reservados.</p>
+			</div>
+		</div>
+	</footer>
+
+	<script src="js/config.js"></script>
+	<script src="js/login.js"></script>
+	<script src="js/comprobante-servicios.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+</body>
+</html>

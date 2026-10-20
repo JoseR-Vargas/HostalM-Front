@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+	<title>Dashboard Contadores - Hostal Mayelewoo</title>
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+	<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+	<header class="header">
+		<div class="container">
+			<div class="nav nav-centered">
+				<h1 class="logo">Hostal Mayelewoo</h1>
+				<nav class="nav-menu">
+					<a href="dashboard.html" class="nav-link">📋 Dashboard Principal</a>
+					<a href="dashboard-calculator.html" class="nav-link">🧮 Calculadora Medidor</a>
+					<button onclick="logout()" class="logout-btn">Cerrar Sesión</button>
+				</nav>
+			</div>
+		</div>
+	</header>
+
+	<section class="contact page-top-offset">
+		<div class="container vouchers-center">
+			<h3 class="section-title">Mediciones de Contadores</h3>
+			<p class="contact-subtitle">Lecturas registradas por los huéspedes</p>
+
+			<!-- Tabla de mediciones -->
+			<div class="table-container">
+				<table class="data-table" id="medicionesTable">
+					<thead>
+						<tr>
+							<th>Habitación</th>
+							<th>Huésped</th>
+							<th>DNI</th>
+							<th>Lectura</th>
+							<th>Foto Medidor</th>
+							<th>Fecha</th>
+						</tr>
+					</thead>
+					<tbody id="medicionesTableBody">
+						<!-- Los datos se cargan dinámicamente -->
+					</tbody>
+				</table>
+			</div>
+
+			<!-- Mensaje cuando no hay datos -->
+			<div id="noDataMessage" class="no-data-message" style="display: none;">
+				<p>No se encontraron mediciones registradas.</p>
+			</div>
+
+			<!-- Overlay de carga -->
+			<div id="loadingOverlay" style="display: none;">
+				<div class="loading-spinner">Cargando datos...</div>
+			</div>
+		</div>
+	</section>
+
+	<footer class="footer footer-centered">
+		<div class="container">
+			<div class="footer-bottom">
+				<p>&copy; 2024 Hostal Mayelewoo. Todos los derechos reservados.</p>
+			</div>
+		</div>
+	</footer>
+
+	<script src="js/login.js"></script>
+	<script src="js/dashboard-luz.js"></script>
+</body>
+</html>
