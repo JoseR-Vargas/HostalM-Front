@@ -23,19 +23,21 @@ Migrate the production vanilla HTML/CSS/JS frontend (Hostal Mayelewoo) to React 
 PRICE_PER_KWH 439.26; Argentine money parse/format (`200.000,50` <-> 200000.50); meter reading normalization (`35659` -> `3565.9`, regex `^\d+[.,]\d+$`, actual > anterior, DNI 7-8 digits); photos image/* <= 5MB each, both required; vouchers images only, total <= 50MB, amount regex `^\d{1,3}(\.\d{3})*(,\d{1,2})?$` >= 1000, ref4 exactly 4 digits; calcular-pago pipeline (month filter, latest per habitacion, sort alpha, precio = monto/totalKwh, total = consumo*precio); receipts A4 portrait html2pdf (margin 0, jpeg .98, scale 2, useCORS, pagebreak avoid-all), filename `Comprobante_<cliente>_<periodo>.pdf`; WhatsApp number 5493516664584, 200 char message limit; auth `POST {vercel}/api/auth/login`, token in sessionStorage `mayelewoo_admin_token`.
 
 ## Tasks
-- [ ] T1 Scaffold: `git mv` legacy -> `legacy/`, Vite+React+Router+Vitest+Playwright config, `.gitignore`, `vercel.json` SPA rewrites, shared lib (api config/client, auth context + ProtectedRoute, money/measurement/date utils with unit tests), layout components (Header/Footer/AdminNav), global CSS import, legacy `.html` redirects. Route: delegated writer.
-- [ ] T2 Public pages: Home (index), Login, Vouchers, CalculatorMedidor (+ offline pending queue behavior only if referenced). Route: delegated writer.
-- [ ] T3 Admin pages: Dashboard (vouchers + image modal + month pager), DashboardCalculator (filters + photo modal), CalcularPago (two-step calculator). Route: delegated writer.
-- [ ] T4 Receipts: ComprobantePago, ComprobanteServicios with html2pdf (npm dep), shared PDF service. Route: delegated writer.
-- [ ] T5 Playwright e2e (mocked API) for every flow + legacy-URL redirects; fix parity bugs found. Route: delegated writer.
-- [ ] T6 Parity review vs `legacy/` (read-only verify) and fixes. Route: verify agent + writer.
-- [ ] T7 Delete `legacy/`, update STYLES_GUIDE.md/README, final `npm run build`, `npm test`, `npm run e2e`.
+- [x] T1 Scaffold: `git mv` legacy -> `legacy/`, Vite+React+Router+Vitest+Playwright config, `.gitignore`, `vercel.json` SPA rewrites, shared lib (api config/client, auth context + ProtectedRoute, money/measurement/date utils with unit tests), layout components (Header/Footer/AdminNav), global CSS import, legacy `.html` redirects. Route: delegated writer.
+- [x] T2 Public pages: Home (index), Login, Vouchers, CalculatorMedidor (+ offline pending queue behavior only if referenced). Route: delegated writer.
+- [x] T3 Admin pages: Dashboard (vouchers + image modal + month pager), DashboardCalculator (filters + photo modal), CalcularPago (two-step calculator). Route: delegated writer.
+- [x] T4 Receipts: ComprobantePago, ComprobanteServicios with html2pdf (npm dep), shared PDF service. Route: delegated writer.
+- [x] T5 Playwright e2e (mocked API) for every flow + legacy-URL redirects; fix parity bugs found. Route: delegated writer.
+- [x] T6 Parity review vs `legacy/` (read-only verify) and fixes. Route: verify agent + writer.
+- [x] T7 Delete `legacy/`, update STYLES_GUIDE.md/README, final `npm run build`, `npm test`, `npm run e2e`.
 
 ## Acceptance
 `npm run build`, `npm test` (vitest) and `npm run e2e` (playwright, mocked API) pass; every legacy page except orphans has a React route; no references to deleted code.
 
 ## Progress / evidence
-(none yet)
+- T1 379c563 | T2 62dc01b | T3 7f0e9b6 | T4 fe4d361 | T5 52b2f51 | T6 verify (read-only, no blockers) | T7 377a397 + a096f1f. All routes delegated writers (mapping/write triggers fired).
+- Final checks: `npm test` 331 passed; `npm run build` ok; `npm run e2e` 165 passed (react, mocked APIs). During T5 the same specs ran against the original static app (139 passed) and React (165 passed) with identical behavior except documented deviations. Also run against `vite preview` (production bundle): 165 passed.
+- Review assess: RDD gate not run (user commits/pushes; native review not requested).
 
 ## Next step
-T1.
+User pushes branch and opens the single PR. Confirm VITE_API_URL / VITE_VOUCHERS_API_URL are unset in the deploy environment.
