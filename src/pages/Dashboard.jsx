@@ -6,7 +6,7 @@ import Modal from '../components/Modal';
 import MonthPager from '../components/MonthPager';
 import { ADMIN_NAV } from '../components/navLinks';
 import { PageSection, SectionSubtitle } from '../components/ui';
-import { getVouchersBase } from '../lib/apiConfig';
+import { getApiBase } from '../lib/apiConfig';
 import { useMonthPager } from '../lib/useMonthPager';
 import {
   fetchVouchers,
@@ -67,8 +67,8 @@ function FileLink({ file, index }) {
   );
 }
 
-function VoucherRow({ voucher, vouchersBase, onOpenImage }) {
-  const files = normalizeVoucherFiles(voucher, vouchersBase);
+function VoucherRow({ voucher, apiBase, onOpenImage }) {
+  const files = normalizeVoucherFiles(voucher, apiBase);
   const values = [
     `${voucher.nombre || ''} ${voucher.apellido || ''}`.trim(),
     voucher.dni || '—',
@@ -125,7 +125,7 @@ export default function Dashboard() {
   const [loadFailed, setLoadFailed] = useState(false);
   const [image, setImage] = useState(null);
   const { monthKey, monthLabel, changeMonth } = useMonthPager({ capitalize: true });
-  const vouchersBase = getVouchersBase();
+  const apiBase = getApiBase();
 
   useEffect(() => {
     const controller = new AbortController();
@@ -162,7 +162,7 @@ export default function Dashboard() {
               <VoucherRow
                 key={voucher._id ?? index}
                 voucher={voucher}
-                vouchersBase={vouchersBase}
+                apiBase={apiBase}
                 onOpenImage={(url, name) => setImage({ url, name })}
               />
             ))}

@@ -1,53 +1,77 @@
 import { describe, expect, it } from 'vitest';
-import {
-  buildApiUrl,
-  getApiBase,
-  getVouchersBase,
-} from './apiConfig';
+import * as apiConfig from './apiConfig';
+import { buildApiUrl, getApiBase } from './apiConfig';
 
 const loc = (hostname, search = '', protocol = 'http:') => ({ hostname, search, protocol });
-const PROD_MAIN = 'https://hostal-mayelewoo-backend.vercel.app';
-const PROD_VOUCHERS = 'https://mayelewoo-back.onrender.com';
+const PROD = 'https://hostal-mayelewoo-backend.vercel.app';
 
-describe('production hosts', () => {
-  it('uses vercel for the main backend (auth and calculos-medidor)', () => {
-    expect(getApiBase({ location: loc('hostal-mayelewoo.vercel.app', '', 'https:'), env: {} })).toBe(PROD_MAIN);
+const ENDPOINTS = [
+  ['login', 'POST', '/api/auth/login'],
+  ['health prewarm', 'GET', '/health'],
+  ['calculos GET', 'GET', '/api/calculos-medidor'],
+  ['calculos POST', 'POST', '/api/calculos-medidor'],
+  ['calculos foto-anterior', 'GET', '/api/calculos-medidor/42/foto-anterior'],
+  ['calculos foto-actual', 'GET', '/api/calculos-medidor/42/foto-actual'],
+  ['vouchers GET', 'GET', '/api/vouchers'],
+  ['vouchers POST', 'POST', '/api/vouchers'],
+  ['voucher image upload', 'GET', '/uploads/vouchers/comp.png'],
+];
+
+const resolveAll = (options) =>
+  ENDPOINTS.map(([, , path]) => buildApiUrl(getApiBase(options), path));
+
+describe('single backend', () => {
+  it('exposes no vouchers-specific resolver', () => {
+    expect(apiConfig.getVouchersBase).toBeUndefined();
   });
 
-  it('uses render for the vouchers backend', () => {
-    expect(getVouchersBase({ location: loc('hostal-mayelewoo.vercel.app', '', 'https:'), env: {} })).toBe(PROD_VOUCHERS);
+  it.each(ENDPOINTS)('production (%s) resolves to the Vercel host', (_name, _method, path) => {
+    const options = { location: loc('hostalmayelewoo.netlify.app', '', 'https:'), env: {} };
+    expect(buildApiUrl(getApiBase(options), path)).toBe(`${PROD}${path}`);
+  });
+
+  it('never resolves to Render', () => {
+    const options = { location: loc('hostalmayelewoo.netlify.app', '', 'https:'), env: {} };
+    for (const url of resolveAll(options)) expect(url).not.toContain('onrender');
+  });
+
+  it('ignores the removed VITE_VOUCHERS_API_URL variable', () => {
+    const options = {
+      location: loc('hostalmayelewoo.netlify.app', '', 'https:'),
+      env: { VITE_VOUCHERS_API_URL: 'https://v.env.test' },
+    };
+    expect(getApiBase(options)).toBe(PROD);
   });
 });
 
 describe('local development', () => {
-  it('points both backends to localhost:3000 on localhost', () => {
+  it('points every endpoint to localhost:3000 on localhost', () => {
     const options = { location: loc('localhost'), env: {} };
     expect(getApiBase(options)).toBe('http://localhost:3000');
-    expect(getVouchersBase(options)).toBe('http://localhost:3000');
+    for (const url of resolveAll(options)) expect(url.startsWith('http://localhost:3000/')).toBe(true);
   });
 
   it('keeps the detected hostname on 127.0.0.1 and the page protocol', () => {
     expect(getApiBase({ location: loc('127.0.0.1'), env: {} })).toBe('http://127.0.0.1:3000');
-    expect(getVouchersBase({ location: loc('localhost', '', 'https:'), env: {} })).toBe('https://localhost:3000');
+    expect(getApiBase({ location: loc('localhost', '', 'https:'), env: {} })).toBe('https://localhost:3000');
   });
 });
 
 describe('?backend override', () => {
-  it('?backend=local forces localhost:3000 even in production', () => {
+  it('?backend=local forces localhost:3000 for every endpoint even in production', () => {
     const options = { location: loc('example.com', '?backend=local', 'https:'), env: {} };
-    expect(getApiBase(options)).toBe('https://localhost:3000');
-    expect(getVouchersBase(options)).toBe('https://localhost:3000');
+    for (const url of resolveAll(options)) expect(url.startsWith('https://localhost:3000/')).toBe(true);
   });
 
-  it('?backend=<url> overrides both backends and strips one trailing slash', () => {
+  it('?backend=<url> overrides every endpoint and strips one trailing slash', () => {
     const options = { location: loc('example.com', '?backend=https://staging.example.com/'), env: {} };
+    for (const url of resolveAll(options)) expect(url.startsWith('https://staging.example.com/')).toBe(true);
     expect(getApiBase(options)).toBe('https://staging.example.com');
-    expect(getVouchersBase(options)).toBe('https://staging.example.com');
   });
 
   it('ignores values that are not http(s) urls', () => {
     const options = { location: loc('example.com', '?backend=javascript:alert(1)'), env: {} };
-    expect(getApiBase(options)).toBe(PROD_MAIN);
+    expect(getApiBase(options)).toBe(PROD);
   });
 
   it('wins over env variables', () => {
@@ -60,16 +84,10 @@ describe('?backend override', () => {
 });
 
 describe('env variables', () => {
-  it('VITE_API_URL overrides the main backend only', () => {
+  it('VITE_API_URL overrides every endpoint', () => {
     const options = { location: loc('example.com'), env: { VITE_API_URL: 'https://api.env.test/' } };
     expect(getApiBase(options)).toBe('https://api.env.test');
-    expect(getVouchersBase(options)).toBe(PROD_VOUCHERS);
-  });
-
-  it('VITE_VOUCHERS_API_URL overrides the vouchers backend only', () => {
-    const options = { location: loc('example.com'), env: { VITE_VOUCHERS_API_URL: 'https://v.env.test' } };
-    expect(getVouchersBase(options)).toBe('https://v.env.test');
-    expect(getApiBase(options)).toBe(PROD_MAIN);
+    for (const url of resolveAll(options)) expect(url.startsWith('https://api.env.test/')).toBe(true);
   });
 
   it('wins over the localhost default', () => {
@@ -78,7 +96,7 @@ describe('env variables', () => {
   });
 
   it('ignores empty values', () => {
-    expect(getApiBase({ location: loc('example.com'), env: { VITE_API_URL: '' } })).toBe(PROD_MAIN);
+    expect(getApiBase({ location: loc('example.com'), env: { VITE_API_URL: '' } })).toBe(PROD);
   });
 });
 

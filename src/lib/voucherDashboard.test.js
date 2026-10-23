@@ -67,7 +67,7 @@ describe('formatVoucherDate', () => {
 });
 
 describe('normalizeVoucherFiles', () => {
-  it('keeps files and prefixes relative urls with the vouchers base', () => {
+  it('keeps files and prefixes relative urls with the API base', () => {
     const files = normalizeVoucherFiles(
       {
         files: [
@@ -107,7 +107,7 @@ describe('normalizeVoucherFiles', () => {
 });
 
 describe('fetchVouchers', () => {
-  it('GETs /api/vouchers on the vouchers backend without an auth header and unwraps data', async () => {
+  it('GETs /api/vouchers on the backend without an auth header and unwraps data', async () => {
     const fetchMock = vi.fn().mockResolvedValue(json({ success: true, data: [{ nombre: 'Ana' }] }));
     vi.stubGlobal('fetch', fetchMock);
 

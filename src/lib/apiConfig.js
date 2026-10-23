@@ -1,25 +1,26 @@
 /**
- * Single place that resolves backend hosts.
+ * Single place that resolves the backend host. There is ONE backend (Vercel) for every
+ * request: auth, /health, /api/calculos-medidor*, /api/vouchers and /uploads/vouchers/*.
  *
  * Precedence (highest first):
  *   1. `?backend=local` or `?backend=<http(s) url>` query override
- *   2. Env variable (`VITE_API_URL` / `VITE_VOUCHERS_API_URL`)
- *   3. localhost / 127.0.0.1 -> http://localhost:3000 for everything
- *   4. Production host of each backend
- *
- * Production hosts per endpoint:
- *   - main backend (auth, /health, /api/calculos-medidor*) -> Vercel
- *   - vouchers backend (/api/vouchers, /uploads/vouchers/*) -> Render
+ *   2. `VITE_API_URL` env variable (dev only; it is baked into the bundle at build time)
+ *   3. localhost / 127.0.0.1 -> http://localhost:3000
+ *   4. Production default -> Vercel
  */
-const MAIN_PRODUCTION_URL = 'https://hostal-mayelewoo-backend.vercel.app';
-const VOUCHERS_PRODUCTION_URL = 'https://mayelewoo-back.onrender.com';
+const PRODUCTION_URL = 'https://hostal-mayelewoo-backend.vercel.app';
 const LOCAL_PORT = 3000;
 
 function stripTrailingSlash(url) {
   return url.replace(/\/$/, '');
 }
 
-function resolveBase({ envKey, productionUrl }, { location, env }) {
+function defaultOptions() {
+  return { location: window.location, env: import.meta.env };
+}
+
+/** Backend base URL for every request (auth, health, meters, vouchers and uploaded images). */
+export function getApiBase({ location, env } = defaultOptions()) {
   const { hostname, protocol, search } = location;
 
   const override = new URLSearchParams(search).get('backend');
@@ -30,35 +31,15 @@ function resolveBase({ envKey, productionUrl }, { location, env }) {
     return stripTrailingSlash(override);
   }
 
-  if (env[envKey]) {
-    return stripTrailingSlash(env[envKey]);
+  if (env.VITE_API_URL) {
+    return stripTrailingSlash(env.VITE_API_URL);
   }
 
   if (hostname === 'localhost' || hostname === '127.0.0.1') {
     return `${protocol}//${hostname}:${LOCAL_PORT}`;
   }
 
-  return productionUrl;
-}
-
-function defaultOptions() {
-  return { location: window.location, env: import.meta.env };
-}
-
-/** Main backend base URL (auth, health, meter calculations). */
-export function getApiBase({ location, env } = defaultOptions()) {
-  return resolveBase(
-    { envKey: 'VITE_API_URL', productionUrl: MAIN_PRODUCTION_URL },
-    { location, env },
-  );
-}
-
-/** Vouchers backend base URL (vouchers API and uploaded images). */
-export function getVouchersBase({ location, env } = defaultOptions()) {
-  return resolveBase(
-    { envKey: 'VITE_VOUCHERS_API_URL', productionUrl: VOUCHERS_PRODUCTION_URL },
-    { location, env },
-  );
+  return PRODUCTION_URL;
 }
 
 /** Joins a base URL and a path with exactly one slash between them. */

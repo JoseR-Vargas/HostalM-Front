@@ -87,7 +87,7 @@ describe('buildVoucherFormData', () => {
 describe('sendVoucher', () => {
   const okResponse = (body, status = 200) => new Response(JSON.stringify(body), { status });
 
-  it('POSTs multipart data to the vouchers backend', async () => {
+  it('POSTs multipart data to the backend', async () => {
     const fetchMock = vi.fn().mockResolvedValue(okResponse({ ok: true }));
     vi.stubGlobal('fetch', fetchMock);
     const body = buildVoucherFormData(data, [image()]);

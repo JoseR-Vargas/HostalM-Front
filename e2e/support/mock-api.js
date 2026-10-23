@@ -55,7 +55,7 @@ function defaultHandlers() {
  *
  * - Every request to `API_ORIGIN` is answered here and recorded in `requests`.
  * - Requests to the app itself pass through; fonts are served locally.
- * - ANY other request (vercel.app, onrender.com, ...) is aborted and recorded in `violations`,
+ * - ANY other request (any real host, e.g. vercel.app) is aborted and recorded in `violations`,
  *   so the test fails instead of ever reaching a real host.
  */
 export class MockApi {

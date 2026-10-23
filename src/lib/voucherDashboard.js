@@ -1,5 +1,5 @@
 import { apiFetch } from './apiClient';
-import { buildApiUrl, getVouchersBase } from './apiConfig';
+import { buildApiUrl, getApiBase } from './apiConfig';
 import { VOUCHER_DATE_FIELDS, filterByMonth, getRecordDate } from './dates';
 
 const IMAGE_FILE_REGEX = /\.(jpg|jpeg|png|gif|webp)$/i;
@@ -23,8 +23,8 @@ export function formatVoucherDate(voucher) {
 
 /**
  * Files to show for a voucher, as `{ name, url? }`.
- * - Raw backend vouchers only carry `fotos` (file names): the url is built on the vouchers base.
- * - Relative urls (`/uploads/...`) are prefixed with the vouchers base.
+ * - Raw backend vouchers only carry `fotos` (file names): the url is built on the API base.
+ * - Relative urls (`/uploads/...`) are prefixed with the API base.
  */
 export function normalizeVoucherFiles(voucher, base) {
   let files = Array.isArray(voucher.files) ? voucher.files : [];
@@ -42,11 +42,11 @@ export function normalizeVoucherFiles(voucher, base) {
 }
 
 /**
- * GET /api/vouchers on the vouchers backend. Like the original dashboard it sends no
+ * GET /api/vouchers on the backend. Like the original dashboard it sends no
  * auth header and answers `{ success, data: [...] }`. Rejects when the request fails.
  */
 export async function fetchVouchers({ signal } = {}) {
-  const response = await apiFetch(buildApiUrl(getVouchersBase(), '/api/vouchers'), { signal });
+  const response = await apiFetch(buildApiUrl(getApiBase(), '/api/vouchers'), { signal });
   if (!response.ok) throw new Error(`HTTP ${response.status}`);
   const body = await response.json();
   const vouchers = body.data || body;

@@ -1,5 +1,5 @@
 import { apiFetch } from './apiClient';
-import { buildApiUrl, getVouchersBase } from './apiConfig';
+import { buildApiUrl, getApiBase } from './apiConfig';
 import { validateVoucherFiles } from './files';
 import { validateVoucherAmount } from './money';
 import { isValidEmail } from './validators';
@@ -31,7 +31,7 @@ export function buildVoucherFormData(data, files) {
 
 /** POST /api/vouchers (multipart). Throws when the server answers with a non-2xx status. */
 export async function sendVoucher(formData) {
-  const response = await apiFetch(buildApiUrl(getVouchersBase(), '/api/vouchers'), {
+  const response = await apiFetch(buildApiUrl(getApiBase(), '/api/vouchers'), {
     method: 'POST',
     formData,
   });

@@ -69,21 +69,20 @@ En `localhost` la app apunta al backend local `http://localhost:3000`.
 
 ## Configuración de la API
 
-Todo se resuelve en un solo módulo: [`src/lib/apiConfig.js`](src/lib/apiConfig.js).
+Hay **un solo backend** (Vercel) para todas las peticiones: login (`/api/auth/login`), `/health`, `/api/calculos-medidor*`, `/api/vouchers` y las imágenes `/uploads/vouchers/*`. Todo se resuelve en un solo módulo: [`src/lib/apiConfig.js`](src/lib/apiConfig.js).
 
-| Endpoint | Host de producción |
-|---|---|
-| Login (`/api/auth/login`), `/health`, `/api/calculos-medidor` | `https://hostal-mayelewoo-backend.vercel.app` |
-| `/api/vouchers` y `/uploads/vouchers/*` | `https://mayelewoo-back.onrender.com` |
+Host de producción: `https://hostal-mayelewoo-backend.vercel.app`
 
 Orden de prioridad (de mayor a menor):
 
-1. Query `?backend=local` (usa `http://localhost:3000`) o `?backend=<url http(s)>`.
-2. Variables de entorno `VITE_API_URL` (backend principal) y `VITE_VOUCHERS_API_URL` (vouchers).
-3. Si la página corre en `localhost` o `127.0.0.1`: `http://localhost:3000` para todo.
-4. Hosts de producción de la tabla anterior.
+1. Query `?backend=local` (usa `http://localhost:3000`) o `?backend=<url http(s)>`; aplica a todas las peticiones.
+2. Variable de entorno opcional `VITE_API_URL`.
+3. Si la página corre en `localhost` o `127.0.0.1`: `http://localhost:3000`.
+4. Host de producción (Vercel).
 
-> **Producción:** `VITE_API_URL` y `VITE_VOUCHERS_API_URL` deben estar **sin definir**. Si se definen, reemplazan los hosts actuales. Ver [`.env.example`](.env.example).
+> **Producción (Netlify/Vercel):** `VITE_API_URL` debe estar **sin definir**. Vite la incrusta en el bundle al momento del build, así que un `.env` local con `VITE_API_URL=http://localhost:3000` es solo para desarrollo: si se usa para generar un build de producción, ese bundle apuntaría a localhost. Ver [`.env.example`](.env.example).
+
+> **CORS:** el backend (`src/main.ts`) permite `https://hostalmayelewoo.netlify.app`, localhost y los deploy previews / branch deploys de ese sitio (`https://<deploy>--hostalmayelewoo.netlify.app`). Otro dominio de frontend debe agregarse allí.
 
 ## Autenticación
 
@@ -91,14 +90,16 @@ Orden de prioridad (de mayor a menor):
 - El token se guarda en `sessionStorage` bajo la clave `mayelewoo_admin_token` (se pierde al cerrar la pestaña).
 - `ProtectedRoute` solo comprueba que exista el token; el logout lo elimina. Al entrar a una ruta Admin además llama a `GET /health` una vez (precalienta el backend; sin UI, los errores se ignoran).
 
-## Deploy (Vercel)
+## Deploy (Netlify)
 
 | Ajuste | Valor |
 |---|---|
 | Build command | `npm run build` |
-| Output directory | `dist` |
-| Rewrites | `vercel.json` envía todas las rutas a `/index.html` (SPA) |
-| Variables `VITE_*` | Sin definir (ver arriba) |
+| Publish directory | `dist` |
+| Rewrites | `netlify.toml` envía todas las rutas a `/index.html` (SPA) |
+| Variable `VITE_API_URL` | Sin definir (ver arriba) |
+
+`vercel.json` (mismo rewrite SPA) se conserva por si se despliega el frontend en Vercel.
 
 ## Tests e2e
 

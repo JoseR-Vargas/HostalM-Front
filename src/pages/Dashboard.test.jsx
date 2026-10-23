@@ -117,7 +117,7 @@ describe('Dashboard', () => {
     expect(container.querySelector('#voucherTable')).toBeTruthy();
   });
 
-  it('renders image files as thumbnails on the vouchers base and other files as links', async () => {
+  it('renders image files as thumbnails on the API base and other files as links', async () => {
     mockVouchers([
       {
         ...ana,
