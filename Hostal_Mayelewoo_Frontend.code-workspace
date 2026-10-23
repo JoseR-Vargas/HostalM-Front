@@ -1,0 +1,43 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../Hostal_Mayelewoo_Backend"
+		}
+	],
+	"settings": {
+		"liveServer.settings.multiRootWorkspaceName": "Hostal_Mayelewoo_Frontend",
+		"workbench.colorCustomizations": {
+			"activityBar.activeBackground": "#0b0e6a",
+			"activityBar.activeBorder": "#e7e7e7",
+			"activityBar.background": "#0b0e6a",
+			"activityBar.foreground": "#e7e7e7",
+			"activityBar.inactiveForeground": "#e7e7e799",
+			"activityBarBadge.background": "#ad1217",
+			"activityBarBadge.foreground": "#e7e7e7",
+			"activityBarTop.activeBackground": "#0b0e6a",
+			"activityBarTop.activeBorder": "#e7e7e7",
+			"activityBarTop.background": "#0b0e6a",
+			"activityBarTop.foreground": "#e7e7e7",
+			"activityBarTop.inactiveForeground": "#e7e7e799",
+			"commandCenter.border": "#e7e7e799",
+			"commandCenter.foreground": "#e7e7e7",
+			"sash.hoverBorder": "#0b0e6a",
+			"statusBar.background": "#06083c",
+			"statusBar.debuggingBackground": "#06083c",
+			"statusBar.debuggingForeground": "#e7e7e7",
+			"statusBar.foreground": "#e7e7e7",
+			"statusBar.inactiveBackground": "#06083c",
+			"statusBarItem.hoverBackground": "#0b0e6a",
+			"statusBarItem.remoteBackground": "#910e13",
+			"statusBarItem.remoteForeground": "#e7e7e7",
+			"titleBar.activeBackground": "#06083c",
+			"titleBar.activeForeground": "#e7e7e7",
+			"titleBar.inactiveBackground": "#06083c99",
+			"titleBar.inactiveForeground": "#e7e7e799"
+		},
+		"peacock.color": "#06083c"
+	}
+}
