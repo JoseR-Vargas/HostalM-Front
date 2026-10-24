@@ -28,7 +28,8 @@ const EMPTY_FORM = {
 };
 
 const COUNTER_TONES = { warning: 'text-warning', 'near-limit': 'text-secondary' };
-const INVALID_FIELD = 'error-field border-[#e53e3e]! shadow-[0_0_0_3px_rgba(229,62,62,0.1)]!';
+// `error-field` is the hook for tests; the red look is the same as the `Field` `error` prop (Preline input recipe).
+const INVALID_FIELD = 'error-field border-red-500! focus:border-red-500! focus:ring-red-500!';
 
 function isFieldInvalid(name, value) {
   if (!value.trim()) return true;

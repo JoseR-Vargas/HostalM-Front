@@ -95,7 +95,7 @@ export default function Login() {
                 <Banner
                   id="loginError"
                   tone="error"
-                  className="error-message mt-2 p-3 text-[0.85rem] leading-[1.3]"
+                  className="error-message mt-2 mb-4 p-3 text-[0.85rem] leading-[1.3]"
                   style={{ display: error ? 'block' : 'none' }}
                 >
                   {error}

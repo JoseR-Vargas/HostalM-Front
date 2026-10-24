@@ -220,7 +220,7 @@ export default function CalcularPago() {
                     <Td>{resident.habitacion}</Td>
                     <Td>{formatDecimal1(resident.consumoCalculado)} kWh</Td>
                     <Td>
-                      <Button type="button" onClick={() => handleSelect(resident.habitacion)}>
+                      <Button variant="link" type="button" onClick={() => handleSelect(resident.habitacion)}>
                         Seleccionar
                       </Button>
                     </Td>

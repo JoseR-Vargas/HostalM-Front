@@ -52,11 +52,11 @@ Para mobile se apila en este orden: base, `tablet:`, `phone:`.
 
 | Componente | Rol |
 |---|---|
-| `ui.jsx` | Primitivos: `cls`, `SectionTitle`, `SectionSubtitle`, `PageHeading`, `PageSection` (sección bajo el header fijo), `Banner` (`tone` = `error`/`success`), `FormCard`, `FormRow`, `Field` (label + control + ayuda/error/unidad), `Button` (`variant` = `cta`/`submit`/`primary`/`secondary`, `processing`), `Spinner` |
+| `ui.jsx` | Primitivos: `cls`, `SectionTitle`, `SectionSubtitle`, `PageHeading`, `PageSection` (sección bajo el header fijo), `Banner` (`tone` = `error`/`success`), `FormCard`, `FormRow`, `Field` (label + control + ayuda/error/unidad, receta de input Preline), `Button` (`variant` = `cta`/`submit`/`primary`/`secondary`/`link`, `size="sm"`, `processing`), `Spinner`, `TABLE_LINK` |
 | `PublicHeader` / `AdminHeader` | Header fijo sobre `Header`. Links por página en `navLinks.js`; el admin agrega el botón de logout |
 | `Footer` | `home`, `vouchers` o mínimo (copyright, páginas admin) |
-| `Modal` | Overlay + caja. Props: `open`, `onBackdropClick`, `contentClassName`; `ModalTitle` |
-| `DataTable` (`Tr`, `Td`, `EmptyState`) | Tabla en tarjeta; hasta 768px cada fila es una tarjeta y la celda muestra su `label` |
+| `Modal` | Modal estático con la receta Preline (sin JS de Preline: abre/cierra React). Props: `open`, `title`/`titleId` (`ModalTitle`), `onClose` (muestra la X y cierra con Escape), `closeClassName`, `onBackdropClick`, `footer`, `size` (`default`/`wide`), `bodyClassName` |
+| `DataTable` (`Tr`, `Td`, `EmptyState`) | Tabla Preline con scroll horizontal propio (`min-w-full`, `divide-y divide-table-line`). `Td wrap` deja que el contenido largo (miniaturas, links) baje de línea; `data-label` se conserva |
 | `MetricCard` / `Metric` | Tarjeta de estadística |
 | `MonthPager` | Selector `← Mes Año →` de las páginas admin |
 | `Reveal` | Fade-in al entrar al viewport |
@@ -72,6 +72,9 @@ Para mobile se apila en este orden: base, `tablet:`, `phone:`.
 - **Valores arbitrarios para paridad.** El diseño original usa `rem`/`px` puntuales; se copian tal cual (`px-[1.2rem]`) en lugar de redondear a la escala de Tailwind.
 - **`ReceiptTemplate` conserva estilos inline.** `html2canvas` (vía `html2pdf.js`) lee estilos computados de la hoja del PDF, que no debe depender de CSS global ni de clases. No la migres a Tailwind.
 - **Botones Preline.** `Button` usa las recetas pill de Preline: `primary` (`bg-primary`) y `secondary` (`bg-layer`). `cta` y `submit` se mantienen por sus clases-gancho (`cta-button`, `submit-button`) y se ven como `primary`; `submit` ocupa todo el ancho. Sin Preflight, el botón agrega `font-sans` para heredar la fuente de la app.
+- **Inputs Preline.** `Field` aplica la receta única de input (`rounded-full bg-layer border-layer-line focus:ring-primary-focus ...`) a `input` y `select`; el `textarea` usa `rounded-2xl` (un pill no sirve para varias líneas) y el `select` agrega `pe-9` para la flecha de `@tailwindcss/forms`. Con `error` el control suma `border-red-500!` (el `!` es necesario porque la receta fija las mismas propiedades) y el grupo lleva la clase-gancho `error`. Los `type=file` conservan su estilo propio. Sin Preflight, el control agrega `font-sans`.
+- **Modales Preline.** Estructura fija: overlay (`z-80`, fondo `bg-black/50`) → contenedor `sm:max-w-lg` → tarjeta `bg-overlay` con cabecera (título + X `aria-label="Close"`), cuerpo y pie opcional. Como el overlay queda en `z-80`, el header fijo está en `z-50`: no subas ningún elemento fijo por encima de 80 salvo el overlay de carga.
+- **Tablas Preline.** `DataTable` ya no convierte las filas en tarjetas en mobile: la caja hace scroll horizontal. Lleva `border-collapse` porque sin Preflight `divide-y` no dibuja las líneas entre filas, y `w-full max-w-full` para que una tabla ancha no ensanche la página. Las acciones dentro de celdas usan `Button variant="link"` o `TABLE_LINK`.
 - **Botón `processing`.** `Button processing` agrega la clase `processing` y `pointer-events-none` y muestra un `Spinner` antes del contenido (sin texto para lectores de pantalla, el texto del botón ya dice "Procesando...").
 - **Un solo spinner.** Usá `Spinner` (`size`, `tone`, `label`, `className`) para cualquier carga; no armes anillos con bordes a mano. Si va dentro de un texto o botón que ya dice qué carga, pasá `label={null}`.
 

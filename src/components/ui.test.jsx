@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it } from 'vitest';
 import { cleanup, render } from '@testing-library/react';
-import { Button, Spinner } from './ui';
+import { Button, Field, Spinner } from './ui';
 
 afterEach(cleanup);
 
@@ -83,5 +83,67 @@ describe('Button', () => {
 
     expect(container.firstChild.tagName).toBe('A');
     expect(container.firstChild.getAttribute('class')).toContain(PRIMARY);
+  });
+});
+
+const INPUT =
+  'py-2.5 sm:py-3 px-4 rounded-full block w-full bg-layer border-layer-line sm:text-sm text-foreground placeholder:text-muted-foreground-1 focus:border-primary-focus focus:ring-primary-focus disabled:opacity-50 disabled:pointer-events-none';
+
+describe('Button sizes', () => {
+  it('uses the small recipes of the modal footers and the table link recipe', () => {
+    const { container } = render(
+      <>
+        <Button variant="primary" size="sm">A</Button>
+        <Button variant="secondary" size="sm">B</Button>
+        <Button variant="link">C</Button>
+      </>,
+    );
+    const [primary, secondary, link] = container.querySelectorAll('button');
+
+    expect(primary.getAttribute('class')).toContain('py-2 px-3 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg bg-primary');
+    expect(primary.getAttribute('class')).toContain('focus:bg-primary-focus');
+    expect(secondary.getAttribute('class')).toContain('rounded-lg bg-layer border border-layer-line text-layer-foreground shadow-2xs');
+    expect(secondary.getAttribute('class')).toContain('focus:bg-layer-focus');
+    expect(link.getAttribute('class')).toContain('text-primary hover:text-primary-hover focus:outline-hidden focus:text-primary-focus');
+    expect(link.getAttribute('class')).not.toContain('bg-primary');
+  });
+});
+
+describe('Field', () => {
+  it('renders the Preline input recipe and keeps the error hook only while the field is invalid', () => {
+    const { container, rerender } = render(<Field id="nombre" label="Nombre" type="text" />);
+    const input = container.querySelector('input#nombre');
+
+    expect(input.getAttribute('class')).toContain(INPUT);
+    // The recipe only sets the border colour: `border` gives it the solid style (no Preflight).
+    expect(input.classList.contains('border')).toBe(true);
+    expect(input.getAttribute('name')).toBe('nombre');
+    expect(container.querySelector('.form-group').classList.contains('error')).toBe(false);
+    expect(input.getAttribute('class')).not.toContain('border-red-500');
+
+    rerender(<Field id="nombre" label="Nombre" type="text" error errorMessage="Falta" />);
+    expect(container.querySelector('.form-group').classList.contains('error')).toBe(true);
+    expect(container.querySelector('input#nombre').getAttribute('class')).toContain('border-red-500!');
+  });
+
+  it('gives textareas a softer radius and selects room for their arrow', () => {
+    const { container } = render(
+      <>
+        <Field id="mensaje" label="Mensaje" as="textarea" />
+        <Field id="tipo" label="Tipo" as="select"><option>a</option></Field>
+      </>,
+    );
+
+    expect(container.querySelector('textarea').getAttribute('class')).toContain('rounded-2xl');
+    expect(container.querySelector('textarea').getAttribute('class')).not.toContain('rounded-full');
+    expect(container.querySelector('select').getAttribute('class')).toContain(INPUT);
+    expect(container.querySelector('select').getAttribute('class')).toContain('pe-9');
+  });
+
+  it('keeps the custom look of file inputs instead of the pill recipe', () => {
+    const { container } = render(<Field id="fotos" label="Fotos" type="file" />);
+
+    expect(container.querySelector('input#fotos').getAttribute('class')).not.toContain('rounded-full');
+    expect(container.querySelector('input#fotos').getAttribute('class')).toContain('border-2');
   });
 });

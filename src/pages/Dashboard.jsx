@@ -2,10 +2,10 @@ import { useEffect, useMemo, useState } from 'react';
 import AdminHeader from '../components/AdminHeader';
 import { DataTable, EmptyState, Td, Tr } from '../components/DataTable';
 import Footer from '../components/Footer';
-import Modal from '../components/Modal';
+import Modal, { ModalTitle } from '../components/Modal';
 import MonthPager from '../components/MonthPager';
 import { ADMIN_NAV } from '../components/navLinks';
-import { PageSection, SectionSubtitle } from '../components/ui';
+import { cls, PageSection, SectionSubtitle, TABLE_LINK } from '../components/ui';
 import { getApiBase } from '../lib/apiConfig';
 import { useMonthPager } from '../lib/useMonthPager';
 import {
@@ -17,11 +17,6 @@ import {
 } from '../lib/voucherDashboard';
 
 const COLUMNS = ['Nombre', 'DNI', 'Email', 'Ref 4', 'Hab/Apto', 'Monto', 'Fecha', 'Archivos'];
-
-const IMAGE_BOX =
-  'relative flex w-[90%] max-h-fit max-w-fit flex-col items-center justify-center rounded-xl border border-border bg-white p-8 text-center shadow-[0_20px_60px_rgba(0,0,0,0.4)] tablet:m-4 tablet:max-h-[95vh] tablet:max-w-[95vw] tablet:p-4';
-const CLOSE_BUTTON =
-  'close-modal-btn absolute top-2 right-2 z-10001 flex size-10 cursor-pointer items-center justify-center rounded-full border-2 border-border bg-white text-[2rem] leading-none font-bold text-ink shadow-[0_2px_8px_rgba(0,0,0,0.2)] transition-all duration-300 ease-[ease] hover:scale-110 hover:rotate-90 hover:border-primary hover:bg-primary hover:text-white hover:shadow-[0_6px_24px_rgba(43,108,176,0.6)] tablet:top-1 tablet:right-1 tablet:size-[35px] tablet:text-[1.75rem]';
 
 function fileLabel(file, index) {
   return file.name || `Archivo ${index + 1}`;
@@ -45,7 +40,7 @@ function ImageThumbnail({ file, index, onOpen }) {
         onError={() => setFailed(true)}
       />
       {failed && (
-        <a href={file.url} target="_blank" rel="noopener">
+        <a href={file.url} target="_blank" rel="noopener" className={cls(TABLE_LINK, 'hover:text-shadow-none')}>
           {fileLabel(file, index)}
         </a>
       )}
@@ -60,7 +55,7 @@ function FileLink({ file, index }) {
       download={file.name || ''}
       target={file.url ? '_blank' : '_self'}
       rel="noopener"
-      className="mx-[5px]"
+      className={cls(TABLE_LINK, 'mx-[5px] hover:text-shadow-none')}
     >
       {fileLabel(file, index)}
     </a>
@@ -86,7 +81,7 @@ function VoucherRow({ voucher, apiBase, onOpenImage }) {
           {value}
         </Td>
       ))}
-      <Td label="Archivos">
+      <Td label="Archivos" wrap>
         {files.length === 0
           ? '—'
           : files.map((file, index) =>
@@ -103,19 +98,23 @@ function VoucherRow({ voucher, apiBase, onOpenImage }) {
 
 function ImageModal({ image, onClose }) {
   return (
-    <Modal id="imageModal" open={image !== null} onBackdropClick={onClose} contentClassName={IMAGE_BOX}>
-      <span className={CLOSE_BUTTON} onClick={onClose}>
-        &times;
-      </span>
+    <Modal
+      id="imageModal"
+      open={image !== null}
+      size="wide"
+      titleId="modalImageName"
+      title={<ModalTitle id="modalImageName" className="min-w-0 pe-2 break-words">{image ? image.name || 'Imagen' : ''}</ModalTitle>}
+      onClose={onClose}
+      closeClassName="close-modal-btn"
+      onBackdropClick={onClose}
+      bodyClassName="flex justify-center"
+    >
       <img
         id="modalImage"
-        className="block h-auto max-h-[80vh] w-auto max-w-[85vw] rounded-lg object-contain tablet:max-h-[75vh] tablet:max-w-[90vw]"
+        className="block h-auto max-h-[70vh] w-auto max-w-full rounded-lg object-contain"
         src={image?.url}
         alt="Vista completa"
       />
-      <p id="modalImageName" className="mt-6 text-[1.1rem] font-semibold text-primary tablet:mt-4 tablet:text-[0.95rem]">
-        {image ? image.name || 'Imagen' : ''}
-      </p>
     </Modal>
   );
 }

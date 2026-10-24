@@ -119,6 +119,7 @@ export default function CalculatorMedidor() {
 
   const consumption = getConsumptionPreview(values.medicionAnterior, values.medicionActual);
   const modalOpen = resultKwh !== null;
+  const closeResult = () => setResultKwh(null);
 
   // Block page scroll while the result dialog is open.
   useEffect(() => {
@@ -308,8 +309,19 @@ export default function CalculatorMedidor() {
         </div>
       </main>
 
-      <Modal id="resultModal" open={modalOpen}>
-        <ModalTitle>✅ Datos enviados correctamente</ModalTitle>
+      <Modal
+        id="resultModal"
+        open={modalOpen}
+        titleId="resultModalTitle"
+        title={<ModalTitle id="resultModalTitle">✅ Datos enviados correctamente</ModalTitle>}
+        onClose={closeResult}
+        bodyClassName="text-center"
+        footer={
+          <Button variant="primary" size="sm" className="close-modal" onClick={closeResult}>
+            Cerrar
+          </Button>
+        }
+      >
         <p>Consumo calculado:</p>
         <div className="my-4 text-[2.5rem] font-extrabold text-primary" id="modalAmount">
           {formatKwh(resultKwh ?? 0)}
@@ -317,9 +329,6 @@ export default function CalculatorMedidor() {
         <p>
           <strong>Fecha tope de pago 05 de cada mes</strong>
         </p>
-        <Button className="close-modal mt-6" onClick={() => setResultKwh(null)}>
-          Cerrar
-        </Button>
       </Modal>
     </div>
   );
