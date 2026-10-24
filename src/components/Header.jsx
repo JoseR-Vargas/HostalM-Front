@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import { cls } from './ui';
 
 const HEADER =
-  'header fixed inset-x-0 top-0 z-1000 border-b border-border bg-[linear-gradient(135deg,rgba(255,255,255,0.95)_0%,rgba(248,249,250,0.95)_50%,rgba(240,244,248,0.95)_100%)] py-6 text-ink shadow-card backdrop-blur-[15px] phone:py-[0.8rem]';
+  'header fixed inset-x-0 top-0 z-50 border-b border-border bg-[linear-gradient(135deg,rgba(255,255,255,0.95)_0%,rgba(248,249,250,0.95)_50%,rgba(240,244,248,0.95)_100%)] py-6 text-ink shadow-card backdrop-blur-[15px] phone:py-[0.8rem]';
 const NAV =
   'nav flex flex-wrap items-center tablet:flex-col tablet:gap-4 tablet:px-[15px] tablet:text-center phone:gap-[0.4rem] phone:px-2.5';
 const LOGO =

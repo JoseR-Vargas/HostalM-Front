@@ -4,7 +4,7 @@ import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { AuthProvider } from '../auth/AuthContext';
 import AdminHeader from './AdminHeader';
 import Footer from './Footer';
-import Modal from './Modal';
+import Modal, { ModalTitle } from './Modal';
 import PublicHeader from './PublicHeader';
 import { ADMIN_NAV, HOME_LINKS } from './navLinks';
 
@@ -126,3 +126,75 @@ describe('Modal', () => {
     expect(closed).toBe(1);
   });
 });
+
+describe('Modal recipe', () => {
+  it('renders the Preline card with header, title, close button, body and footer', () => {
+    let closed = 0;
+    const { container } = wrap(
+      <Modal
+        id="m"
+        open
+        titleId="mTitle"
+        title={<ModalTitle id="mTitle">Titulo</ModalTitle>}
+        onClose={() => closed++}
+        closeClassName="close-modal"
+        footer={<button type="button">Aceptar</button>}
+      >
+        <p>cuerpo</p>
+      </Modal>,
+    );
+    const overlay = container.querySelector('#m');
+
+    expect(overlay.getAttribute('class')).toContain('size-full fixed top-0 inset-s-0 z-80 overflow-x-hidden overflow-y-auto transition-all');
+    expect(overlay.getAttribute('aria-labelledby')).toBe('mTitle');
+    expect(container.querySelector('.modal-content').getAttribute('class')).toContain(
+      'flex flex-col bg-overlay border border-overlay-line shadow-2xs rounded-xl pointer-events-auto',
+    );
+    expect(container.querySelector('#mTitle').textContent).toBe('Titulo');
+    const close = screen.getByRole('button', { name: 'Close' });
+    expect(close.classList.contains('close-modal')).toBe(true);
+    expect(close.querySelector('svg path')).not.toBeNull();
+    expect(screen.getByText('Aceptar')).not.toBeNull();
+
+    fireEvent.click(close);
+    expect(closed).toBe(1);
+  });
+
+  it('closes with Escape only while it is open and has no close button without onClose', () => {
+    let closed = 0;
+    const onClose = () => closed++;
+    const { rerender, container } = wrap(
+      <Modal id="m" open={false} onClose={onClose}>
+        <p>x</p>
+      </Modal>,
+    );
+    fireEvent.keyDown(document, { key: 'Escape' });
+    expect(closed).toBe(0);
+
+    rerender(
+      <AuthProvider>
+        <MemoryRouter>
+          <Modal id="m" open onClose={onClose}>
+            <p>x</p>
+          </Modal>
+        </MemoryRouter>
+      </AuthProvider>,
+    );
+    fireEvent.keyDown(document, { key: 'Enter' });
+    expect(closed).toBe(0);
+    fireEvent.keyDown(document, { key: 'Escape' });
+    expect(closed).toBe(1);
+
+    rerender(
+      <AuthProvider>
+        <MemoryRouter>
+          <Modal id="m" open>
+            <p>x</p>
+          </Modal>
+        </MemoryRouter>
+      </AuthProvider>,
+    );
+    expect(container.querySelector('button')).toBeNull();
+  });
+});
+

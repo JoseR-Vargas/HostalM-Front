@@ -52,9 +52,10 @@ afterEach(() => {
 });
 
 describe('CalculatorMedidor', () => {
-  it('renders the form with the logo-only header', () => {
+  it('renders the form with a header nav link to the home page', () => {
     const { container, getByText } = renderPage();
-    expect(container.querySelector('header.header a.logo').getAttribute('href')).toBe('/');
+    const links = [...container.querySelectorAll('header.header nav.nav-menu a.nav-link')];
+    expect(links.map((a) => [a.textContent, a.getAttribute('href')])).toEqual([['Inicio', '/#inicio']]);
     expect(getByText('Calculadora de Medidor')).toBeTruthy();
     expect(container.querySelector('#dni').getAttribute('type')).toBe('number');
     expect(container.querySelector('#calculationPreview').classList.contains('show')).toBe(false);

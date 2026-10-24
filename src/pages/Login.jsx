@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../auth/useAuth';
 import PublicHeader from '../components/PublicHeader';
-import { Banner, Field } from '../components/ui';
+import { Banner, Button, Field, Spinner } from '../components/ui';
 import { LOGIN_LINKS } from '../components/navLinks';
 import { validateLoginCredentials } from '../lib/validators';
 
@@ -95,24 +95,22 @@ export default function Login() {
                 <Banner
                   id="loginError"
                   tone="error"
-                  className="error-message mt-2 p-3 text-[0.85rem] leading-[1.3]"
+                  className="error-message mt-2 mb-4 p-3 text-[0.85rem] leading-[1.3]"
                   style={{ display: error ? 'block' : 'none' }}
                 >
                   {error}
                 </Banner>
 
-                <button
-                  type="submit"
-                  id="loginBtn"
-                  disabled={loading}
-                  className="flex w-full cursor-pointer items-center justify-center gap-[0.6rem] rounded-lg border-none bg-primary p-[0.85rem] text-[1rem] font-medium text-white transition-[background-color] duration-200 hover:bg-primary-dark disabled:cursor-not-allowed disabled:opacity-70"
-                >
+                <Button variant="primary" type="submit" id="loginBtn" disabled={loading} className="w-full">
                   <span>{getButtonLabel(loading, slow)}</span>
-                  <div
-                    className="loading-spinner size-4 shrink-0 animate-spin rounded-full border-2 border-white/60 border-t-white"
+                  <Spinner
+                    size="size-4"
+                    tone="text-primary-foreground"
+                    label={null}
+                    className="loading-spinner shrink-0"
                     style={{ display: loading ? 'inline-block' : 'none' }}
                   />
-                </button>
+                </Button>
               </form>
             </div>
           </div>

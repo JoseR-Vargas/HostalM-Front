@@ -21,6 +21,7 @@ En `localhost` la app apunta al backend local `http://localhost:3000`.
 | UI | React 19 |
 | Estilos | Tailwind CSS v4 (`@tailwindcss/vite`) |
 | Rutas | React Router |
+| Plugins Preline | File Upload (+ Dropzone), Advanced Select y Advanced Datepicker (+ Floating UI): `import()` dinámico, solo en las rutas que los usan |
 | PDF | html2pdf.js (carga diferida) |
 | Tests unitarios | Vitest + Testing Library (jsdom) |
 | Tests e2e | Playwright |
@@ -41,7 +42,7 @@ En `localhost` la app apunta al backend local `http://localhost:3000`.
 |---|---|
 | `src/app` | `App` y la tabla de rutas (`routes.jsx`) |
 | `src/pages` | Una página por ruta (`Home`, `Login`, `Vouchers`, `Dashboard`, ...) |
-| `src/components` | Primitivos de UI (`ui.jsx`), headers público/admin, `Footer`, `Modal`, tablas, plantilla de comprobantes |
+| `src/components` | Primitivos de UI (`ui.jsx`), headers público/admin, `Footer`, `Modal`, tablas, `FileUpload` (selector de fotos de `/vouchers`, plugin Preline + Dropzone cargado bajo demanda), `SelectField` y `DatePickerField` (período y fecha de los comprobantes, plugins Preline Advanced Select / Datepicker cargados bajo demanda, con el control nativo como fallback), plantilla de comprobantes |
 | `src/lib` | Lógica sin UI: configuración de API, dinero, mediciones, validaciones, PDF |
 | `src/auth` | Contexto de sesión, `ProtectedRoute` y login contra el backend |
 | `src/index.css` | Único CSS: import de Tailwind, tokens (`@theme`) y variantes; ver [`STYLES_GUIDE.md`](STYLES_GUIDE.md) |

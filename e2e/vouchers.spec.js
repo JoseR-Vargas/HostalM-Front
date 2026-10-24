@@ -1,6 +1,14 @@
-import { fakePng, fakeTextFile } from './support/files.js';
+import { PNG_BUFFER, fakePng, fakeTextFile } from './support/files.js';
 import { expect, test } from './support/fixtures.js';
 import { fileParts, textFields } from './support/multipart.js';
+import {
+  photoPicker,
+  photoPickerReady,
+  photoPreviews,
+  photoRemoveButtons,
+  photoTrigger,
+  selectPhotos,
+} from './support/voucher-photos.js';
 
 const VOUCHER = {
   nombre: '[TEST] Ana',
@@ -17,7 +25,7 @@ async function fillVoucher(page, overrides = {}, files = [fakePng('comprobante-1
   for (const [field, value] of Object.entries(data)) {
     await page.locator(`#${field}`).fill(value);
   }
-  if (files.length > 0) await page.locator('#fotos').setInputFiles(files);
+  if (files.length > 0) await selectPhotos(page, files);
   return data;
 }
 
@@ -29,9 +37,132 @@ test.describe('vouchers (public upload)', () => {
     await page.goto('/vouchers');
 
     await expect(page.locator('.section-title')).toHaveText('Carga de Comprobante');
-    await expect(page.locator('#voucherForm input:visible')).toHaveCount(8);
+    // The seven text fields; the photo picker is a drop zone whose file input is hidden.
+    await expect(page.locator('#voucherForm input:visible')).toHaveCount(7);
     await expect(page.locator('#submitBtn')).toHaveText('Enviar Voucher');
-    await expect(page.locator('#fotos')).toHaveAttribute('accept', 'image/*');
+    await expect(page.getByText('Fotos del comprobante (galería)*')).toBeVisible();
+    await expect(photoTrigger(page)).toBeVisible();
+    await expect(photoTrigger(page)).toContainText('Arrastrá tus fotos acá o');
+    await expect(page.locator('#fotosHelp')).toContainText('Hasta 50 MB en total.');
+    await expect(photoTrigger(page)).toHaveAttribute('aria-describedby', 'fotosHelp');
+    await photoPickerReady(page);
+    await expect(page.locator('.dz-hidden-input')).toHaveAttribute('accept', 'image/*');
+    await expect(page.locator('.dz-hidden-input')).toHaveAttribute('multiple', 'multiple');
+    await expect(photoPreviews(page)).toHaveCount(0);
+  });
+
+  test('the photos can be picked with the file chooser opened by the drop zone', async ({ page, mock }) => {
+    await page.goto('/vouchers');
+    await photoPickerReady(page);
+
+    const chooser = page.waitForEvent('filechooser');
+    await photoTrigger(page).click();
+    const fileChooser = await chooser;
+    expect(fileChooser.isMultiple()).toBe(true);
+    await fileChooser.setFiles([fakePng('desde-chooser.png')]);
+
+    await expect(photoPreviews(page)).toHaveCount(1);
+    await fillVoucher(page, {}, []);
+    await page.locator('#submitBtn').click();
+    await expect(banner(page)).toHaveText('¡Voucher enviado correctamente!');
+    expect(fileParts(mock.calls('POST', '/api/vouchers')[0].multipart).map((file) => file.filename)).toEqual([
+      'desde-chooser.png',
+    ]);
+  });
+
+  test('the drop zone opens the file chooser from the keyboard', async ({ page }) => {
+    await page.goto('/vouchers');
+    await photoPickerReady(page);
+
+    await photoTrigger(page).focus();
+    const chooser = page.waitForEvent('filechooser');
+    await page.keyboard.press('Enter');
+    await chooser;
+  });
+
+  test('files dropped on the drop zone are listed and sent', async ({ page, mock }) => {
+    await page.goto('/vouchers');
+    await photoPickerReady(page);
+
+    const dataTransfer = await page.evaluateHandle((base64) => {
+      const bytes = Uint8Array.from(atob(base64), (char) => char.charCodeAt(0));
+      const transfer = new DataTransfer();
+      transfer.items.add(new File([bytes], 'arrastrada.png', { type: 'image/png' }));
+      return transfer;
+    }, PNG_BUFFER.toString('base64'));
+    await photoPicker(page).dispatchEvent('drop', { dataTransfer });
+
+    await expect(photoPreviews(page)).toHaveCount(1);
+    await fillVoucher(page, {}, []);
+    await page.locator('#submitBtn').click();
+    await expect(banner(page)).toHaveText('¡Voucher enviado correctamente!');
+    expect(fileParts(mock.calls('POST', '/api/vouchers')[0].multipart).map((file) => file.filename)).toEqual([
+      'arrastrada.png',
+    ]);
+  });
+
+  test('each selected photo gets a preview card with its name and size', async ({ page }) => {
+    await page.goto('/vouchers');
+    await selectPhotos(page, [fakePng('comprobante-1.png'), fakePng('comprobante-2.jpeg')]);
+
+    await expect(photoPreviews(page)).toHaveCount(2);
+    const first = photoPreviews(page).nth(0);
+    await expect(first.locator('[data-hs-file-upload-file-name]')).toHaveText('comprobante-1');
+    await expect(first.locator('[data-hs-file-upload-file-ext]')).toHaveText('png');
+    await expect(first.locator('[data-hs-file-upload-file-size]')).toHaveText(`${PNG_BUFFER.length}.00 B`);
+    await expect(photoPreviews(page).nth(1).locator('[data-hs-file-upload-file-ext]')).toHaveText('jpeg');
+    // Nothing is uploaded by the widget itself: the progress bar stays at 0 and no request leaves the page.
+    await expect(first.locator('[data-hs-file-upload-progress-bar-value]')).toHaveText('0');
+  });
+
+  test('the trash button removes a photo and the POST carries only the remaining ones', async ({ page, mock }) => {
+    await page.goto('/vouchers');
+    await fillVoucher(page, {}, [fakePng('uno.png'), fakePng('dos.png'), fakePng('tres.png')]);
+    await expect(photoPreviews(page)).toHaveCount(3);
+
+    await photoRemoveButtons(page).nth(1).click();
+    await expect(photoPreviews(page)).toHaveCount(2);
+    await expect(photoPreviews(page).locator('[data-hs-file-upload-file-name]')).toHaveText(['uno', 'tres']);
+
+    await page.locator('#submitBtn').click();
+    await expect(banner(page)).toHaveText('¡Voucher enviado correctamente!');
+
+    const [request] = mock.calls('POST', '/api/vouchers');
+    expect(request.multipart.map((part) => part.name)).toEqual([
+      'nombre', 'apellido', 'dni', 'email', 'ref4', 'hab', 'monto', 'timestamp', 'files', 'files',
+    ]);
+    expect(fileParts(request.multipart).map((file) => file.filename)).toEqual(['uno.png', 'tres.png']);
+  });
+
+  test('removing every photo brings back the "no image attached" validation', async ({ page, mock }) => {
+    await page.goto('/vouchers');
+    await fillVoucher(page);
+    await photoRemoveButtons(page).first().click();
+    await expect(photoPreviews(page)).toHaveCount(0);
+
+    await page.locator('#submitBtn').click();
+    await expect(banner(page)).toHaveText('Debes adjuntar al menos una imagen del comprobante');
+    expect(mock.calls('POST', '/api/vouchers')).toHaveLength(0);
+  });
+
+  test('a file that is not an image is flagged right away, in its card and in a banner', async ({ page }) => {
+    await page.goto('/vouchers');
+    await selectPhotos(page, [fakePng('ok.png'), fakeTextFile('notas.txt')]);
+
+    await expect(banner(page)).toHaveText('Solo se permiten imágenes');
+    await expect(photoPreviews(page)).toHaveCount(2);
+    await expect(photoPreviews(page).nth(1).getByRole('alert')).toHaveText('Solo se permiten imágenes');
+    await expect(photoPreviews(page).nth(0).getByRole('alert')).toHaveCount(0);
+  });
+
+  test('the same photo can be selected again after removing it', async ({ page }) => {
+    await page.goto('/vouchers');
+    await selectPhotos(page, [fakePng('repetida.png')]);
+    await photoRemoveButtons(page).click();
+    await expect(photoPreviews(page)).toHaveCount(0);
+
+    await selectPhotos(page, [fakePng('repetida.png')]);
+    await expect(photoPreviews(page)).toHaveCount(1);
   });
 
   test('a valid submit sends the multipart voucher to the vouchers API', async ({ page, mock }) => {
@@ -76,7 +207,7 @@ test.describe('vouchers (public upload)', () => {
     for (const field of Object.keys(VOUCHER)) {
       await expect(page.locator(`#${field}`)).toHaveValue('');
     }
-    await expect(page.locator('#fotos')).toHaveValue('');
+    await expect(photoPreviews(page)).toHaveCount(0);
     await expect(page.locator('#submitBtn')).toHaveText('Enviar Voucher');
     await expect(page.locator('#submitBtn')).toBeEnabled();
     expect(await pendingVouchers(page)).toEqual([]);
@@ -197,7 +328,7 @@ test.describe('vouchers (public upload)', () => {
       for (const [field, value] of Object.entries(data)) {
         await expect(page.locator(`#${field}`)).toHaveValue(value);
       }
-      expect(await page.locator('#fotos').evaluate((input) => input.files.length)).toBe(1);
+      await expect(photoPreviews(page)).toHaveCount(1);
       expect(await pendingVouchers(page)).toEqual([]);
     });
   }
@@ -208,6 +339,7 @@ test.describe('vouchers (public upload)', () => {
     await fillVoucher(page);
     await page.locator('#submitBtn').click();
     await expect(banner(page)).toHaveText(FAILURE_MESSAGE);
+    await expect(photoPreviews(page)).toHaveCount(1);
 
     mock.on('POST', '/api/vouchers', { json: { success: true } });
     await page.locator('#submitBtn').click();

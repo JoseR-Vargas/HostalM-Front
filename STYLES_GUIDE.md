@@ -14,7 +14,8 @@ Los estilos usan **Tailwind CSS v4**: utilidades en el JSX, tokens de diseño en
 |---|---|
 | `src/index.css` | Único archivo CSS. Lo importa `src/main.jsx` una sola vez |
 | Plugin | `@tailwindcss/vite` en `vite.config.js`; no hay `tailwind.config.js` |
-| Capas | `theme` y `utilities` de Tailwind **sin Preflight** (ver abajo) + una capa `base` propia |
+| Capas | `theme` y `utilities` de Tailwind **sin Preflight** (ver abajo) + una capa `base` propia (más la de `@tailwindcss/forms`) |
+| Preline | Sistema de diseño CSS: `preline/variants.css`, `@tailwindcss/forms` y un subconjunto de sus tokens semánticos (ver Tokens). Plugins JS (solo tres, cargados bajo demanda): File Upload, Advanced Select y Advanced Datepicker; de ellos se importan `variants.css` y, del datepicker, `styles-utility.css` dentro de `layer(components)` |
 | Fuente | Open Sans desde Google Fonts en `index.html` (única hoja externa) |
 
 **Sin Preflight.** Probar `@import 'tailwindcss'` (con Preflight) cambia el render de todas las páginas: borde `solid` en cada elemento, botones e inputs que heredan la fuente, otros `line-height`. Se descartó porque el sitio no puede cambiar visualmente. La capa `base` de `index.css` trae los pocos resets que el diseño necesita (`margin/padding: 0`, `box-sizing`, tipografía de `body`, `h1`–`h3`, links).
@@ -27,9 +28,12 @@ Los estilos usan **Tailwind CSS v4**: utilidades en el JSX, tokens de diseño en
 | Fuente | `font-sans` (Open Sans + fallbacks del sistema) |
 | Sombras | `shadow-card`, `shadow-hover`, `shadow-glow` |
 | Gradientes | `bg-page`, `bg-soft`, `bg-card`, `bg-brand`, `bg-bar`, `bg-title`, `bg-band` |
-| Animaciones | `animate-pulse-glow` (botón CTA), `animate-fade-in`, `animate-slide-in`, `animate-spin-centered` (spinner de `processing`) |
+| Animaciones | `animate-fade-in`, `animate-slide-in`; `animate-spin` (de Tailwind) lo usa `Spinner` |
+| Tokens Preline | `primary-line`, `primary-foreground`, `primary-hover/focus/active/checked`, `foreground`, `layer*`, `surface*`, `muted-foreground(-1/-2)`, `line-3` (borde punteado del selector de fotos), `overlay*`, `table-line`, `scrollbar-track/thumb`, `select`, `select-line`, `select-item-foreground/hover/focus/active` (menú del Advanced Select) (tema claro de Preline) |
 
 Cambiar un valor afecta a todo el sitio.
+
+**Colisiones con Preline.** `theme.css` de Preline no se importa: redefine `primary`, `secondary`, `muted` y `border` con otro significado y agrega `* { border-color }`. Se conserva la marca: `primary` sigue siendo `#2b6cb0` y sus estados (`primary-hover/focus/active`) usan `#2c5282` (`primary-dark`); `secondary`, `muted` y `border` mantienen los valores propios. Tampoco se declaran `card*` ni `background*` porque chocarían con los gradientes `bg-card`/`bg-page`. Si se importa otro tema de Preline más adelante, revisá estos nombres primero.
 
 ## Variantes propias (breakpoints)
 
@@ -48,15 +52,17 @@ Para mobile se apila en este orden: base, `tablet:`, `phone:`.
 
 | Componente | Rol |
 |---|---|
-| `ui.jsx` | Primitivos: `cls`, `SectionTitle`, `SectionSubtitle`, `PageHeading`, `PageSection` (sección bajo el header fijo), `Banner` (`tone` = `error`/`success`), `FormCard`, `FormRow`, `Field` (label + control + ayuda/error/unidad), `Button` (`variant` = `cta`/`submit`, `processing`) |
+| `ui.jsx` | Primitivos: `cls`, `SectionTitle`, `SectionSubtitle`, `PageHeading`, `PageSection` (sección bajo el header fijo), `Banner` (`tone` = `error`/`success`), `FormCard`, `FormRow`, `FieldGroup` (grupo + label + mensaje de error, `error` solo mientras aplica), `Field` (`FieldGroup` + control nativo, receta de input Preline), `Button` (`variant` = `cta`/`submit`/`primary`/`secondary`/`link`, `size="sm"`, `processing`), `Spinner`, `TABLE_LINK` |
 | `PublicHeader` / `AdminHeader` | Header fijo sobre `Header`. Links por página en `navLinks.js`; el admin agrega el botón de logout |
 | `Footer` | `home`, `vouchers` o mínimo (copyright, páginas admin) |
-| `Modal` | Overlay + caja. Props: `open`, `onBackdropClick`, `contentClassName`; `ModalTitle` |
-| `DataTable` (`Tr`, `Td`, `EmptyState`) | Tabla en tarjeta; hasta 768px cada fila es una tarjeta y la celda muestra su `label` |
+| `Modal` | Modal estático con la receta Preline (sin JS de Preline: abre/cierra React). Props: `open`, `title`/`titleId` (`ModalTitle`), `onClose` (muestra la X y cierra con Escape), `closeClassName`, `onBackdropClick`, `footer`, `size` (`default`/`wide`), `bodyClassName` |
+| `DataTable` (`Tr`, `Td`, `EmptyState`) | Tabla Preline con scroll horizontal propio (`min-w-full`, `divide-y divide-table-line`). `Td wrap` deja que el contenido largo (miniaturas, links) baje de línea; `data-label` se conserva |
 | `MetricCard` / `Metric` | Tarjeta de estadística |
 | `MonthPager` | Selector `← Mes Año →` de las páginas admin |
 | `Reveal` | Fade-in al entrar al viewport |
-| `ReceiptFields` | Campos compartidos de los dos formularios de comprobantes |
+| `SelectField` | Preline Advanced Select sobre un `<select>` nativo (período de los comprobantes), con el markup de `Field` |
+| `DatePickerField` | Preline Advanced Datepicker (fecha de los comprobantes), con el markup de `Field` |
+| `ReceiptFields` | Campos compartidos de los dos formularios de comprobantes (usa `SelectField` y `DatePickerField`) |
 | `ReceiptTemplate` | Hoja A4 del PDF (excepción, ver abajo) |
 
 ## Convenciones
@@ -67,7 +73,18 @@ Para mobile se apila en este orden: base, `tablet:`, `phone:`.
 - **Los tamaños con nombre fijan `line-height`.** `text-lg`, `text-xl`… traen su propio `line-height`; para conservar el original usá valores arbitrarios (`text-[1.05rem]`) y, si hace falta, `leading-*`.
 - **Valores arbitrarios para paridad.** El diseño original usa `rem`/`px` puntuales; se copian tal cual (`px-[1.2rem]`) en lugar de redondear a la escala de Tailwind.
 - **`ReceiptTemplate` conserva estilos inline.** `html2canvas` (vía `html2pdf.js`) lee estilos computados de la hoja del PDF, que no debe depender de CSS global ni de clases. No la migres a Tailwind.
-- **Botón `processing`.** `Button processing` agrega la clase `processing`, `pointer-events-none`, opacidad 0.7 y un spinner `::after`. El `keyframes` está en `index.css`.
+- **Botones Preline.** `Button` usa las recetas pill de Preline: `primary` (`bg-primary`) y `secondary` (`bg-layer`). `cta` y `submit` se mantienen por sus clases-gancho (`cta-button`, `submit-button`) y se ven como `primary`; `submit` ocupa todo el ancho. Sin Preflight, el botón agrega `font-sans` para heredar la fuente de la app.
+- **Inputs Preline.** `Field` aplica la receta única de input (`rounded-full bg-layer border-layer-line focus:ring-primary-focus ...`) a `input` y `select`; el `textarea` usa `rounded-2xl` (un pill no sirve para varias líneas) y el `select` agrega `pe-9` para la flecha de `@tailwindcss/forms`. Con `error` el control suma `border-red-500!` (el `!` es necesario porque la receta fija las mismas propiedades) y el grupo lleva la clase-gancho `error`. Los `type=file` conservan su estilo propio. Sin Preflight, el control agrega `font-sans`.
+- **Selector de fotos (`FileUpload`).** `/vouchers` usa el plugin Preline File Upload (`@preline/file-upload` sobre Dropzone). Es el único plugin JS de Preline del proyecto: se carga con `import()` dinámico dentro del componente (chunks `lodash`, `dropzone` y `non-auto`, solo en esa ruta) y de `@preline/file-upload` solo se importa `variants.css` (su `theme.css` choca igual que el de Preline). Dropzone nunca sube nada (`autoProcessQueue: false`): el formulario arma el `FormData` con `getFiles()`. La plantilla de la tarjeta de preview es un string HTML (React no llena `template.content`) y las tarjetas las crea el plugin, fuera del árbol de React. Sobre la receta se agregaron: `bg-transparent border-0 p-1 -m-1` en el botón de quitar (sin Preflight, botón gris del navegador y área táctil de 24 px), `min-w-0`/`shrink-0` para que un nombre largo se trunque sin sacar el botón de la tarjeta y `size-full object-cover` en la miniatura (sin Preflight un `<img>` conserva su tamaño natural).
+- **Período y fecha de los comprobantes (`SelectField`, `DatePickerField`).** Son los otros dos plugins JS de Preline (`@preline/select`, `@preline/datepicker`, que trae Vanilla Calendar Pro). Mismo patrón que `FileUpload`: `import()` dinámico en un efecto (chunks aparte, solo en `/comprobante-pago` y `/comprobante-servicios`), una sola instancia bajo StrictMode, `destroy()` al desmontar y `data-ready="true"` cuando el plugin ya tomó el control. La clase minificada no empieza con `HS`, así que `window.$hsSelectCollection` / `$hsDatepickerCollection` se crean antes. React es la fuente de verdad: los cambios externos se empujan al plugin y los del usuario llegan por `change.hs.select` / `change.hs.datepicker` como `{ target: { name, value } }`. Fallback: mientras el plugin no cargó (o si el chunk falla) se ve el control nativo (`<select>` / `<input type="date">`), con la misma forma, así que el formulario siempre funciona.
+  - *Select:* el `<select id="periodo">` nativo queda siempre montado (valor de registro; el plugin lo oculta) y su botón es `#periodoToggle`. El menú usa `dropdownScope: "window"` (se agrega al `<body>` con Floating UI, que por eso es dependencia directa) porque la tarjeta del formulario tiene `overflow-hidden`, y `dropdownAutoPlacement` lo abre hacia arriba si abajo no entra. `destroy()` del plugin deja en el `<body>` el menú y los listeners de Floating UI: `SelectField` los limpia.
+  - *Datepicker:* el valor del formulario sigue siendo `YYYY-MM-DD` (como el input nativo); el input muestra `DD/MM/YYYY` y no se usa `dateFormat` del plugin (interpreta `YYYY-MM-DD` como UTC y en Argentina mostraría el día anterior). Se agregó a la receta: `dateMin` 2020-01-01 (sin él el plugin solo deja elegir desde hoy, y el input nativo no tenía límite), `selectedTheme: "light"`, `locale: "es-AR"`, `firstWeekday: 1`, `positionToInput: "center"`, los `aria-label` de las flechas, el nombre de los meses en español (se traducen antes de que el plugin arme sus selects: un callback pasado al constructor *reemplaza* a los del plugin y rompe esos selects) y el cierre del calendario al elegir un día. El calendario va al `<body>`. Al hacer clic otra vez en el día elegido se vacía la fecha (como se podía con el input nativo).
+  - *CSS:* `styles-utility.css` del datepicker se importa con `layer(components)` (sin capa le ganaría a las utilidades) y los `@source` de ambos `non-auto.mjs` hacen que Tailwind genere las clases que los plugins arman en su JS. `dark:` pasa a depender de un ancestro `.dark` (que no existe): los templates traen clases `dark:` y no deben seguir la preferencia del sistema. Sin Preflight los botones del calendario mostrarían el gris del navegador: `.vc button` se resetea en `@layer base`; `.vc` fija `width: 20rem` (es absoluto y se achicaría al espacio a la derecha del input) y apunta `blue-500/600` al `primary` de la marca.
+  - *Receta de clases:* se agregó `font-sans` (y un foco visible) al botón del select y `font-sans border cursor-pointer` al input de fecha (sin Preflight); la receta del select tenía un typo en el `xmlns` del SVG (`http:.w3.org`), corregido.
+- **Modales Preline.** Estructura fija: overlay (`z-80`, fondo `bg-black/50`) → contenedor `sm:max-w-lg` → tarjeta `bg-overlay` con cabecera (título + X `aria-label="Close"`), cuerpo y pie opcional. Como el overlay queda en `z-80`, el header fijo está en `z-50`: no subas ningún elemento fijo por encima de 80 salvo el overlay de carga.
+- **Tablas Preline.** `DataTable` ya no convierte las filas en tarjetas en mobile: la caja hace scroll horizontal. Lleva `border-collapse` porque sin Preflight `divide-y` no dibuja las líneas entre filas, y `w-full max-w-full` para que una tabla ancha no ensanche la página. Las acciones dentro de celdas usan `Button variant="link"` o `TABLE_LINK`.
+- **Botón `processing`.** `Button processing` agrega la clase `processing` y `pointer-events-none` y muestra un `Spinner` antes del contenido (sin texto para lectores de pantalla, el texto del botón ya dice "Procesando...").
+- **Un solo spinner.** Usá `Spinner` (`size`, `tone`, `label`, `className`) para cualquier carga; no armes anillos con bordes a mano. Si va dentro de un texto o botón que ya dice qué carga, pasá `label={null}`.
 
 ## Cómo agregar una página
 

@@ -1,6 +1,8 @@
 import { RECEIPT_MONTHS } from '../lib/receipts';
 import { formatMontoInputWithCaret } from '../lib/money';
 import { useCaretRestore } from '../lib/useCaretRestore';
+import DatePickerField from './DatePickerField';
+import SelectField from './SelectField';
 import { Field, FormRow } from './ui';
 
 /**
@@ -37,16 +39,16 @@ export function ReceiptAmountField({ name, label, placeholder, errorMessage, has
 /**
  * Client, property, period and receipt date, shared by both receipt forms.
  * `errors` is the list of invalid field names; `onChange(name, value)` receives the edits.
+ * The period is a Preline Advanced Select (month name) and the date a Preline Advanced Datepicker (`YYYY-MM-DD`);
+ * both fall back to the native controls if their plugin cannot be loaded.
  */
 export function ReceiptIdentityFields({ values, errors, onChange }) {
-  // The date input is named `fechaRecibo` but the form value is `fecha`.
-  const handleChange = (event) =>
-    onChange(event.target.name === 'fechaRecibo' ? 'fecha' : event.target.name, event.target.value);
+  const handleChange = (event) => onChange(event.target.name, event.target.value);
 
-  const field = (name, label, errorMessage, props, id = name) => (
+  const field = (name, label, errorMessage, props) => (
     <Field
       groupId={`group-${name}`}
-      id={id}
+      id={name}
       label={label}
       value={values[name]}
       onChange={handleChange}
@@ -72,20 +74,28 @@ export function ReceiptIdentityFields({ values, errors, onChange }) {
       </FormRow>
 
       <FormRow>
-        {field('periodo', 'Período', 'Seleccioná el período', {
-          as: 'select',
-          children: (
-            <>
-              <option value="">— Seleccioná el mes —</option>
-              {RECEIPT_MONTHS.map((month) => (
-                <option key={month} value={month}>
-                  {month}
-                </option>
-              ))}
-            </>
-          ),
-        })}
-        {field('fecha', 'Fecha del recibo', 'Seleccioná la fecha del recibo', { type: 'date' }, 'fechaRecibo')}
+        <SelectField
+          id="periodo"
+          groupId="group-periodo"
+          label="Período"
+          placeholder="— Seleccioná el mes —"
+          options={RECEIPT_MONTHS}
+          value={values.periodo}
+          onChange={handleChange}
+          error={errors.includes('periodo')}
+          errorMessage="Seleccioná el período"
+        />
+        {/* The input is `fechaRecibo` (hook id), the form value `fecha`. */}
+        <DatePickerField
+          id="fechaRecibo"
+          name="fecha"
+          groupId="group-fecha"
+          label="Fecha del recibo"
+          value={values.fecha}
+          onChange={handleChange}
+          error={errors.includes('fecha')}
+          errorMessage="Seleccioná la fecha del recibo"
+        />
       </FormRow>
     </>
   );

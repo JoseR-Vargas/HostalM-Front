@@ -1,36 +1,48 @@
 import { cls } from './ui';
 
-const TH =
-  'border-b-2 border-border bg-[rgba(248,249,250,0.9)] px-6 py-[1.2rem] text-left text-[1.05rem] font-bold tracking-[0.05em] text-primary uppercase';
-const TR =
-  'hover:border-l-3 hover:border-l-primary hover:bg-soft hover:transition-all hover:duration-300 tablet:mb-8 tablet:block tablet:rounded-lg tablet:border tablet:border-border tablet:bg-card tablet:p-6 tablet:shadow-[0_2px_8px_rgba(0,0,0,0.1)]';
-const TD =
-  'border-b border-border px-6 py-4 text-left text-[1.02rem] tablet:mb-2 tablet:flex tablet:items-center tablet:justify-between tablet:leading-normal tablet:last:mb-0 tablet:before:mr-4 tablet:before:flex-1 tablet:before:text-[0.9rem] tablet:before:font-semibold tablet:before:text-muted tablet:before:content-[attr(data-label)]';
+// Preline table recipes (preline-ui). These strings are the contract: do not reword them.
+const WRAPPER = 'min-w-full';
+const SCROLL =
+  'border border-table-line overflow-x-auto [&::-webkit-scrollbar]:h-2 [&::-webkit-scrollbar-thumb]:rounded-none [&::-webkit-scrollbar-track]:bg-scrollbar-track [&::-webkit-scrollbar-thumb]:bg-scrollbar-thumb';
+const TABLE = 'min-w-full divide-y divide-table-line';
+const TH = 'px-6 py-3 text-start text-xs font-medium text-muted-foreground-1 uppercase';
+const TBODY = 'divide-y divide-table-line';
+const TD = 'px-6 py-4 whitespace-nowrap text-sm text-foreground first:font-medium';
+
+// Added on top of the recipes. `w-full max-w-full` keeps the wrapper (a flex item of the page column) inside
+// the viewport, so a wide table scrolls inside its own box instead of widening the page; `border-collapse`
+// replaces the Preflight rule that `divide-y` needs to draw the lines between rows (Preflight is off);
+// `bg-layer` gives the box a background. `hover:bg-layer-hover` highlights the row under the pointer.
+const WRAPPER_EXTRAS = 'w-full max-w-full my-4';
+const SCROLL_EXTRAS = 'bg-layer';
+const TABLE_EXTRAS = 'border-collapse';
+const TR = 'hover:bg-layer-hover';
+// Cells with images, long names or several links: they wrap instead of stretching the row.
+const TD_WRAP = 'min-w-48 whitespace-normal!';
 
 /**
- * Card with a table. Up to 768px the header hides and every row becomes a card whose cells show
- * their `label` (see `Td`). `containerId`/`id`/`bodyId` are the ids of the card, table and tbody.
+ * Preline table in a horizontally scrollable box. `containerId`/`id`/`bodyId` are the ids of the wrapper
+ * (`.table-container`), table and tbody; `columns` are the header labels.
  */
 export function DataTable({ containerId, id, bodyId, columns, children }) {
   return (
-    <div
-      id={containerId}
-      className="table-container relative my-4 w-full overflow-hidden rounded-xl border border-border bg-card shadow-card before:absolute before:inset-x-0 before:top-0 before:h-[3px] before:bg-bar"
-    >
-      <table id={id} className="w-full border-collapse tablet:block">
-        <thead className="tablet:hidden">
-          <tr>
-            {columns.map((column) => (
-              <th key={column} className={TH}>
-                {column}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody id={bodyId} className="tablet:block">
-          {children}
-        </tbody>
-      </table>
+    <div id={containerId} className={cls('table-container', WRAPPER, WRAPPER_EXTRAS)}>
+      <div className={cls(SCROLL, SCROLL_EXTRAS)}>
+        <table id={id} className={cls(TABLE, TABLE_EXTRAS)}>
+          <thead>
+            <tr>
+              {columns.map((column) => (
+                <th key={column} scope="col" className={TH}>
+                  {column}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody id={bodyId} className={TBODY}>
+            {children}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }
@@ -39,8 +51,9 @@ export function Tr({ className, ...props }) {
   return <tr className={cls(TR, className)} {...props} />;
 }
 
-export function Td({ label, className, ...props }) {
-  return <td data-label={label} className={cls(TD, className)} {...props} />;
+/** Table cell. `label` is the column name (`data-label`); `wrap` lets long content break onto several lines. */
+export function Td({ label, wrap = false, className, ...props }) {
+  return <td data-label={label} className={cls(TD, wrap && TD_WRAP, className)} {...props} />;
 }
 
 /** Dashed box shown instead of a table (no records, load failure). */

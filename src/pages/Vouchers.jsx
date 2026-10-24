@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
+import FileUpload from '../components/FileUpload';
 import Footer from '../components/Footer';
 import PublicHeader from '../components/PublicHeader';
 import { VOUCHERS_LINKS } from '../components/navLinks';
 import { Banner, Button, Field, FormCard, FormRow, PageSection } from '../components/ui';
 import { MAX_VOUCHERS_TOTAL_BYTES } from '../lib/constants';
-import { getTotalSize } from '../lib/files';
+import { getTotalSize, validateVoucherFiles } from '../lib/files';
 import {
   buildVoucherFormData,
   sendVoucher,
@@ -12,6 +13,8 @@ import {
 } from '../lib/vouchers';
 
 const BANNER_SCROLL_DELAY_MS = 100;
+const FILES_TOTAL_MESSAGE = 'Las imágenes superan 50 MB en total. Por favor, selecciona menos imágenes.';
+const UPLOAD_LOAD_ERROR_MESSAGE = 'No se pudo cargar el selector de fotos. Recargá la página e intentá nuevamente.';
 const SEND_ERROR_MESSAGE = 'No se pudo enviar el comprobante. Revisá tu conexión e intentá nuevamente.';
 
 const EMPTY_FORM = { nombre: '', apellido: '', dni: '', email: '', ref4: '', hab: '', monto: '' };
@@ -24,7 +27,7 @@ export default function Vouchers() {
   const [form, setForm] = useState(EMPTY_FORM);
   const [banner, setBanner] = useState(null);
   const [submitting, setSubmitting] = useState(false);
-  const fileInputRef = useRef(null);
+  const uploadRef = useRef(null);
   const bannerRef = useRef(null);
 
   useEffect(() => {
@@ -53,11 +56,14 @@ export default function Vouchers() {
     setForm((current) => ({ ...current, monto: amount }));
   };
 
-  const handleFilesChange = (event) => {
-    const files = event.target.files || [];
+  // Called by the upload widget on every change with every file it holds (also the ones it refused by type).
+  const handleFilesChange = (files) => {
     if (getTotalSize(files) > MAX_VOUCHERS_TOTAL_BYTES) {
-      showBanner('error', 'Las imágenes superan 50 MB en total. Por favor, selecciona menos imágenes.');
-      event.target.value = '';
+      showBanner('error', FILES_TOTAL_MESSAGE);
+      uploadRef.current?.clear();
+    } else if (files.length > 0) {
+      const [error] = validateVoucherFiles(files);
+      if (error) showBanner('error', error);
     }
   };
 
@@ -65,7 +71,7 @@ export default function Vouchers() {
     event.preventDefault();
 
     const data = trimFields(form);
-    const files = Array.from(fileInputRef.current?.files || []);
+    const files = uploadRef.current?.getFiles() ?? [];
     const errors = validateVoucherForm(data, files);
     if (errors.length > 0) {
       showBanner('error', errors[0]);
@@ -77,7 +83,7 @@ export default function Vouchers() {
       await sendVoucher(buildVoucherFormData(data, files));
       showBanner('success', '¡Voucher enviado correctamente!');
       setForm(EMPTY_FORM);
-      fileInputRef.current.value = '';
+      uploadRef.current?.clear();
     } catch {
       // Keep the form values and selected files so the user can retry.
       showBanner('error', SEND_ERROR_MESSAGE);
@@ -125,19 +131,19 @@ export default function Vouchers() {
             help: 'Ingrese el monto completo con separador de miles (punto). Ejemplo: 10.000, 15.000, 20.000',
           })}
 
-          <Field
-            id="fotos"
-            label="Fotos del comprobante (galería)*"
-            type="file"
-            accept="image/*"
-            multiple
-            aria-describedby="fotosHelp"
-            required
-            ref={fileInputRef}
-            onChange={handleFilesChange}
-            helpId="fotosHelp"
-            help="Selecciona una  imágen desde tu galería o cámara. ."
-          />
+          <div className="form-group mb-8">
+            <label id="fotosLabel" className="mb-[0.8rem] block text-[1.05rem] font-semibold text-ink">
+              Fotos del comprobante (galería)*
+            </label>
+            <FileUpload
+              ref={uploadRef}
+              id="fotos"
+              accept="image/*"
+              labelledBy="fotosLabel"
+              onFilesChange={handleFilesChange}
+              onLoadError={() => showBanner('error', UPLOAD_LOAD_ERROR_MESSAGE)}
+            />
+          </div>
 
           <Button variant="submit" type="submit" id="submitBtn" disabled={submitting}>
             {submitting ? 'Procesando...' : 'Enviar Voucher'}

@@ -1,4 +1,7 @@
+import { fakePng } from './support/files.js';
 import { dayOfMonth, expect, test } from './support/fixtures.js';
+import { calendar, openCalendar, openPeriod, periodDropdown, pickersReady } from './support/receipt-pickers.js';
+import { photoPreviews, selectPhotos } from './support/voucher-photos.js';
 
 // Mobile layout checks (skill playwright-mobile-qa): no sideways scroll and reachable controls
 // on a small phone and the narrowest one.
@@ -43,10 +46,94 @@ const CALCULOS = [
   },
 ];
 
+/**
+ * Receipt forms: both pop-ups (the period select and the calendar) must fit the screen, without sideways scrolling
+ * and with tap targets of at least 24px, and must be closed again afterwards (an open pop-up would cover the buttons
+ * the generic checks look for).
+ */
+async function exerciseReceiptPickers(page) {
+  const fitsAndIsTappable = (selector) =>
+    page.evaluate(
+      ({ selector, min }) => {
+        const viewport = document.documentElement.clientWidth;
+        const items = [...document.querySelectorAll(selector)].filter((item) => {
+          const rect = item.getBoundingClientRect();
+          return rect.width > 0 && rect.height > 0;
+        });
+        return {
+          count: items.length,
+          outside: items.filter((item) => {
+            const rect = item.getBoundingClientRect();
+            return rect.left < -1 || rect.right > viewport + 1;
+          }).length,
+          small: items.filter((item) => {
+            const rect = item.getBoundingClientRect();
+            return rect.width < min || rect.height < min;
+          }).length,
+        };
+      },
+      { selector, min: MIN_TARGET_PX },
+    );
+
+  await pickersReady(page);
+
+  await openPeriod(page);
+  await expect(periodDropdown(page)).toBeVisible();
+  const box = await periodDropdown(page).boundingBox();
+  expect(box.x, 'period dropdown starts inside the screen').toBeGreaterThanOrEqual(-1);
+  expect(box.x + box.width, 'period dropdown ends inside the screen').toBeLessThanOrEqual(page.viewportSize().width + 1);
+  const options = await fitsAndIsTappable('[data-hs-select-dropdown].opened [data-value]');
+  expect(options.count, 'period options on screen').toBeGreaterThan(0);
+  expect(options.outside, 'period options outside the screen').toBe(0);
+  expect(options.small, 'period options smaller than 24px').toBe(0);
+  await expectNoHorizontalOverflow(page);
+  await page.keyboard.press('Escape');
+  await expect(periodDropdown(page)).toHaveCount(0);
+
+  await openCalendar(page);
+  // The plugin places the popup a moment after showing it (it measures the input first): wait for the final spot.
+  await expect(async () => {
+    const popup = await calendar(page).boundingBox();
+    expect(popup.x, 'calendar starts inside the screen').toBeGreaterThanOrEqual(-1);
+    expect(popup.x + popup.width, 'calendar ends inside the screen').toBeLessThanOrEqual(page.viewportSize().width + 1);
+  }).toPass({ timeout: 5_000 });
+  const days = await fitsAndIsTappable('.vc:not([data-vc-calendar-hidden]) [data-vc-date-btn]');
+  expect(days.count, 'calendar days on screen').toBeGreaterThan(27);
+  expect(days.outside, 'calendar days outside the screen').toBe(0);
+  expect(days.small, 'calendar days smaller than 24px').toBe(0);
+  const arrows = await fitsAndIsTappable('.vc:not([data-vc-calendar-hidden]) [data-vc-arrow]');
+  expect(arrows.count, 'calendar arrows').toBe(2);
+  expect(arrows.small, 'calendar arrows smaller than 24px').toBe(0);
+  await expectNoHorizontalOverflow(page);
+  await page.keyboard.press('Escape');
+  await expect(calendar(page)).toHaveCount(0);
+}
+
 const PAGES = [
   { path: '/', buttons: ['.hero .cta-button', '.submit-button', '.nav-link', '#whatsappLink'] },
   { path: '/login', buttons: ['#loginBtn', '.nav-link'] },
-  { path: '/vouchers', buttons: ['#submitBtn', '.nav-link'] },
+  {
+    path: '/vouchers',
+    buttons: ['#submitBtn', '.nav-link'],
+    // With previews on screen (one with a very long name): the drop zone and every trash button stay reachable.
+    run: async (page) => {
+      await selectPhotos(page, [
+        fakePng('comprobante-de-transferencia-bancaria-con-un-nombre-extremadamente-largo-2026-03-15.png'),
+        fakePng('comprobante-2.png'),
+        fakePng('comprobante-3.png'),
+      ]);
+      await expect(photoPreviews(page)).toHaveCount(3);
+      // A long name must be truncated, not push the trash button out of its card.
+      const escaped = await photoPreviews(page).evaluateAll((cards) =>
+        cards.filter((card) => {
+          const button = card.querySelector('[data-hs-file-upload-remove]').getBoundingClientRect();
+          return button.right > card.getBoundingClientRect().right;
+        }).length,
+      );
+      expect(escaped, 'trash buttons sticking out of their preview card').toBe(0);
+    },
+    extraButtons: ['#fotos', '[data-hs-file-upload-remove]'],
+  },
   { path: '/calculator-medidor', buttons: ['#submitBtn', '.upload-btn'] },
   {
     path: '/dashboard',
@@ -79,8 +166,21 @@ const PAGES = [
       '#residentesTableBody button',
     ],
   },
-  { path: '/comprobante-pago', admin: true, buttons: ['.logout-btn', '#btnGenerar', '.nav-link'] },
-  { path: '/comprobante-servicios', admin: true, buttons: ['.logout-btn', '#btnGenerar', '.nav-link'] },
+  {
+    path: '/comprobante-pago',
+    admin: true,
+    buttons: ['.logout-btn', '#btnGenerar', '.nav-link'],
+    run: exerciseReceiptPickers,
+    // The period toggle (the native select is hidden by the plugin) and the date input.
+    extraButtons: ['#periodoToggle', '#fechaRecibo'],
+  },
+  {
+    path: '/comprobante-servicios',
+    admin: true,
+    buttons: ['.logout-btn', '#btnGenerar', '.nav-link'],
+    run: exerciseReceiptPickers,
+    extraButtons: ['#periodoToggle', '#fechaRecibo'],
+  },
 ];
 
 /** Elements that stick out of the viewport, to make an overflow failure easy to diagnose. */

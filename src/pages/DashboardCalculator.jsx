@@ -6,7 +6,7 @@ import { Metric } from '../components/MetricCard';
 import Modal, { ModalTitle } from '../components/Modal';
 import MonthPager from '../components/MonthPager';
 import { ADMIN_NAV } from '../components/navLinks';
-import { cls, PageSection, SectionSubtitle } from '../components/ui';
+import { cls, PageSection, SectionSubtitle, Spinner } from '../components/ui';
 import { useAuth } from '../auth/useAuth';
 import {
   computeCalculoMetrics,
@@ -128,16 +128,6 @@ export default function DashboardCalculator() {
     return () => controller.abort();
   }, [token]);
 
-  // Escape closes the photo modal while it is open.
-  useEffect(() => {
-    if (!photo) return undefined;
-    const handleKeyDown = (event) => {
-      if (event.key === 'Escape') setPhoto(null);
-    };
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [photo]);
-
   const monthCalculos = useMemo(() => filterCalculosByMonth(calculos, monthKey), [calculos, monthKey]);
   const metrics = useMemo(() => computeCalculoMetrics(monthCalculos), [monthCalculos]);
   const isEmpty = loaded && monthCalculos.length === 0;
@@ -174,14 +164,21 @@ export default function DashboardCalculator() {
         )}
       </PageSection>
 
-      <Modal id="imageModal" open={photo !== null} onBackdropClick={() => setPhoto(null)}>
-        <span className="close-modal" onClick={() => setPhoto(null)}>
-          &times;
-        </span>
-        <ModalTitle as="h3" id="imageModalTitle">
-          {photo ? photo.title : 'Foto del Medidor'}
-        </ModalTitle>
-        <img id="modalImage" className="mt-4 w-full rounded-lg" src={photo?.url} alt="Foto ampliada" />
+      <Modal
+        id="imageModal"
+        open={photo !== null}
+        size="wide"
+        titleId="imageModalTitle"
+        title={
+          <ModalTitle as="h3" id="imageModalTitle">
+            {photo ? photo.title : 'Foto del Medidor'}
+          </ModalTitle>
+        }
+        onClose={() => setPhoto(null)}
+        closeClassName="close-modal"
+        onBackdropClick={() => setPhoto(null)}
+      >
+        <img id="modalImage" className="mx-auto block max-h-[70vh] w-auto max-w-full rounded-lg" src={photo?.url} alt="Foto ampliada" />
       </Modal>
 
       <div
@@ -189,7 +186,10 @@ export default function DashboardCalculator() {
         className="fixed inset-0 z-1000 items-center justify-center bg-[rgba(255,255,255,0.9)]"
         style={{ display: loading ? 'flex' : 'none' }}
       >
-        <div className="flex min-h-[200px] items-center justify-center rounded-xl bg-card p-8 text-[1.1rem] font-semibold text-ink shadow-hover"></div>
+        <div className="flex items-center justify-center gap-3 rounded-xl bg-card px-6 py-4 text-[1rem] font-semibold text-ink shadow-hover">
+          <Spinner label={null} />
+          <span>Cargando datos...</span>
+        </div>
       </div>
 
       <Footer />
