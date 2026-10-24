@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import Modal, { ModalTitle } from '../components/Modal';
 import PublicHeader from '../components/PublicHeader';
+import { CALCULATOR_LINKS } from '../components/navLinks';
 import { Banner, Button, Field, SectionSubtitle, SectionTitle, cls } from '../components/ui';
 import { validateMeterPhoto } from '../lib/files';
 import {
@@ -249,7 +250,7 @@ export default function CalculatorMedidor() {
 
   return (
     <div className="pt-[120px] tablet:pt-[140px] phone:pt-[170px]">
-      <PublicHeader logoOnly />
+      <PublicHeader links={CALCULATOR_LINKS} />
 
       <main>
         <div className="container">

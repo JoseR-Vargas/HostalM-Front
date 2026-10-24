@@ -10,6 +10,8 @@ export const LOGIN_LINKS = [{ to: '/', label: 'Inicio' }];
 
 export const VOUCHERS_LINKS = [{ to: '/#inicio', label: 'Inicio' }];
 
+export const CALCULATOR_LINKS = [{ to: '/#inicio', label: 'Inicio' }];
+
 const VOUCHERS = { to: '/dashboard', label: '📋 Vouchers' };
 const RENT = (label) => ({ to: '/comprobante-pago', label });
 const SERVICES = { to: '/comprobante-servicios', label: '💧 Servicios' };
