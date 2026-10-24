@@ -41,7 +41,7 @@ En `localhost` la app apunta al backend local `http://localhost:3000`.
 |---|---|
 | `src/app` | `App` y la tabla de rutas (`routes.jsx`) |
 | `src/pages` | Una página por ruta (`Home`, `Login`, `Vouchers`, `Dashboard`, ...) |
-| `src/components` | Primitivos de UI (`ui.jsx`), headers público/admin, `Footer`, `Modal`, tablas, plantilla de comprobantes |
+| `src/components` | Primitivos de UI (`ui.jsx`), headers público/admin, `Footer`, `Modal`, tablas, `FileUpload` (selector de fotos de `/vouchers`, plugin Preline + Dropzone cargado bajo demanda), plantilla de comprobantes |
 | `src/lib` | Lógica sin UI: configuración de API, dinero, mediciones, validaciones, PDF |
 | `src/auth` | Contexto de sesión, `ProtectedRoute` y login contra el backend |
 | `src/index.css` | Único CSS: import de Tailwind, tokens (`@theme`) y variantes; ver [`STYLES_GUIDE.md`](STYLES_GUIDE.md) |

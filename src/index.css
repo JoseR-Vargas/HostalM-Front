@@ -21,6 +21,8 @@
 @import 'tailwindcss/utilities.css' layer(utilities);
 /* Relative path: `preline` does not export `variants.css` through its package `exports`. */
 @import '../node_modules/preline/variants.css';
+/* `hs-file-upload-complete:` variant of the File Upload plugin (npm `@preline/file-upload`, see FileUpload.jsx). */
+@import '../node_modules/@preline/file-upload/variants.css';
 @plugin '@tailwindcss/forms';
 
 /* Hover always applies (the old stylesheet did not wait for a hover-capable pointer). */
@@ -84,6 +86,9 @@
 	--color-muted-foreground: var(--color-gray-400);
 	--color-muted-foreground-1: var(--color-gray-500);
 	--color-muted-foreground-2: var(--color-gray-600);
+
+	/* Dashed border of the File Upload drop zone (Preline light theme: gray-300). */
+	--color-line-3: var(--color-gray-300);
 
 	--color-overlay: #fff;
 	--color-overlay-line: transparent;

@@ -1,4 +1,6 @@
+import { fakePng } from './support/files.js';
 import { dayOfMonth, expect, test } from './support/fixtures.js';
+import { photoPreviews, selectPhotos } from './support/voucher-photos.js';
 
 // Mobile layout checks (skill playwright-mobile-qa): no sideways scroll and reachable controls
 // on a small phone and the narrowest one.
@@ -46,7 +48,28 @@ const CALCULOS = [
 const PAGES = [
   { path: '/', buttons: ['.hero .cta-button', '.submit-button', '.nav-link', '#whatsappLink'] },
   { path: '/login', buttons: ['#loginBtn', '.nav-link'] },
-  { path: '/vouchers', buttons: ['#submitBtn', '.nav-link'] },
+  {
+    path: '/vouchers',
+    buttons: ['#submitBtn', '.nav-link'],
+    // With previews on screen (one with a very long name): the drop zone and every trash button stay reachable.
+    run: async (page) => {
+      await selectPhotos(page, [
+        fakePng('comprobante-de-transferencia-bancaria-con-un-nombre-extremadamente-largo-2026-03-15.png'),
+        fakePng('comprobante-2.png'),
+        fakePng('comprobante-3.png'),
+      ]);
+      await expect(photoPreviews(page)).toHaveCount(3);
+      // A long name must be truncated, not push the trash button out of its card.
+      const escaped = await photoPreviews(page).evaluateAll((cards) =>
+        cards.filter((card) => {
+          const button = card.querySelector('[data-hs-file-upload-remove]').getBoundingClientRect();
+          return button.right > card.getBoundingClientRect().right;
+        }).length,
+      );
+      expect(escaped, 'trash buttons sticking out of their preview card').toBe(0);
+    },
+    extraButtons: ['#fotos', '[data-hs-file-upload-remove]'],
+  },
   { path: '/calculator-medidor', buttons: ['#submitBtn', '.upload-btn'] },
   {
     path: '/dashboard',
