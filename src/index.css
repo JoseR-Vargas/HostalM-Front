@@ -5,10 +5,23 @@
  * the font, line heights, image display), which this production site must not show. Avoiding it
  * costs nothing: the base layer below carries the few resets the design needs and the rest of the
  * markup relies on browser defaults. Revisit only together with a visual review of every page.
+ *
+ * Preline (npm `preline`, task preline-ui) is used as a CSS design system only: its JS plugins are
+ * not loaded, so `@source` for `preline/dist` is not needed. What is wired here:
+ * - `variants.css`: the `hs-*` custom variants (no CSS output by itself, it cannot clash with the layers).
+ * - `@tailwindcss/forms`: base styles for text inputs, selects and textareas (they go in `@layer base`).
+ * - The semantic colour tokens (`primary-hover`, `layer`, `surface`, `overlay`, `table-line`...), declared
+ *   below in the `@theme static` block as a light-theme SUBSET of `preline/css/themes/theme.css`.
+ *   That theme file is deliberately NOT imported: it redefines `--color-primary`, `--color-secondary`,
+ *   `--color-muted` and `--color-border` (different meanings than ours), and it adds a global
+ *   `* { border-color }` rule that would change every border drawn without an explicit colour.
  */
 @layer theme, base, components, utilities;
 @import 'tailwindcss/theme.css' layer(theme);
 @import 'tailwindcss/utilities.css' layer(utilities);
+/* Relative path: `preline` does not export `variants.css` through its package `exports`. */
+@import '../node_modules/preline/variants.css';
+@plugin '@tailwindcss/forms';
 
 /* Hover always applies (the old stylesheet did not wait for a hover-capable pointer). */
 @custom-variant hover (&:hover);
@@ -29,6 +42,61 @@
 	--color-muted: #4a5568;
 	--color-border: #e2e8f0;
 	--color-border-light: #cbd5e0;
+
+	/*
+	 * Preline semantic tokens. Collisions with the Preline names are resolved in favour of the brand:
+	 * - `primary` keeps #2b6cb0 and the Preline primary states reuse our dark blue (#2c5282, `primary-dark`);
+	 *   Preline would otherwise give blue-600/blue-700.
+	 * - `secondary`, `muted` and `border` keep our values above (Preline: gray-900, gray-50 and gray-200);
+	 *   Preline's `secondary-*`, `muted-hover`... are not declared.
+	 * - Not declared on purpose because they would clash with our `bg-card`/`bg-page` gradients: `card*`, `background*`.
+	 * Everything else below is the Preline light theme (Tailwind gray scale).
+	 */
+	--color-primary-line: transparent;
+	--color-primary-foreground: #fff;
+	--color-primary-hover: #2c5282;
+	--color-primary-focus: #2c5282;
+	--color-primary-active: #2c5282;
+	--color-primary-checked: #2b6cb0;
+
+	--color-foreground: var(--color-gray-800);
+	--color-foreground-inverse: #fff;
+
+	--color-layer: #fff;
+	--color-layer-line: var(--color-gray-200);
+	--color-layer-foreground: var(--color-gray-800);
+	--color-layer-hover: var(--color-gray-50);
+	--color-layer-focus: var(--color-gray-50);
+	--color-layer-active: var(--color-gray-50);
+
+	--color-surface: var(--color-gray-100);
+	--color-surface-1: var(--color-gray-200);
+	--color-surface-2: var(--color-gray-300);
+	--color-surface-3: var(--color-gray-400);
+	--color-surface-4: var(--color-gray-500);
+	--color-surface-5: var(--color-gray-600);
+	--color-surface-line: transparent;
+	--color-surface-foreground: var(--color-gray-800);
+	--color-surface-hover: var(--color-gray-200);
+	--color-surface-focus: var(--color-gray-200);
+	--color-surface-active: var(--color-gray-200);
+
+	--color-muted-foreground: var(--color-gray-400);
+	--color-muted-foreground-1: var(--color-gray-500);
+	--color-muted-foreground-2: var(--color-gray-600);
+
+	--color-overlay: #fff;
+	--color-overlay-line: transparent;
+	--color-overlay-divider: var(--color-gray-200);
+	--color-overlay-header: var(--color-gray-200);
+	--color-overlay-footer: var(--color-gray-200);
+	--color-overlay-inverse: var(--color-gray-900);
+
+	--color-table-line: var(--color-gray-200);
+
+	--color-scrollbar-track: var(--color-gray-100);
+	--color-scrollbar-thumb: var(--color-gray-300);
+
 	--font-sans: 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 	--shadow-card: 0 4px 24px rgba(0, 0, 0, 0.08);
 	--shadow-hover: 0 8px 32px rgba(0, 0, 0, 0.12);
@@ -40,41 +108,12 @@
 	--background-image-bar: linear-gradient(90deg, var(--color-primary), var(--color-secondary));
 	--background-image-title: linear-gradient(135deg, var(--color-ink) 0%, var(--color-primary) 100%);
 	--background-image-band: linear-gradient(135deg, rgba(248, 249, 250, 0.6) 0%, rgba(240, 244, 248, 0.8) 50%, rgba(235, 241, 245, 0.9) 100%);
-	--animate-pulse-glow: pulse-glow 2s ease-in-out infinite;
 	--animate-fade-in: fade-in 0.3s ease;
 	--animate-slide-in: slide-in 0.3s ease;
-	--animate-spin-centered: spin-centered 1s linear infinite;
-
-	@keyframes pulse-glow {
-		0%,
-		100% {
-			transform: scale(1);
-			box-shadow: var(--shadow-glow);
-			filter: brightness(1);
-		}
-		25%,
-		75% {
-			transform: scale(1.02);
-			box-shadow: 0 0 25px rgba(43, 108, 176, 0.4), var(--shadow-glow);
-			filter: brightness(1.05);
-		}
-		50% {
-			transform: scale(1.05);
-			box-shadow: 0 0 35px rgba(43, 108, 176, 0.6), 0 0 15px rgba(85, 60, 154, 0.4), var(--shadow-hover);
-			filter: brightness(1.15);
-		}
-	}
 
 	@keyframes fade-in {
 		from {
 			opacity: 0;
-		}
-	}
-
-	/* Spinner of a processing button: it stays centred with `translate(-50%, -50%)` while it rotates. */
-	@keyframes spin-centered {
-		to {
-			transform: translate(-50%, -50%) rotate(360deg);
 		}
 	}
 

@@ -14,7 +14,8 @@ Los estilos usan **Tailwind CSS v4**: utilidades en el JSX, tokens de diseño en
 |---|---|
 | `src/index.css` | Único archivo CSS. Lo importa `src/main.jsx` una sola vez |
 | Plugin | `@tailwindcss/vite` en `vite.config.js`; no hay `tailwind.config.js` |
-| Capas | `theme` y `utilities` de Tailwind **sin Preflight** (ver abajo) + una capa `base` propia |
+| Capas | `theme` y `utilities` de Tailwind **sin Preflight** (ver abajo) + una capa `base` propia (más la de `@tailwindcss/forms`) |
+| Preline | Solo como sistema de diseño CSS (sin sus plugins JS): `preline/variants.css`, `@tailwindcss/forms` y un subconjunto de sus tokens semánticos (ver Tokens) |
 | Fuente | Open Sans desde Google Fonts en `index.html` (única hoja externa) |
 
 **Sin Preflight.** Probar `@import 'tailwindcss'` (con Preflight) cambia el render de todas las páginas: borde `solid` en cada elemento, botones e inputs que heredan la fuente, otros `line-height`. Se descartó porque el sitio no puede cambiar visualmente. La capa `base` de `index.css` trae los pocos resets que el diseño necesita (`margin/padding: 0`, `box-sizing`, tipografía de `body`, `h1`–`h3`, links).
@@ -27,9 +28,12 @@ Los estilos usan **Tailwind CSS v4**: utilidades en el JSX, tokens de diseño en
 | Fuente | `font-sans` (Open Sans + fallbacks del sistema) |
 | Sombras | `shadow-card`, `shadow-hover`, `shadow-glow` |
 | Gradientes | `bg-page`, `bg-soft`, `bg-card`, `bg-brand`, `bg-bar`, `bg-title`, `bg-band` |
-| Animaciones | `animate-pulse-glow` (botón CTA), `animate-fade-in`, `animate-slide-in`, `animate-spin-centered` (spinner de `processing`) |
+| Animaciones | `animate-fade-in`, `animate-slide-in`; `animate-spin` (de Tailwind) lo usa `Spinner` |
+| Tokens Preline | `primary-line`, `primary-foreground`, `primary-hover/focus/active/checked`, `foreground`, `layer*`, `surface*`, `muted-foreground(-1/-2)`, `overlay*`, `table-line`, `scrollbar-track/thumb` (tema claro de Preline) |
 
 Cambiar un valor afecta a todo el sitio.
+
+**Colisiones con Preline.** `theme.css` de Preline no se importa: redefine `primary`, `secondary`, `muted` y `border` con otro significado y agrega `* { border-color }`. Se conserva la marca: `primary` sigue siendo `#2b6cb0` y sus estados (`primary-hover/focus/active`) usan `#2c5282` (`primary-dark`); `secondary`, `muted` y `border` mantienen los valores propios. Tampoco se declaran `card*` ni `background*` porque chocarían con los gradientes `bg-card`/`bg-page`. Si se importa otro tema de Preline más adelante, revisá estos nombres primero.
 
 ## Variantes propias (breakpoints)
 
@@ -48,7 +52,7 @@ Para mobile se apila en este orden: base, `tablet:`, `phone:`.
 
 | Componente | Rol |
 |---|---|
-| `ui.jsx` | Primitivos: `cls`, `SectionTitle`, `SectionSubtitle`, `PageHeading`, `PageSection` (sección bajo el header fijo), `Banner` (`tone` = `error`/`success`), `FormCard`, `FormRow`, `Field` (label + control + ayuda/error/unidad), `Button` (`variant` = `cta`/`submit`, `processing`) |
+| `ui.jsx` | Primitivos: `cls`, `SectionTitle`, `SectionSubtitle`, `PageHeading`, `PageSection` (sección bajo el header fijo), `Banner` (`tone` = `error`/`success`), `FormCard`, `FormRow`, `Field` (label + control + ayuda/error/unidad), `Button` (`variant` = `cta`/`submit`/`primary`/`secondary`, `processing`), `Spinner` |
 | `PublicHeader` / `AdminHeader` | Header fijo sobre `Header`. Links por página en `navLinks.js`; el admin agrega el botón de logout |
 | `Footer` | `home`, `vouchers` o mínimo (copyright, páginas admin) |
 | `Modal` | Overlay + caja. Props: `open`, `onBackdropClick`, `contentClassName`; `ModalTitle` |
@@ -67,7 +71,9 @@ Para mobile se apila en este orden: base, `tablet:`, `phone:`.
 - **Los tamaños con nombre fijan `line-height`.** `text-lg`, `text-xl`… traen su propio `line-height`; para conservar el original usá valores arbitrarios (`text-[1.05rem]`) y, si hace falta, `leading-*`.
 - **Valores arbitrarios para paridad.** El diseño original usa `rem`/`px` puntuales; se copian tal cual (`px-[1.2rem]`) en lugar de redondear a la escala de Tailwind.
 - **`ReceiptTemplate` conserva estilos inline.** `html2canvas` (vía `html2pdf.js`) lee estilos computados de la hoja del PDF, que no debe depender de CSS global ni de clases. No la migres a Tailwind.
-- **Botón `processing`.** `Button processing` agrega la clase `processing`, `pointer-events-none`, opacidad 0.7 y un spinner `::after`. El `keyframes` está en `index.css`.
+- **Botones Preline.** `Button` usa las recetas pill de Preline: `primary` (`bg-primary`) y `secondary` (`bg-layer`). `cta` y `submit` se mantienen por sus clases-gancho (`cta-button`, `submit-button`) y se ven como `primary`; `submit` ocupa todo el ancho. Sin Preflight, el botón agrega `font-sans` para heredar la fuente de la app.
+- **Botón `processing`.** `Button processing` agrega la clase `processing` y `pointer-events-none` y muestra un `Spinner` antes del contenido (sin texto para lectores de pantalla, el texto del botón ya dice "Procesando...").
+- **Un solo spinner.** Usá `Spinner` (`size`, `tone`, `label`, `className`) para cualquier carga; no armes anillos con bordes a mano. Si va dentro de un texto o botón que ya dice qué carga, pasá `label={null}`.
 
 ## Cómo agregar una página
 

@@ -28,8 +28,9 @@ export const test = base.extend({
       const mock = new MockApi({ appOrigin: new URL(baseURL).origin });
       await mock.install(context);
       await context.clock.setFixedTime(FIXED_NOW);
-      // `.cta-button` pulses forever, so Playwright would never see it as "stable". CSS animations
-      // are switched off (transitions are kept) so every click follows the normal actionability rules.
+      // Infinite animations (the `Spinner`, effects on buttons) would keep Playwright from seeing an element as
+      // "stable". CSS animations are switched off (transitions are kept) so every click follows the normal
+      // actionability rules.
       await context.addInitScript(() => {
         document.addEventListener('DOMContentLoaded', () => {
           const style = document.createElement('style');

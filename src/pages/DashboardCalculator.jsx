@@ -6,7 +6,7 @@ import { Metric } from '../components/MetricCard';
 import Modal, { ModalTitle } from '../components/Modal';
 import MonthPager from '../components/MonthPager';
 import { ADMIN_NAV } from '../components/navLinks';
-import { cls, PageSection, SectionSubtitle } from '../components/ui';
+import { cls, PageSection, SectionSubtitle, Spinner } from '../components/ui';
 import { useAuth } from '../auth/useAuth';
 import {
   computeCalculoMetrics,
@@ -189,7 +189,9 @@ export default function DashboardCalculator() {
         className="fixed inset-0 z-1000 items-center justify-center bg-[rgba(255,255,255,0.9)]"
         style={{ display: loading ? 'flex' : 'none' }}
       >
-        <div className="flex min-h-[200px] items-center justify-center rounded-xl bg-card p-8 text-[1.1rem] font-semibold text-ink shadow-hover"></div>
+        <div className="flex min-h-[200px] items-center justify-center rounded-xl bg-card p-8 text-[1.1rem] font-semibold text-ink shadow-hover">
+          <Spinner />
+        </div>
       </div>
 
       <Footer />

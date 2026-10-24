@@ -30,8 +30,6 @@ const EMPTY_VALUES = {
   medicionActual: '',
 };
 
-const UPLOAD_BUTTON =
-  'upload-btn cursor-pointer rounded-lg border-2 border-primary bg-transparent px-4 py-3 text-[0.9rem] font-semibold text-primary transition-all duration-300 hover:bg-primary hover:text-white';
 const PHOTO_ERROR_STYLE = { display: 'block', color: '#e74c3c', fontSize: '0.9rem', marginTop: '0.5rem' };
 
 function withoutKey(object, key) {
@@ -75,9 +73,15 @@ function PhotoUpload({ id, title, description, photo, error, onSelect }) {
           ['Tomar foto', true],
           ['Galería', false],
         ].map(([label, useCamera]) => (
-          <button key={label} type="button" className={UPLOAD_BUTTON} onClick={() => openPicker(useCamera)}>
+          <Button
+            key={label}
+            variant="secondary"
+            type="button"
+            className="upload-btn"
+            onClick={() => openPicker(useCamera)}
+          >
             {label}
-          </button>
+          </Button>
         ))}
       </div>
       <input

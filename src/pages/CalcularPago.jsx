@@ -5,7 +5,7 @@ import Footer from '../components/Footer';
 import { MetricCard } from '../components/MetricCard';
 import MonthPager from '../components/MonthPager';
 import { ADMIN_NAV } from '../components/navLinks';
-import { Button, Field, FormCard, FormRow, PageSection, SectionSubtitle } from '../components/ui';
+import { Button, Field, FormCard, FormRow, PageSection, SectionSubtitle, Spinner } from '../components/ui';
 import { useAuth } from '../auth/useAuth';
 import { formatMoney, formatMontoInputWithCaret, parseMontoFactura, parsePositive } from '../lib/money';
 import { sanitizeMeasurementInput } from '../lib/measurement';
@@ -187,8 +187,9 @@ export default function CalcularPago() {
             <MonthPager label={monthLabel} onChange={handleChangeMonth} ids={MONTH_IDS} />
 
             {status === 'loading' && (
-              <div id="residentesLoading" className="p-8 text-center text-muted">
-                Cargando residentes...
+              <div className="flex items-center justify-center gap-3 p-8 text-center text-muted">
+                <Spinner />
+                <span id="residentesLoading">Cargando residentes...</span>
               </div>
             )}
 
@@ -219,12 +220,7 @@ export default function CalcularPago() {
                     <Td>{resident.habitacion}</Td>
                     <Td>{formatDecimal1(resident.consumoCalculado)} kWh</Td>
                     <Td>
-                      {/* Compact: the important modifiers beat the Button's own padding, size and pulse. */}
-                      <Button
-                        type="button"
-                        className="animate-none! px-4! py-2! text-[0.85rem]!"
-                        onClick={() => handleSelect(resident.habitacion)}
-                      >
+                      <Button type="button" onClick={() => handleSelect(resident.habitacion)}>
                         Seleccionar
                       </Button>
                     </Td>

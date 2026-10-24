@@ -214,7 +214,7 @@ export default function Home() {
           <p className="mb-12 max-w-[90%] text-[1.2rem] leading-[1.6] text-muted tablet:mx-auto tablet:mb-8 tablet:text-[1rem]">
             Habitaciones y apartamentos cómodos en una ubicación privilegiada
           </p>
-          <Button as={Link} to="/#contacto" className="hover:text-primary-dark">
+          <Button as={Link} to="/#contacto">
             Reservar Ahora
           </Button>
         </div>

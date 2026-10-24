@@ -152,25 +152,62 @@ export function Field({
   );
 }
 
+// Preline button recipes (preline-ui). These strings are the contract: do not reword them.
+const BUTTON_PRIMARY =
+  'py-3 px-4 inline-flex items-center gap-x-2 text-sm font-medium rounded-full bg-primary border border-primary-line text-primary-foreground hover:bg-primary-hover focus:outline-hidden focus:bg-primary-hover disabled:opacity-50 disabled:pointer-events-none';
+const BUTTON_SECONDARY =
+  'py-3 px-4 inline-flex items-center gap-x-2 text-sm font-medium rounded-full bg-layer border border-layer-line text-layer-foreground shadow-2xs hover:bg-layer-hover focus:outline-hidden focus:bg-layer-hover disabled:opacity-50 disabled:pointer-events-none';
+
+// Added on top of the recipes. Preflight is off, so native buttons would not inherit the app font
+// (`font-sans`); `justify-center` keeps the label centred when the button is stretched (`w-full`); and
+// `hover:text-shadow-none` stops the base `a:hover` glow when the button is rendered as a link.
+const BUTTON_EXTRAS = 'justify-center font-sans cursor-pointer hover:text-shadow-none';
+
+// `hook` = semantic class for tests/specs (no styles); `look` = recipe; `layout` = extra classes; `spinner` = spinner colour.
 const BUTTONS = {
-  cta: [
-    'cta-button',
-    'inline-flex animate-pulse-glow items-center gap-2 rounded-xl px-10 py-[1.2rem] text-[1.1rem] font-semibold shadow-glow hover:[animation-play-state:paused]',
-  ],
-  submit: [
-    'submit-button',
-    'w-full rounded-xl px-10 py-[1.2rem] font-sans text-[1.1rem] font-bold shadow-glow hover:-translate-y-0.5 hover:shadow-[0_8px_32px_rgba(0,0,0,0.12),0_0_20px_rgba(43,108,176,0.2)] hover:brightness-110 active:translate-y-0',
-  ],
+  primary: { hook: '', look: BUTTON_PRIMARY, spinner: 'text-primary-foreground' },
+  secondary: { hook: '', look: BUTTON_SECONDARY, spinner: 'text-layer-foreground' },
+  // Legacy names kept for the call sites: call-to-action link/button and full-width form submit (both primary).
+  cta: { hook: 'cta-button', look: BUTTON_PRIMARY, spinner: 'text-primary-foreground' },
+  submit: { hook: 'submit-button', look: BUTTON_PRIMARY, spinner: 'text-primary-foreground', layout: 'w-full' },
 };
 
-// While processing the button ignores clicks, fades and shows a spinner (its `::after`) in the centre.
-const PROCESSING =
-  "processing pointer-events-none relative opacity-70 after:absolute after:top-1/2 after:left-1/2 after:size-5 after:[transform:translate(-50%,-50%)] after:animate-spin-centered after:rounded-[50%] after:border-2 after:border-transparent after:border-t-white after:content-['']";
+/**
+ * Preline ring spinner. The default markup is the Preline recipe; `size` and `tone` replace the default
+ * size/colour classes (the ring uses `currentColor`, so the colour is the text colour) and `className`
+ * adds more. `label` is the screen reader text: pass `null` when the spinner sits next to a text that
+ * already says what is loading (e.g. inside a button), so it does not add a second message.
+ */
+export function Spinner({
+  size = 'size-6',
+  tone = 'text-muted-foreground-2',
+  label = 'Loading...',
+  className,
+  ...props
+}) {
+  return (
+    <div
+      className={cls('animate-spin inline-block', size, 'border-3 border-current border-t-transparent rounded-[999px]', tone, className)}
+      role="status"
+      aria-label="loading"
+      {...props}
+    >
+      {label !== null && <span className="sr-only">{label}</span>}
+    </div>
+  );
+}
 
-const BUTTON_BASE = 'cursor-pointer border-none bg-transparent bg-brand tracking-[0.05em] text-white uppercase transition-all duration-300';
-
-/** Gradient call-to-action (`cta`, pulsing) or full-width form `submit`. Renders `as` (default `button`). */
-export function Button({ as: Tag = 'button', variant = 'cta', processing = false, className, ...props }) {
-  const [hook, styles] = BUTTONS[variant];
-  return <Tag className={cls(hook, BUTTON_BASE, styles, processing && PROCESSING, className)} {...props} />;
+/**
+ * Preline pill button. `variant`: `primary`, `secondary`, or the legacy hooks `cta` (default) and `submit`
+ * (full width). Renders `as` (default `button`). While `processing` it ignores clicks and shows the spinner
+ * before its content; the `processing` class is only present while it is active.
+ */
+export function Button({ as: Tag = 'button', variant = 'cta', processing = false, className, children, ...props }) {
+  const { hook, look, layout, spinner } = BUTTONS[variant];
+  return (
+    <Tag className={cls(hook, look, BUTTON_EXTRAS, layout, processing && 'processing pointer-events-none', className)} {...props}>
+      {processing && <Spinner size="size-4" tone={spinner} label={null} />}
+      {children}
+    </Tag>
+  );
 }
