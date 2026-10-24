@@ -7,6 +7,10 @@ import { getDefaultReceiptDate } from '../lib/receipts';
 import ComprobantePago from './ComprobantePago';
 
 vi.mock('../lib/pdf', () => ({ downloadPdf: vi.fn() }));
+// The Preline plugins never finish loading here, so the form is driven through the native controls the period and date
+// fields fall back to (the fields and their plugins have their own tests; `e2e/receipts.spec.js` covers the real ones).
+vi.mock('@preline/select/non-auto.mjs', () => new Promise(() => {}));
+vi.mock('@preline/datepicker/non-auto.mjs', () => new Promise(() => {}));
 
 const renderPage = () =>
   render(

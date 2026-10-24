@@ -10,6 +10,10 @@
  * not loaded, so `@source` for `preline/dist` is not needed. What is wired here:
  * - `variants.css`: the `hs-*` custom variants (no CSS output by itself, it cannot clash with the layers).
  * - `@tailwindcss/forms`: base styles for text inputs, selects and textareas (they go in `@layer base`).
+ * - Advanced Select and Advanced Datepicker (npm `@preline/select`, `@preline/datepicker`, see SelectField.jsx and
+ *   DatePickerField.jsx): their `variants.css`, plus `styles-utility.css` of the datepicker (the `vc-*` grid of the
+ *   calendar). That file is imported INTO the `components` layer: unlayered CSS would beat the utilities, which
+ *   this file's rules (`@layer`) must never do. Neither `theme.css` is imported (same reasons as below).
  * - The semantic colour tokens (`primary-hover`, `layer`, `surface`, `overlay`, `table-line`...), declared
  *   below in the `@theme static` block as a light-theme SUBSET of `preline/css/themes/theme.css`.
  *   That theme file is deliberately NOT imported: it redefines `--color-primary`, `--color-secondary`,
@@ -23,7 +27,25 @@
 @import '../node_modules/preline/variants.css';
 /* `hs-file-upload-complete:` variant of the File Upload plugin (npm `@preline/file-upload`, see FileUpload.jsx). */
 @import '../node_modules/@preline/file-upload/variants.css';
+/* `hs-selected:`, `hs-select-disabled:`... variants of the Advanced Select (SelectField.jsx; the datepicker embeds it). */
+@import '../node_modules/@preline/select/variants.css';
+/* `hs-vc-date-selected:`... variants of the Advanced Datepicker (DatePickerField.jsx). */
+@import '../node_modules/@preline/datepicker/variants.css';
+/* Calendar grid (`.vc`, `.vc-date`, `.vc-week`...). In a layer so the utilities keep winning. */
+@import '../node_modules/@preline/datepicker/styles-utility.css' layer(components);
+/*
+ * The plugins build their popups from class strings that live in their JS (month/year selects, calendar header...):
+ * Tailwind must scan them to generate those utilities.
+ */
+@source '../node_modules/@preline/select/non-auto.mjs';
+@source '../node_modules/@preline/datepicker/non-auto.mjs';
 @plugin '@tailwindcss/forms';
+
+/*
+ * The plugin templates ship `dark:` classes next to the light ones. The site has no dark theme, so `dark:` only
+ * applies under a `.dark` ancestor (which never exists) instead of following the OS preference.
+ */
+@custom-variant dark (&:where(.dark, .dark *));
 
 /* Hover always applies (the old stylesheet did not wait for a hover-capable pointer). */
 @custom-variant hover (&:hover);
@@ -102,6 +124,14 @@
 	--color-scrollbar-track: var(--color-gray-100);
 	--color-scrollbar-thumb: var(--color-gray-300);
 
+	/* Dropdown of the Advanced Select (Preline light theme). */
+	--color-select: #fff;
+	--color-select-line: transparent;
+	--color-select-item-foreground: var(--color-gray-800);
+	--color-select-item-hover: var(--color-gray-100);
+	--color-select-item-focus: var(--color-gray-100);
+	--color-select-item-active: var(--color-gray-100);
+
 	--font-sans: 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 	--shadow-card: 0 4px 24px rgba(0, 0, 0, 0.08);
 	--shadow-hover: 0 8px 32px rgba(0, 0, 0, 0.12);
@@ -171,6 +201,35 @@
 			@apply text-primary-dark;
 			text-shadow: 0 0 8px rgba(43, 108, 176, 0.4);
 		}
+	}
+}
+
+/*
+ * Calendar popup of the Advanced Datepicker. It is appended to <body> by the plugin, so these rules are global.
+ * - Preflight is off: the buttons the plugin draws (days, arrows, month/year toggles) would show the browser's grey
+ *   chrome and its own font, so they are reset here (in `base`, below the plugin's own `components` rules).
+ * - The plugin's utility classes use Tailwind's `blue-600` for today/selected: point it (inside the popup only) to
+ *   the brand `primary`.
+ */
+@layer base {
+	.vc {
+		/* Fixed width: the popup is absolutely positioned, so it would shrink to the room right of the input. */
+		width: 20rem;
+		max-width: 100%;
+		--color-blue-500: var(--color-primary);
+		--color-blue-600: var(--color-primary);
+		font-family: var(--font-sans);
+		line-height: 1.5;
+		letter-spacing: normal;
+	}
+
+	.vc button {
+		cursor: pointer;
+		border: 0;
+		background: transparent;
+		font: inherit;
+		color: inherit;
+		padding: 0;
 	}
 }
 

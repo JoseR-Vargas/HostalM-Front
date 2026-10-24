@@ -95,7 +95,7 @@ const INPUT_EXTRAS = 'font-sans border';
 const SELECT_EXTRAS = 'pe-9';
 
 // Error look, driven by the `error` prop. `!` because the recipe sets the same properties.
-const INPUT_ERROR = 'border-red-500! focus:border-red-500! focus:ring-red-500!';
+export const INPUT_ERROR = 'border-red-500! focus:border-red-500! focus:ring-red-500!';
 
 // File inputs and photo uploads keep their own look: the pill recipe does not fit the native file button.
 const FILE_CONTROL =
@@ -112,6 +112,56 @@ function controlClasses({ Control, type, error, unit, controlClass }) {
     error && INPUT_ERROR,
     unit && 'pr-12',
     controlClass,
+  );
+}
+
+/**
+ * Wrapper of a form control: group (`form-group`, `error` hook class only while active), label, the control
+ * (`children`), optional help text and the error message. `Field` uses it for native controls; the Preline
+ * widgets (`SelectField`, `DatePickerField`) use it around their plugin-driven markup, so layout and error
+ * styling are the same everywhere.
+ * - `labelFor`: the id the label points to (defaults to `id`); `labelId`: id of the label itself
+ * - `error`: adds the `error` hook class to the group and shows `errorMessage`
+ * - `groupId`/`className`: id and extra classes of the wrapper; `after`: extra content below the control
+ */
+export function FieldGroup({
+  id,
+  label,
+  labelFor = id,
+  labelId,
+  variant = 'default',
+  error = false,
+  errorMessage,
+  help,
+  helpId,
+  groupId,
+  className,
+  after,
+  children,
+}) {
+  const style = FIELD_STYLES[variant];
+
+  return (
+    <div id={groupId} className={cls('form-group', error && 'error', style.group, className)}>
+      <label id={labelId} htmlFor={labelFor} className={cls('block text-ink', style.label)}>
+        {label}
+      </label>
+      {children}
+      {help && (
+        <small id={helpId} className="mt-[0.8rem] block text-[0.95rem] leading-[1.5] text-muted opacity-90">
+          {help}
+        </small>
+      )}
+      {after}
+      {errorMessage && (
+        <Banner
+          tone="error"
+          className={cls('error-message mt-2 p-3 text-[0.85rem] leading-[1.3]', error ? 'block' : 'hidden')}
+        >
+          {errorMessage}
+        </Banner>
+      )}
+    </div>
   );
 }
 
@@ -139,7 +189,6 @@ export function Field({
   children,
   ...control
 }) {
-  const style = FIELD_STYLES[variant];
   const classes = controlClasses({ Control, type: control.type, error, unit, controlClass });
   const controlElement = (
     <Control name={id} {...control} id={id} className={classes}>
@@ -148,10 +197,18 @@ export function Field({
   );
 
   return (
-    <div id={groupId} className={cls('form-group', error && 'error', style.group, className)}>
-      <label htmlFor={id} className={cls('block text-ink', style.label)}>
-        {label}
-      </label>
+    <FieldGroup
+      id={id}
+      label={label}
+      variant={variant}
+      error={error}
+      errorMessage={errorMessage}
+      help={help}
+      helpId={helpId}
+      groupId={groupId}
+      className={className}
+      after={after}
+    >
       {/* With a unit, the control and the unit share a box so the unit is centred on the control itself. */}
       {unit ? (
         <div className="relative">
@@ -161,21 +218,7 @@ export function Field({
       ) : (
         controlElement
       )}
-      {help && (
-        <small id={helpId} className="mt-[0.8rem] block text-[0.95rem] leading-[1.5] text-muted opacity-90">
-          {help}
-        </small>
-      )}
-      {after}
-      {errorMessage && (
-        <Banner
-          tone="error"
-          className={cls('error-message mt-2 p-3 text-[0.85rem] leading-[1.3]', error ? 'block' : 'hidden')}
-        >
-          {errorMessage}
-        </Banner>
-      )}
-    </div>
+    </FieldGroup>
   );
 }
 

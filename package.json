@@ -12,7 +12,10 @@
     "e2e:ui": "playwright test --ui"
   },
   "dependencies": {
+    "@floating-ui/dom": "^1.8.0",
+    "@preline/datepicker": "^5.0.0",
     "@preline/file-upload": "^5.0.0",
+    "@preline/select": "^5.0.0",
     "dropzone": "^6.3.5",
     "html2pdf.js": "^0.10.3",
     "lodash": "^4.18.1",
