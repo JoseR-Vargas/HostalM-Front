@@ -14,15 +14,16 @@ Adopt the Preline design system (npm `preline` 4.2.0, already installed) as the 
 - Visual check: Playwright screenshots (375 and 1280) of the touched pages reviewed by the parent; no pixel baseline exists any more (this is an intentional restyle).
 
 ## Tasks
-- [ ] P1 Wiring: `@tailwindcss/forms`, `preline/variants.css`, `preline/theme.css` import in `src/index.css` with token-collision resolution; Button (primary + secondary recipes, `processing` state keeps working) and Spinner (single `Spinner` component, replaces ad-hoc spinners/overlays). Delegated writer.
-- [ ] P2 Inputs (every `Field`/form input incl. receipts' fields), Modal (shared `Modal` + `ModalTitle`, result modal, image modals), DataTable (admin dashboards). Delegated writer.
-- [ ] P3 Review screenshots, fix regressions, update STYLES_GUIDE.md/README, final `npm test`, `npm run build`, `npm run e2e`.
+- [x] P1 Wiring: `@tailwindcss/forms`, `preline/variants.css`, `preline/theme.css` import in `src/index.css` with token-collision resolution; Button (primary + secondary recipes, `processing` state keeps working) and Spinner (single `Spinner` component, replaces ad-hoc spinners/overlays). Delegated writer.
+- [x] P2 Inputs (every `Field`/form input incl. receipts' fields), Modal (shared `Modal` + `ModalTitle`, result modal, image modals), DataTable (admin dashboards). Delegated writer.
+- [x] P3 Review screenshots, fix regressions, update STYLES_GUIDE.md/README, final `npm test`, `npm run build`, `npm run e2e`.
 
 ## Acceptance
 All checks pass; every touched component matches the supplied recipes; brand color retained elsewhere; no unintended layout changes on untouched pages (spot-check screenshots).
 
 ## Progress / evidence
-(none yet)
+- P1 5db5250 (wiring, Button, Spinner; preline/theme.css NOT imported, light-theme token subset, brand colors verified unchanged via computed-style diff) | P2 (inputs, Modal, DataTable) committed after parent review of screenshots | P3 folded into parent review (login banner spacing fix).
+- Final: `npm test` 361 passed; `npm run build` ok; `npm run e2e` 166 passed.
 
 ## Next step
-P1.
+User pushes and checks the Netlify preview visually.
