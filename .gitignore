@@ -5,3 +5,6 @@ playwright-report
 test-results
 .env*.local
 .env
+
+# Local agent tooling (machine-specific)
+.atl/
