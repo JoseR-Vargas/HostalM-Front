@@ -78,7 +78,7 @@
 	 * Everything else below is the Preline light theme (Tailwind gray scale).
 	 */
 	--color-primary-line: transparent;
-	--color-primary-foreground: #fff;
+	--color-primary-foreground: var(--color-primary);
 	--color-primary-hover: var(--color-primary-dark);
 	--color-primary-focus: var(--color-primary-dark);
 	--color-primary-active: var(--color-primary-dark);

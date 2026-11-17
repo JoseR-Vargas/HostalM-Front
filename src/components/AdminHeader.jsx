@@ -20,7 +20,7 @@ export default function AdminHeader({ links }) {
       <button
         type="button"
         onClick={handleLogout}
-        className="logout-btn cursor-pointer rounded-lg border-none bg-button px-4 py-2 text-[0.9rem] font-medium text-white hover:bg-button phone:px-[0.8rem] phone:py-[0.35rem] phone:text-[0.85rem]"
+        className="logout-btn cursor-pointer rounded-lg border-none bg-button px-4 py-2 text-[0.9rem] font-medium text-primary hover:bg-button phone:px-[0.8rem] phone:py-[0.35rem] phone:text-[0.85rem]"
       >
         Cerrar Sesión
       </button>
