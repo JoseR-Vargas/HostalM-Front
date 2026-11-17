@@ -100,7 +100,7 @@ export const INPUT_ERROR = 'border-red-500! focus:border-red-500! focus:ring-red
 // File inputs and photo uploads keep their own look: the pill recipe does not fit the native file button.
 const FILE_CONTROL =
   'w-full rounded-lg border-2 px-[1.2rem] py-4 font-sans text-[1.05rem] text-ink outline-none transition-all duration-300';
-const FILE_CONTROL_OK = 'border-border bg-white focus:border-primary focus:shadow-[0_0_0_3px_rgba(43,108,176,0.15)]';
+const FILE_CONTROL_OK = 'border-border bg-white focus:border-primary focus:shadow-[0_0_0_3px_rgba(21,39,81,0.15)]';
 const FILE_CONTROL_ERROR = 'border-[#e53e3e] bg-[#fff5f5] focus:border-[#c53030]';
 
 function controlClasses({ Control, type, error, unit, controlClass }) {
@@ -224,13 +224,13 @@ export function Field({
 
 // Preline button recipes (preline-ui). These strings are the contract: do not reword them.
 const BUTTON_PRIMARY =
-  'py-3 px-4 inline-flex items-center gap-x-2 text-sm font-medium rounded-full bg-primary border border-primary-line text-primary-foreground hover:bg-primary-hover focus:outline-hidden focus:bg-primary-hover disabled:opacity-50 disabled:pointer-events-none';
+  'py-3 px-4 inline-flex items-center gap-x-2 text-sm font-medium rounded-full bg-button border border-primary-line text-primary-foreground hover:bg-button focus:outline-hidden focus:bg-button disabled:opacity-50 disabled:pointer-events-none';
 const BUTTON_SECONDARY =
   'py-3 px-4 inline-flex items-center gap-x-2 text-sm font-medium rounded-full bg-layer border border-layer-line text-layer-foreground shadow-2xs hover:bg-layer-hover focus:outline-hidden focus:bg-layer-hover disabled:opacity-50 disabled:pointer-events-none';
 
 // Small buttons of the modal footers and the link button of the table cells (Preline recipes, same contract).
 const BUTTON_PRIMARY_SM =
-  'py-2 px-3 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg bg-primary border border-primary-line text-primary-foreground hover:bg-primary-hover focus:outline-hidden focus:bg-primary-focus disabled:opacity-50 disabled:pointer-events-none';
+  'py-2 px-3 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg bg-button border border-primary-line text-primary-foreground hover:bg-button focus:outline-hidden focus:bg-button disabled:opacity-50 disabled:pointer-events-none';
 const BUTTON_SECONDARY_SM =
   'py-2 px-3 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg bg-layer border border-layer-line text-layer-foreground shadow-2xs hover:bg-layer-hover focus:outline-hidden focus:bg-layer-focus disabled:opacity-50 disabled:pointer-events-none';
 /** Action link or button inside a table cell (Preline recipe). The `link` button variant uses it too. */

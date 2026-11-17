@@ -314,7 +314,7 @@ export default function CalculatorMedidor() {
         id="resultModal"
         open={modalOpen}
         titleId="resultModalTitle"
-        title={<ModalTitle id="resultModalTitle">✅ Datos enviados correctamente</ModalTitle>}
+        title={<ModalTitle id="resultModalTitle">Datos enviados correctamente</ModalTitle>}
         onClose={closeResult}
         bodyClassName="text-center"
         footer={

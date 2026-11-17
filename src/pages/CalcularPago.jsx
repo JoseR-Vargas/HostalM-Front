@@ -28,7 +28,7 @@ const LOAD_ERROR_MESSAGE = 'No se pudo cargar la lista de residentes. Verificá 
 const COLUMNS = ['Nombre', 'Apellido', 'Habitación', 'Consumo (kWh)', 'Acción'];
 const MONTH_IDS = { prev: 'btnMesAnterior', label: 'residentesMonthLabel', next: 'btnMesSiguiente' };
 const SELECTED_ROW_STYLE = {
-  backgroundColor: 'rgba(43, 108, 176, 0.1)',
+  backgroundColor: 'rgba(21, 39, 81, 0.1)',
   borderLeft: '3px solid var(--color-primary)',
 };
 const DETAIL = 'text-[0.95rem] text-muted';

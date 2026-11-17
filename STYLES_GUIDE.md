@@ -24,16 +24,16 @@ Los estilos usan **Tailwind CSS v4**: utilidades en el JSX, tokens de diseño en
 
 | Grupo | Tokens |
 |---|---|
-| Colores | `primary`, `primary-dark`, `secondary`, `secondary-dark`, `accent` (verde), `warning` (dorado), `ink` (texto), `muted` (texto secundario), `border`, `border-light` |
+| Colores | `primary`, `primary-dark`, `secondary`, `secondary-dark` (`#152751`), `button` (`#FFEB00`), `page` (`#f9f9f8`), `accent` (verde), `warning` (dorado), `ink` (`#f62039`), `muted` (texto secundario), `border`, `border-light` |
 | Fuente | `font-sans` (Open Sans + fallbacks del sistema) |
 | Sombras | `shadow-card`, `shadow-hover`, `shadow-glow` |
-| Gradientes | `bg-page`, `bg-soft`, `bg-card`, `bg-brand`, `bg-bar`, `bg-title`, `bg-band` |
+| Fondos | `bg-page` y `bg-band` (color liso); gradientes `bg-soft`, `bg-card`, `bg-brand`, `bg-bar`, `bg-title` |
 | Animaciones | `animate-fade-in`, `animate-slide-in`; `animate-spin` (de Tailwind) lo usa `Spinner` |
 | Tokens Preline | `primary-line`, `primary-foreground`, `primary-hover/focus/active/checked`, `foreground`, `layer*`, `surface*`, `muted-foreground(-1/-2)`, `line-3` (borde punteado del selector de fotos), `overlay*`, `table-line`, `scrollbar-track/thumb`, `select`, `select-line`, `select-item-foreground/hover/focus/active` (menú del Advanced Select) (tema claro de Preline) |
 
 Cambiar un valor afecta a todo el sitio.
 
-**Colisiones con Preline.** `theme.css` de Preline no se importa: redefine `primary`, `secondary`, `muted` y `border` con otro significado y agrega `* { border-color }`. Se conserva la marca: `primary` sigue siendo `#2b6cb0` y sus estados (`primary-hover/focus/active`) usan `#2c5282` (`primary-dark`); `secondary`, `muted` y `border` mantienen los valores propios. Tampoco se declaran `card*` ni `background*` porque chocarían con los gradientes `bg-card`/`bg-page`. Si se importa otro tema de Preline más adelante, revisá estos nombres primero.
+**Colisiones con Preline.** `theme.css` de Preline no se importa: redefine `primary`, `secondary`, `muted` y `border` con otro significado y agrega `* { border-color }`. Se conserva la marca: `primary` es `#152751` y sus estados (`primary-hover/focus/active`) usan `primary-dark`, con el mismo valor; `secondary`, `muted` y `border` mantienen los valores propios. Los botones de acción usan el token independiente `button` (`#FFEB00`) con texto blanco. Tampoco se declaran `card*` ni `background*` porque chocarían con `bg-card`/`bg-page`. Si se importa otro tema de Preline más adelante, revisá estos nombres primero.
 
 ## Variantes propias (breakpoints)
 

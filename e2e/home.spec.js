@@ -40,7 +40,12 @@ test.describe('home', () => {
 
     await expect(page.locator('.hero-title')).toHaveText('Bienvenido a Hostal Mayelewoo');
     await expect(page.locator('.hero-subtitle')).toHaveText('Tu hogar en el corazón de Córdoba');
-    await expect(page.locator('.hero-img')).toHaveCount(2);
+    await expect(page.locator('body')).toHaveCSS('background-color', 'rgb(249, 249, 248)');
+    await expect(page.locator('body')).toHaveCSS('color', 'rgb(246, 32, 57)');
+    await expect(page.locator('.hero-title')).toHaveCSS('color', 'rgb(21, 39, 81)');
+    await expect(page.locator('.hero .cta-button')).toHaveCSS('background-color', 'rgb(255, 235, 0)');
+    await expect(page.locator('.hero .cta-button')).toHaveCSS('color', 'rgb(255, 255, 255)');
+    await expect(page.locator('.hero img')).toHaveCount(0);
 
     const rooms = page.locator('.room-card');
     await expect(rooms).toHaveCount(2);
@@ -50,17 +55,12 @@ test.describe('home', () => {
 
     await expect(page.locator('.location-address')).toHaveText('Humberto Primo 3070, Córdoba, Argentina');
     await expect(page.locator('.nav-link')).toHaveText(['Inicio', 'Medidores', 'Vouchers']);
-    await expect(page.locator('.social-link.instagram')).toHaveAttribute(
-      'href',
-      /instagram\.com\/hostalmayelewoo/,
-    );
+    await expect(page.locator('footer #whatsappLink')).toHaveCount(0);
+    await expect(page.locator('footer .social-link.instagram')).toHaveCount(0);
   });
 
-  test('the hero images and room cards fade in', async ({ page }) => {
+  test('the room cards fade in', async ({ page }) => {
     await page.goto('/');
-
-    // Hero images are above the fold: revealed shortly after load.
-    await expect(page.locator('.hero-img').first()).toHaveCSS('opacity', '1');
 
     await page.locator('.room-card').first().scrollIntoViewIfNeeded();
     await expect(page.locator('.room-card').first()).toHaveCSS('opacity', '1');
@@ -83,14 +83,14 @@ test.describe('home', () => {
         '¡Hola! Quiero hacer una consulta para Hostal Mayelewoo',
         '',
         '*Datos del huésped:*',
-        '👤 Nombre: [TEST] Ana Prueba',
-        '📋 DNI: 00000001',
-        '📧 Email: ana@example.invalid',
+        'Nombre: [TEST] Ana Prueba',
+        'DNI: 00000001',
+        'Email: ana@example.invalid',
         '',
-        '👥 *Huéspedes:* 3',
-        '🏠 *Tipo de alojamiento:* Apartamento',
+        '*Huéspedes:* 3',
+        '*Tipo de alojamiento:* Apartamento',
         '',
-        '💬 *Mensaje adicional:*',
+        '*Mensaje adicional:*',
         'Necesito cuna para bebé',
         '',
         'Espero su respuesta. ¡Gracias!',
@@ -110,8 +110,8 @@ test.describe('home', () => {
     const [url] = await openedUrls(page);
     const message = decodeURIComponent(url.split('?text=')[1]);
 
-    expect(message).toContain('👥 *Huéspedes:* 5+');
-    expect(message).toContain('🏠 *Tipo de alojamiento:* Consultar opciones disponibles');
+    expect(message).toContain('*Huéspedes:* 5+');
+    expect(message).toContain('*Tipo de alojamiento:* Consultar opciones disponibles');
     expect(message).not.toContain('Mensaje adicional');
   });
 
@@ -123,16 +123,6 @@ test.describe('home', () => {
 
     await page.waitForURL(new RegExp(`^https://wa\\.me/${WHATSAPP_NUMBER}\\?text=`));
     expect(decodeURIComponent(page.url())).toContain('Hola desde el celular');
-  });
-
-  test('the footer WhatsApp link opens the info message', async ({ page }) => {
-    await page.goto('/');
-    await page.locator('#whatsappLink').click();
-
-    await expect.poll(() => openedUrls(page).then((urls) => urls.length)).toBe(1);
-    const [url] = await openedUrls(page);
-    expect(url.startsWith(`https://wa.me/${WHATSAPP_NUMBER}?text=`)).toBe(true);
-    expect(decodeURIComponent(url.split('?text=')[1])).toBe('¡Hola! Quiero información sobre Hostal Mayelewoo');
   });
 
   test('the message field stops at 200 characters and the counter changes state', async ({ page }) => {

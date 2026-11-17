@@ -57,11 +57,11 @@ describe('ComprobanteServicios', () => {
     expect(container.querySelector('#fechaRecibo').value).toBe(getDefaultReceiptDate());
     expect(container.querySelector('label[for="montoAgua"]').textContent).toBe('Monto Agua ($)');
     expect(container.querySelector('label[for="montoLuz"]').textContent).toBe('Monto Luz ($)');
-    expect(container.querySelector('#btnGenerar').textContent).toBe('📄 Generar Comprobante de Servicios');
+    expect(container.querySelector('#btnGenerar').textContent).toBe('Generar Comprobante de Servicios');
     expect([...container.querySelectorAll('nav.nav-menu a')].map((a) => a.textContent)).toEqual([
-      '📋 Vouchers',
-      '🧮 Medidor',
-      '📄 Alquiler',
+      'Vouchers',
+      'Medidor',
+      'Alquiler',
     ]);
   });
 
@@ -142,11 +142,11 @@ describe('ComprobanteServicios', () => {
 
     generate(container);
     const button = container.querySelector('#btnGenerar');
-    await waitFor(() => expect(button.textContent).toBe('📄 Generando PDF...'));
+    await waitFor(() => expect(button.textContent).toBe('Generando PDF...'));
     expect(button.classList.contains('processing')).toBe(true);
 
     await act(async () => finish());
-    expect(button.textContent).toBe('📄 Generar Comprobante de Servicios');
+    expect(button.textContent).toBe('Generar Comprobante de Servicios');
     expect(button.classList.contains('processing')).toBe(false);
   });
 
@@ -160,7 +160,7 @@ describe('ComprobanteServicios', () => {
     generate(container);
     await waitFor(() => expect(alert).toHaveBeenCalledWith('Error al generar el PDF. Intentá de nuevo.'));
     await waitFor(() =>
-      expect(container.querySelector('#btnGenerar').textContent).toBe('📄 Generar Comprobante de Servicios'),
+      expect(container.querySelector('#btnGenerar').textContent).toBe('Generar Comprobante de Servicios'),
     );
   });
 });

@@ -13,8 +13,8 @@ import {
 } from '../lib/receipts';
 import { useReceiptPdf } from '../lib/useReceiptPdf';
 
-const BUTTON_LABEL = '📄 Generar Comprobante de Servicios';
-const PROCESSING_LABEL = '📄 Generando PDF...';
+const BUTTON_LABEL = 'Generar Comprobante de Servicios';
+const PROCESSING_LABEL = 'Generando PDF...';
 
 export default function ComprobanteServicios() {
   const [values, setValues] = useState(() => ({

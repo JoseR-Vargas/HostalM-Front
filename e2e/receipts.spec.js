@@ -23,7 +23,7 @@ const RECEIPTS = [
   {
     name: 'rent receipt (comprobante de pago)',
     path: '/comprobante-pago',
-    idleLabel: '📄 Generar y Descargar PDF',
+    idleLabel: 'Generar y Descargar PDF',
     amounts: { monto: '200.000,50' },
     invalidAmounts: { monto: '0' },
     amountGroups: ['monto'],
@@ -38,7 +38,7 @@ const RECEIPTS = [
   {
     name: 'services receipt (comprobante de servicios)',
     path: '/comprobante-servicios',
-    idleLabel: '📄 Generar Comprobante de Servicios',
+    idleLabel: 'Generar Comprobante de Servicios',
     amounts: { montoAgua: '5.000', montoLuz: '8.000,50' },
     invalidAmounts: { montoAgua: '0', montoLuz: 'abc' },
     amountGroups: ['montoAgua', 'montoLuz'],

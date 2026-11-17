@@ -56,10 +56,10 @@ describe('ComprobantePago', () => {
     expect(getByText('Datos del comprobante')).toBeTruthy();
     expect([...container.querySelectorAll('#periodo option')]).toHaveLength(13);
     expect(container.querySelector('#fechaRecibo').value).toBe(getDefaultReceiptDate());
-    expect(container.querySelector('#btnGenerar').textContent).toBe('📄 Generar y Descargar PDF');
+    expect(container.querySelector('#btnGenerar').textContent).toBe('Generar y Descargar PDF');
     expect([...container.querySelectorAll('nav.nav-menu a')].map((a) => a.textContent)).toEqual([
-      '📋 Vouchers',
-      '🧮 Medidor',
+      'Vouchers',
+      'Medidor',
     ]);
     expect(container.querySelector('footer')).toBeTruthy();
   });
@@ -144,7 +144,7 @@ describe('ComprobantePago', () => {
     expect(downloadPdf).toHaveBeenCalledTimes(1);
 
     await act(async () => finish());
-    expect(button.textContent).toBe('📄 Generar y Descargar PDF');
+    expect(button.textContent).toBe('Generar y Descargar PDF');
     expect(button.classList.contains('processing')).toBe(false);
   });
 
@@ -158,6 +158,6 @@ describe('ComprobantePago', () => {
     generate(container);
     await waitFor(() => expect(alert).toHaveBeenCalledWith('Error al generar el PDF. Intentá de nuevo.'));
     expect(consoleError).toHaveBeenCalled();
-    await waitFor(() => expect(container.querySelector('#btnGenerar').textContent).toBe('📄 Generar y Descargar PDF'));
+    await waitFor(() => expect(container.querySelector('#btnGenerar').textContent).toBe('Generar y Descargar PDF'));
   });
 });

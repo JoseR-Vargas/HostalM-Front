@@ -56,32 +56,33 @@
 @custom-variant short (@media (max-height: 600px));
 
 @theme static {
-	--color-primary: #2b6cb0;
-	--color-primary-dark: #2c5282;
-	--color-secondary: #553c9a;
-	--color-secondary-dark: #44337a;
+	--color-primary: #152751;
+	--color-primary-dark: #152751;
+	--color-secondary: #152751;
+	--color-secondary-dark: #152751;
+	--color-button: #ffeb00;
 	--color-accent: #38a169;
 	--color-warning: #d69e2e;
-	--color-ink: #1a202c;
+	--color-ink: #f62039;
 	--color-muted: #4a5568;
 	--color-border: #e2e8f0;
 	--color-border-light: #cbd5e0;
 
 	/*
 	 * Preline semantic tokens. Collisions with the Preline names are resolved in favour of the brand:
-	 * - `primary` keeps #2b6cb0 and the Preline primary states reuse our dark blue (#2c5282, `primary-dark`);
+	 * - `primary` keeps #152751 and the Preline primary states reuse `primary-dark`;
 	 *   Preline would otherwise give blue-600/blue-700.
 	 * - `secondary`, `muted` and `border` keep our values above (Preline: gray-900, gray-50 and gray-200);
 	 *   Preline's `secondary-*`, `muted-hover`... are not declared.
-	 * - Not declared on purpose because they would clash with our `bg-card`/`bg-page` gradients: `card*`, `background*`.
+	 * - Not declared on purpose because they would clash with our `bg-card` gradient/`bg-page` background: `card*`, `background*`.
 	 * Everything else below is the Preline light theme (Tailwind gray scale).
 	 */
 	--color-primary-line: transparent;
 	--color-primary-foreground: #fff;
-	--color-primary-hover: #2c5282;
-	--color-primary-focus: #2c5282;
-	--color-primary-active: #2c5282;
-	--color-primary-checked: #2b6cb0;
+	--color-primary-hover: var(--color-primary-dark);
+	--color-primary-focus: var(--color-primary-dark);
+	--color-primary-active: var(--color-primary-dark);
+	--color-primary-checked: var(--color-primary);
 
 	--color-foreground: var(--color-gray-800);
 	--color-foreground-inverse: #fff;
@@ -135,14 +136,14 @@
 	--font-sans: 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 	--shadow-card: 0 4px 24px rgba(0, 0, 0, 0.08);
 	--shadow-hover: 0 8px 32px rgba(0, 0, 0, 0.12);
-	--shadow-glow: 0 0 20px rgba(43, 108, 176, 0.2);
-	--background-image-page: linear-gradient(135deg, #fefefe 0%, #f8f9fa 25%, #f5f7fa 50%, #f0f4f8 75%, #ebf1f5 100%);
+	--shadow-glow: 0 0 20px rgba(21, 39, 81, 0.2);
+	--color-page: #f9f9f8;
 	--background-image-soft: linear-gradient(135deg, #f8f9fa 0%, #f0f4f8 50%, #e8eff5 100%);
 	--background-image-card: linear-gradient(135deg, #ffffff 0%, #fafbfc 50%, #f5f8fb 100%);
 	--background-image-brand: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
 	--background-image-bar: linear-gradient(90deg, var(--color-primary), var(--color-secondary));
-	--background-image-title: linear-gradient(135deg, var(--color-ink) 0%, var(--color-primary) 100%);
-	--background-image-band: linear-gradient(135deg, rgba(248, 249, 250, 0.6) 0%, rgba(240, 244, 248, 0.8) 50%, rgba(235, 241, 245, 0.9) 100%);
+	--background-image-title: linear-gradient(135deg, var(--color-primary), var(--color-primary));
+	--background-image-band: linear-gradient(135deg, var(--color-page), var(--color-page));
 	--animate-fade-in: fade-in 0.3s ease;
 	--animate-slide-in: slide-in 0.3s ease;
 
@@ -199,7 +200,7 @@
 
 		&:hover {
 			@apply text-primary-dark;
-			text-shadow: 0 0 8px rgba(43, 108, 176, 0.4);
+			text-shadow: 0 0 8px rgba(21, 39, 81, 0.4);
 		}
 	}
 }

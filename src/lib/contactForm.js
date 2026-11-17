@@ -28,13 +28,13 @@ export function validateContactForm({ nombre, apellido, dni, email }) {
 export function buildContactMessage({ nombre, apellido, dni, email, huespedes, tipo, mensaje }) {
   let message = `¡Hola! Quiero hacer una consulta para ${HOSTAL_NAME}\n\n`;
   message += `*Datos del huésped:*\n`;
-  message += `👤 Nombre: ${nombre} ${apellido}\n`;
-  message += `📋 DNI: ${dni}\n`;
-  message += `📧 Email: ${email}\n\n`;
-  message += `👥 *Huéspedes:* ${huespedes}\n`;
-  message += `🏠 *Tipo de alojamiento:* ${ACCOMMODATION_LABELS[tipo] || tipo}\n\n`;
+  message += `Nombre: ${nombre} ${apellido}\n`;
+  message += `DNI: ${dni}\n`;
+  message += `Email: ${email}\n\n`;
+  message += `*Huéspedes:* ${huespedes}\n`;
+  message += `*Tipo de alojamiento:* ${ACCOMMODATION_LABELS[tipo] || tipo}\n\n`;
   if (mensaje) {
-    message += `💬 *Mensaje adicional:*\n${mensaje}\n\n`;
+    message += `*Mensaje adicional:*\n${mensaje}\n\n`;
   }
   message += `Espero su respuesta. ¡Gracias!`;
   return message;

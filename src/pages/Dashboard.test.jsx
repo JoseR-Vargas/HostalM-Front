@@ -57,7 +57,7 @@ describe('Dashboard', () => {
     const { container, getByText } = renderPage();
 
     const links = [...container.querySelectorAll('nav.nav-menu a.nav-link')].map((a) => a.textContent);
-    expect(links).toEqual(['📄 Alquiler', '💧 Servicios', '⚡ Calcular Pago', '🧮 Medidores']);
+    expect(links).toEqual(['Alquiler', 'Servicios', 'Calcular Pago', 'Medidores']);
     expect(getByText('Cerrar Sesión')).toBeTruthy();
     expect(getByText('Dashboard Administrativo')).toBeTruthy();
     expect(getByText('Gestión de datos de usuarios')).toBeTruthy();
