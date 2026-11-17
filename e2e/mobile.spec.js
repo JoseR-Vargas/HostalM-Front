@@ -110,7 +110,7 @@ async function exerciseReceiptPickers(page) {
 }
 
 const PAGES = [
-  { path: '/', buttons: ['.hero .cta-button', '.submit-button', '.nav-link', '#whatsappLink'] },
+  { path: '/', buttons: ['.hero .cta-button', '.submit-button', '.nav-link'] },
   { path: '/login', buttons: ['#loginBtn', '.nav-link'] },
   {
     path: '/vouchers',

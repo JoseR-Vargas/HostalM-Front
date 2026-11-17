@@ -13,7 +13,7 @@ import {
 } from '../lib/receipts';
 import { useReceiptPdf } from '../lib/useReceiptPdf';
 
-const BUTTON_LABEL = '📄 Generar y Descargar PDF';
+const BUTTON_LABEL = 'Generar y Descargar PDF';
 const PROCESSING_LABEL = 'Generando PDF...';
 
 export default function ComprobantePago() {

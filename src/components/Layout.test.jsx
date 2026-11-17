@@ -48,7 +48,7 @@ describe('AdminHeader', () => {
   it('renders the per-page nav links and a logout button', () => {
     const { container } = wrap(<AdminHeader links={ADMIN_NAV['comprobante-pago']} />);
     const links = [...container.querySelectorAll('nav.nav-menu a.nav-link')];
-    expect(links.map((a) => a.textContent)).toEqual(['📋 Vouchers', '🧮 Medidor']);
+    expect(links.map((a) => a.textContent)).toEqual(['Vouchers', 'Medidor']);
     expect(links.map((a) => a.getAttribute('href'))).toEqual(['/dashboard', '/dashboard-calculator']);
     expect(container.querySelector('.nav.nav-centered')).not.toBeNull();
     expect(screen.getByRole('button', { name: 'Cerrar Sesión' }).classList.contains('logout-btn')).toBe(true);
@@ -63,10 +63,10 @@ describe('AdminHeader', () => {
 
   it('has the nav link sets for each admin page', () => {
     const labels = (page) => ADMIN_NAV[page].map((l) => l.label);
-    expect(labels('dashboard')).toEqual(['📄 Alquiler', '💧 Servicios', '⚡ Calcular Pago', '🧮 Medidores']);
-    expect(labels('dashboard-calculator')).toEqual(['📋 Vouchers', '📄 Comprobante', '💧 Servicios', '⚡ Calcular Pago']);
-    expect(labels('calcular-pago')).toEqual(['📋 Vouchers', '🧮 Medidor', '📄 Comprobante']);
-    expect(labels('comprobante-servicios')).toEqual(['📋 Vouchers', '🧮 Medidor', '📄 Alquiler']);
+    expect(labels('dashboard')).toEqual(['Alquiler', 'Servicios', 'Calcular Pago', 'Medidores']);
+    expect(labels('dashboard-calculator')).toEqual(['Vouchers', 'Comprobante', 'Servicios', 'Calcular Pago']);
+    expect(labels('calcular-pago')).toEqual(['Vouchers', 'Medidor', 'Comprobante']);
+    expect(labels('comprobante-servicios')).toEqual(['Vouchers', 'Medidor', 'Alquiler']);
   });
 });
 
@@ -79,20 +79,20 @@ describe('Footer', () => {
     expect(container.querySelector('.footer-section')).toBeNull();
   });
 
-  it('home variant has address, WhatsApp and Instagram', () => {
+  it('home variant has only the address section', () => {
     const { container } = wrap(<Footer variant="home" />);
     const headings = [...container.querySelectorAll('.footer-section h4')].map((h) => h.textContent);
-    expect(headings).toEqual(['Hostal Mayelewoo', 'Contacto', 'Síguenos']);
-    expect(container.querySelector('#whatsappLink.contact-link.whatsapp')).not.toBeNull();
-    expect(container.querySelector('a.social-link.instagram').getAttribute('target')).toBe('_blank');
+    expect(headings).toEqual(['Hostal Mayelewoo']);
+    expect(container.querySelector('#whatsappLink')).toBeNull();
+    expect(container.querySelector('a.social-link.instagram')).toBeNull();
   });
 
   it('vouchers variant links back to the home page', () => {
     const { container } = wrap(<Footer variant="vouchers" />);
     const headings = [...container.querySelectorAll('.footer-section h4')].map((h) => h.textContent);
-    expect(headings).toEqual(['Hostal Mayelewoo', 'Contacto', 'Volver']);
+    expect(headings).toEqual(['Hostal Mayelewoo', 'Volver']);
     const hrefs = [...container.querySelectorAll('.footer-section a')].map((a) => a.getAttribute('href'));
-    expect(hrefs).toEqual(['/#contacto', '/#inicio']);
+    expect(hrefs).toEqual(['/#inicio']);
   });
 });
 

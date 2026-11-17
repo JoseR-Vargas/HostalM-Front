@@ -34,9 +34,9 @@ test.describe('route guard', () => {
     await signIn();
     await page.goto('/dashboard');
 
-    await expect(page.locator('.nav-link')).toHaveText(['📄 Alquiler', '💧 Servicios', '⚡ Calcular Pago', '🧮 Medidores']);
+    await expect(page.locator('.nav-link')).toHaveText(['Alquiler', 'Servicios', 'Calcular Pago', 'Medidores']);
 
-    await page.getByRole('link', { name: '📄 Alquiler' }).click();
+    await page.getByRole('link', { name: 'Alquiler' }).click();
     await expect(page).toHaveURL(/\/comprobante-pago$/);
     await expect(page.locator('.section-title')).toHaveText('Comprobante de Pago');
   });

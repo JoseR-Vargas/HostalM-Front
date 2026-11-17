@@ -9,7 +9,7 @@ const SHEET_STYLE = {
   background: '#ffffff',
   fontFamily: 'Arial, Helvetica, sans-serif',
   fontSize: '11pt',
-  color: '#1a1a1a',
+  color: '#f62039',
   position: 'relative',
   boxSizing: 'border-box',
 };
@@ -58,7 +58,7 @@ const DATE_STYLE = { fontSize: '11pt', fontWeight: 600 };
 
 const VALUE_STYLE = { color: '#c05e00' };
 const LABEL_STYLE = { fontWeight: 700 };
-const DIVIDER_STYLE = { border: 'none', borderTop: '1.5px solid #1a1a1a', margin: 0 };
+const DIVIDER_STYLE = { border: 'none', borderTop: '1.5px solid #f62039', margin: 0 };
 const TABLE_STYLE = { width: '100%', borderCollapse: 'collapse', marginTop: 0 };
 
 const HEAD_CELL_STYLE = { padding: '10px 0 8px 0', fontSize: '11pt', fontWeight: 700 };

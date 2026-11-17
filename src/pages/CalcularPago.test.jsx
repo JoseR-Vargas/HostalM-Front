@@ -74,7 +74,7 @@ describe('CalcularPago step 1', () => {
     const { container, getByText } = renderPage();
 
     const links = [...container.querySelectorAll('nav.nav-menu a.nav-link')].map((a) => a.textContent);
-    expect(links).toEqual(['📋 Vouchers', '🧮 Medidor', '📄 Comprobante']);
+    expect(links).toEqual(['Vouchers', 'Medidor', 'Comprobante']);
     expect(getByText('Calculadora de Pago de Electricidad')).toBeTruthy();
     expect(getByText('Paso 1 — Datos de la factura')).toBeTruthy();
     expect(container.querySelector('#precioKwh').readOnly).toBe(true);

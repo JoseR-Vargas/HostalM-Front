@@ -1,5 +1,5 @@
 const ARROW =
-  'flex size-10 shrink-0 cursor-pointer items-center justify-center rounded-lg border-none bg-primary text-[1.2rem] text-white transition-all duration-300 hover:bg-primary-dark hover:shadow-glow';
+  'flex size-10 shrink-0 cursor-pointer items-center justify-center rounded-lg border-none bg-button text-[1.2rem] text-white transition-all duration-300 hover:bg-button hover:shadow-glow';
 
 const DEFAULT_IDS = { prev: 'prevMonth', label: 'currentMonthLabel', next: 'nextMonth' };
 

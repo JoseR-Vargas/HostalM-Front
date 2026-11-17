@@ -43,19 +43,19 @@ describe('buildContactMessage', () => {
     expect(buildContactMessage(valid)).toBe(
       '¡Hola! Quiero hacer una consulta para Hostal Mayelewoo\n\n' +
         '*Datos del huésped:*\n' +
-        '👤 Nombre: Ana Pérez\n' +
-        '📋 DNI: 30111222\n' +
-        '📧 Email: ana@example.com\n\n' +
-        '👥 *Huéspedes:* 2\n' +
-        '🏠 *Tipo de alojamiento:* Habitación\n\n' +
+        'Nombre: Ana Pérez\n' +
+        'DNI: 30111222\n' +
+        'Email: ana@example.com\n\n' +
+        '*Huéspedes:* 2\n' +
+        '*Tipo de alojamiento:* Habitación\n\n' +
         'Espero su respuesta. ¡Gracias!',
     );
   });
 
   it('includes the additional message when present', () => {
     const message = buildContactMessage({ ...valid, tipo: 'consultar', mensaje: 'Llego tarde' });
-    expect(message).toContain('🏠 *Tipo de alojamiento:* Consultar opciones disponibles\n\n');
-    expect(message).toContain('💬 *Mensaje adicional:*\nLlego tarde\n\nEspero su respuesta.');
+    expect(message).toContain('*Tipo de alojamiento:* Consultar opciones disponibles\n\n');
+    expect(message).toContain('*Mensaje adicional:*\nLlego tarde\n\nEspero su respuesta.');
   });
 
   it('maps apartamento and falls back to the raw type', () => {

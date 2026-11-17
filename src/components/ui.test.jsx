@@ -5,7 +5,7 @@ import { Button, Field, Spinner } from './ui';
 afterEach(cleanup);
 
 const PRIMARY =
-  'py-3 px-4 inline-flex items-center gap-x-2 text-sm font-medium rounded-full bg-primary border border-primary-line text-primary-foreground hover:bg-primary-hover focus:outline-hidden focus:bg-primary-hover disabled:opacity-50 disabled:pointer-events-none';
+  'py-3 px-4 inline-flex items-center gap-x-2 text-sm font-medium rounded-full bg-button border border-primary-line text-primary-foreground hover:bg-button focus:outline-hidden focus:bg-button disabled:opacity-50 disabled:pointer-events-none';
 const SECONDARY =
   'py-3 px-4 inline-flex items-center gap-x-2 text-sm font-medium rounded-full bg-layer border border-layer-line text-layer-foreground shadow-2xs hover:bg-layer-hover focus:outline-hidden focus:bg-layer-hover disabled:opacity-50 disabled:pointer-events-none';
 
@@ -100,8 +100,8 @@ describe('Button sizes', () => {
     );
     const [primary, secondary, link] = container.querySelectorAll('button');
 
-    expect(primary.getAttribute('class')).toContain('py-2 px-3 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg bg-primary');
-    expect(primary.getAttribute('class')).toContain('focus:bg-primary-focus');
+    expect(primary.getAttribute('class')).toContain('py-2 px-3 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg bg-button');
+    expect(primary.getAttribute('class')).toContain('focus:bg-button');
     expect(secondary.getAttribute('class')).toContain('rounded-lg bg-layer border border-layer-line text-layer-foreground shadow-2xs');
     expect(secondary.getAttribute('class')).toContain('focus:bg-layer-focus');
     expect(link.getAttribute('class')).toContain('text-primary hover:text-primary-hover focus:outline-hidden focus:text-primary-focus');

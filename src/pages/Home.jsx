@@ -191,9 +191,6 @@ const ROOMS = [
     features: ['Cocina equipada', 'Sala de estar', 'Balcón privado'],
   },
 ];
-const HERO_IMAGE =
-  'hero-img size-full rounded-xl border-2 border-border object-cover shadow-card hover:border-primary hover:shadow-[0_8px_32px_rgba(0,0,0,0.12),0_0_30px_rgba(43,108,176,0.2)]';
-
 export default function Home() {
   useHashScroll();
 
@@ -203,45 +200,31 @@ export default function Home() {
 
       <section
         id="inicio"
-        className="hero mx-auto grid min-h-screen max-w-[1200px] grid-cols-[1fr_1fr] items-center gap-12 px-5 pt-[120px] pb-20 tablet:min-h-[70vh] tablet:grid-cols-[1fr] tablet:gap-8 tablet:px-[15px] tablet:pt-[140px] tablet:pb-[60px] tablet:text-center phone:gap-6 phone:px-2.5 phone:pt-[120px] phone:pb-10"
+        className="hero mx-auto grid min-h-screen max-w-[1200px] grid-cols-1 items-center px-5 pt-[120px] pb-20 text-center tablet:min-h-[70vh] tablet:px-[15px] tablet:pt-[140px] tablet:pb-[60px] phone:px-2.5 phone:pt-[120px] phone:pb-10"
       >
-        <div className="py-8 tablet:mx-auto tablet:max-w-full tablet:py-4">
-          <h2 className="hero-title mb-6 bg-[linear-gradient(135deg,var(--color-ink)_0%,var(--color-primary)_50%,var(--color-secondary)_100%)] bg-clip-text font-[family-name:Open_Sans,-apple-system,BlinkMacSystemFont,system-ui,sans-serif] text-[4.5rem] leading-[1.1] font-black tracking-[-0.04em] text-transparent uppercase [text-shadow:0_0_40px_rgba(43,108,176,0.3)] tablet:text-[3.2rem] tablet:tracking-[-0.03em] phone:text-[2.5rem] phone:tracking-[-0.02em]">
+        <div className="mx-auto max-w-[900px] py-8 tablet:max-w-full tablet:py-4">
+          <h2 className="hero-title mb-6 font-[family-name:Open_Sans,-apple-system,BlinkMacSystemFont,system-ui,sans-serif] text-[4.5rem] leading-[1.1] font-black tracking-[-0.04em] text-primary uppercase tablet:text-[3.2rem] tablet:tracking-[-0.03em] phone:text-[2.5rem] phone:tracking-[-0.02em]">
             Bienvenido a Hostal Mayelewoo
           </h2>
           <p className="hero-subtitle mb-6 text-[1.8rem] font-bold tracking-[0.01em] text-primary tablet:mb-4 tablet:text-[1.3rem] phone:text-[1.1rem]">
             Tu hogar en el corazón de Córdoba
           </p>
-          <p className="mb-12 max-w-[90%] text-[1.2rem] leading-[1.6] text-muted tablet:mx-auto tablet:mb-8 tablet:text-[1rem]">
+          <p className="mx-auto mb-12 max-w-[90%] text-[1.2rem] leading-[1.6] text-muted tablet:mx-auto tablet:mb-8 tablet:text-[1rem]">
             Habitaciones y apartamentos cómodos en una ubicación privilegiada
           </p>
           <Button as={Link} to="/#contacto">
             Reservar Ahora
           </Button>
         </div>
-        <div className="grid h-[500px] grid-cols-[1fr_1fr] gap-4 tablet:mx-auto tablet:mt-8 tablet:h-[400px] tablet:max-w-full phone:mt-6 phone:h-[300px]">
-          <Reveal
-            as="img"
-            src="/img/mayelewo1.jpeg"
-            alt="Hostal Mayelewoo exterior"
-            className={`hero-img-1 ${HERO_IMAGE} row-[1/3]`}
-          />
-          <Reveal
-            as="img"
-            src="/img/mayelewo2.jpeg"
-            alt="Hostal Mayelewoo interior"
-            className={`hero-img-2 ${HERO_IMAGE} row-[2/4]`}
-          />
-        </div>
       </section>
 
       <section
-        className={`border-y border-border bg-[linear-gradient(135deg,rgba(248,249,250,0.8)_0%,rgba(240,244,248,0.9)_50%,rgba(235,241,245,1)_100%)] ${SECTION_Y}`}
+        className={`border-y border-border bg-page ${SECTION_Y}`}
       >
         <div className="container">
           <div className="mx-auto max-w-[700px] text-center tablet:px-[15px]">
             <SectionTitle className="mb-8 phone:mb-6">Nuestra Ubicación</SectionTitle>
-            <p className="location-address mb-6 text-[1.5rem] font-semibold text-primary [text-shadow:0_0_10px_rgba(43,108,176,0.3)]">
+            <p className="location-address mb-6 text-[1.5rem] font-semibold text-primary [text-shadow:0_0_10px_rgba(21,39,81,0.3)]">
               Humberto Primo 3070, Córdoba, Argentina
             </p>
             <p className="text-[1.2rem] leading-[1.7] text-muted">
@@ -260,14 +243,11 @@ export default function Home() {
                 key={title}
                 className="room-card relative overflow-hidden rounded-xl border border-border bg-card p-12 shadow-card before:absolute before:inset-x-0 before:top-0 before:h-1 before:bg-bar hover:border-primary hover:shadow-hover tablet:mx-auto tablet:max-w-[400px] tablet:text-center phone:max-w-full phone:p-6"
               >
-                <h4 className="room-title mb-6 bg-brand bg-clip-text text-[1.8rem] text-transparent">{title}</h4>
+                <h4 className="room-title mb-6 text-[1.8rem] text-primary">{title}</h4>
                 <p className="mb-8 text-[1.1rem] leading-[1.6] text-muted">{description}</p>
                 <ul className="list-none">
                   {features.map((feature) => (
-                    <li
-                      key={feature}
-                      className="relative mb-[0.8rem] pl-8 text-[1.05rem] before:absolute before:left-0 before:text-[1.2rem] before:font-bold before:text-accent before:content-['⚡']"
-                    >
+                    <li key={feature} className="mb-[0.8rem] text-[1.05rem]">
                       {feature}
                     </li>
                   ))}

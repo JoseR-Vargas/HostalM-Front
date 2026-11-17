@@ -13,7 +13,7 @@ export function Metric({ title, value }) {
   return (
     <MetricCard>
       <h4 className="metric-title mb-2 text-[0.9rem] font-semibold tracking-[0.05em] text-muted uppercase">{title}</h4>
-      <p className="metric-value block text-[2rem] leading-none font-bold text-primary [text-shadow:0_0_10px_rgba(43,108,176,0.3)]">
+      <p className="metric-value block text-[2rem] leading-none font-bold text-primary [text-shadow:0_0_10px_rgba(21,39,81,0.3)]">
         {value}
       </p>
     </MetricCard>

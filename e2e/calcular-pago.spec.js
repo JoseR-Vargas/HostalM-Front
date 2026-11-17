@@ -147,13 +147,13 @@ test.describe('calcular pago (electricity bill split)', () => {
     await expect(page.locator('#residentePrecioKwhDisplay')).toHaveText('$444,45');
     // 60.5 kWh x (200000.5 / 450) = 26888.956...
     await expect(page.locator('#residenteTotalDisplay')).toHaveText('$26.888,96');
-    await expect(page.locator('[id="fila-Hab 4"]')).toHaveCSS('background-color', 'rgba(43, 108, 176, 0.1)');
+    await expect(page.locator('[id="fila-Hab 4"]')).toHaveCSS('background-color', 'rgba(21, 39, 81, 0.1)');
 
     await selectResident(page, 'Apto 2');
     await expect(page.locator('#residenteNombreDisplay')).toHaveText('[TEST] Beto Ejemplo');
     await expect(page.locator('#residenteTotalDisplay')).toHaveText('$2.755,56');
-    await expect(page.locator('[id="fila-Apto 2"]')).toHaveCSS('background-color', 'rgba(43, 108, 176, 0.1)');
-    await expect(page.locator('[id="fila-Hab 4"]')).not.toHaveCSS('background-color', 'rgba(43, 108, 176, 0.1)');
+    await expect(page.locator('[id="fila-Apto 2"]')).toHaveCSS('background-color', 'rgba(21, 39, 81, 0.1)');
+    await expect(page.locator('[id="fila-Hab 4"]')).not.toHaveCSS('background-color', 'rgba(21, 39, 81, 0.1)');
   });
 
   test('calculating again with a new bill refreshes the residents and clears the selection', async ({ page, mock }) => {

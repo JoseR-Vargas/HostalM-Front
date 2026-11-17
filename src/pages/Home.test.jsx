@@ -36,16 +36,16 @@ afterEach(() => {
 });
 
 describe('Home', () => {
-  it('renders the landing sections with its copy and images', () => {
+  it('renders the landing sections without hero images or social footer links', () => {
     const { container } = renderHome();
     expect(screen.getByText('Bienvenido a Hostal Mayelewoo')).toBeTruthy();
     expect(screen.getByText('Humberto Primo 3070, Córdoba, Argentina')).toBeTruthy();
     expect(container.querySelector('#inicio.hero')).toBeTruthy();
     expect(container.querySelector('#habitaciones .room-card')).toBeTruthy();
     expect(container.querySelector('#contacto form#contactForm.contact-form')).toBeTruthy();
-    expect(container.querySelector('img.hero-img-1').getAttribute('src')).toBe('/img/mayelewo1.jpeg');
-    expect(container.querySelector('img.hero-img-2').getAttribute('src')).toBe('/img/mayelewo2.jpeg');
-    expect(container.querySelector('footer #whatsappLink')).toBeTruthy();
+    expect(container.querySelectorAll('.hero img')).toHaveLength(0);
+    expect(container.querySelector('footer #whatsappLink')).toBeNull();
+    expect(container.querySelector('footer .social-link')).toBeNull();
   });
 
   it('fades the cards in once they are inside the viewport', async () => {
@@ -118,8 +118,8 @@ describe('Home', () => {
     const url = vi.mocked(openWhatsApp).mock.calls[0][0];
     expect(url.startsWith('https://wa.me/5493516664584?text=')).toBe(true);
     const text = decodeURIComponent(url.split('?text=')[1]);
-    expect(text).toContain('👤 Nombre: Ana Pérez');
-    expect(text).toContain('💬 *Mensaje adicional:*\nHola');
+    expect(text).toContain('Nombre: Ana Pérez');
+    expect(text).toContain('*Mensaje adicional:*\nHola');
 
     await act(async () => {
       await vi.advanceTimersByTimeAsync(3000);
@@ -133,14 +133,6 @@ describe('Home', () => {
     fill(container, complete);
     fireEvent.submit(container.querySelector('#contactForm'));
     expect(openWhatsApp).toHaveBeenCalledTimes(1);
-  });
-
-  it('opens the info message from the footer WhatsApp link', () => {
-    const { container } = renderHome();
-    fireEvent.click(container.querySelector('#whatsappLink'));
-    expect(openWhatsApp).toHaveBeenCalledWith(
-      `https://wa.me/5493516664584?text=${encodeURIComponent('¡Hola! Quiero información sobre Hostal Mayelewoo')}`,
-    );
   });
 
   it('marks required fields with an error class on blur and clears it while typing', () => {

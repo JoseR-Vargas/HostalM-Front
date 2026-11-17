@@ -66,7 +66,7 @@ describe('DashboardCalculator', () => {
     const { container, getByText } = renderPage();
 
     const links = [...container.querySelectorAll('nav.nav-menu a.nav-link')].map((a) => a.textContent);
-    expect(links).toEqual(['📋 Vouchers', '📄 Comprobante', '💧 Servicios', '⚡ Calcular Pago']);
+    expect(links).toEqual(['Vouchers', 'Comprobante', 'Servicios', 'Calcular Pago']);
     expect(getByText('Calculadora de Medidor')).toBeTruthy();
     expect(getByText('Gestión de cálculos de consumo eléctrico')).toBeTruthy();
     expect(getByText('Registro de cálculos')).toBeTruthy();
