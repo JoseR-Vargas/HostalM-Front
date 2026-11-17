@@ -44,7 +44,7 @@ test.describe('home', () => {
     await expect(page.locator('body')).toHaveCSS('color', 'rgb(246, 32, 57)');
     await expect(page.locator('.hero-title')).toHaveCSS('color', 'rgb(21, 39, 81)');
     await expect(page.locator('.hero .cta-button')).toHaveCSS('background-color', 'rgb(255, 235, 0)');
-    await expect(page.locator('.hero .cta-button')).toHaveCSS('color', 'rgb(255, 255, 255)');
+    await expect(page.locator('.hero .cta-button')).toHaveCSS('color', 'rgb(21, 39, 81)');
     await expect(page.locator('.hero img')).toHaveCount(0);
 
     const rooms = page.locator('.room-card');

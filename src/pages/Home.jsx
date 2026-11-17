@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import Footer from '../components/Footer';
+import HeroOcean from '../components/HeroOcean';
 import PublicHeader from '../components/PublicHeader';
 import Reveal from '../components/Reveal';
 import { HOME_LINKS } from '../components/navLinks';
@@ -200,9 +201,10 @@ export default function Home() {
 
       <section
         id="inicio"
-        className="hero mx-auto grid min-h-screen max-w-[1200px] grid-cols-1 items-center px-5 pt-[120px] pb-20 text-center tablet:min-h-[70vh] tablet:px-[15px] tablet:pt-[140px] tablet:pb-[60px] phone:px-2.5 phone:pt-[120px] phone:pb-10"
+        className="hero relative flex min-h-screen w-full items-center overflow-hidden bg-[linear-gradient(180deg,#f9f9f8_0%,#eaf4fc_55%,#d3e7f7_100%)] tablet:min-h-[70vh]"
       >
-        <div className="mx-auto max-w-[900px] py-8 tablet:max-w-full tablet:py-4">
+        <HeroOcean />
+        <div className="relative z-10 mx-auto w-full max-w-[900px] px-5 pt-[150px] pb-[210px] text-center tablet:max-w-full tablet:px-[15px] tablet:pt-[160px] tablet:pb-[150px] phone:px-2.5 phone:pt-[140px] phone:pb-[150px]">
           <h2 className="hero-title mb-6 font-[family-name:Open_Sans,-apple-system,BlinkMacSystemFont,system-ui,sans-serif] text-[4.5rem] leading-[1.1] font-black tracking-[-0.04em] text-primary uppercase tablet:text-[3.2rem] tablet:tracking-[-0.03em] phone:text-[2.5rem] phone:tracking-[-0.02em]">
             Bienvenido a Hostal Mayelewoo
           </h2>
