@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { AuthProvider } from '../auth/AuthContext';
@@ -7,6 +7,9 @@ import Footer from './Footer';
 import Modal, { ModalTitle } from './Modal';
 import PublicHeader from './PublicHeader';
 import { ADMIN_NAV, HOME_LINKS } from './navLinks';
+
+// The bell polls the same endpoints these tests mock; it has its own tests (NotificationBell.test.jsx).
+vi.mock('./NotificationBell', () => ({ default: () => null }));
 
 const wrap = (ui) =>
   render(

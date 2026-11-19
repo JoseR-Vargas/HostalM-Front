@@ -6,6 +6,9 @@ import { downloadPdf } from '../lib/pdf';
 import { getDefaultReceiptDate } from '../lib/receipts';
 import ComprobanteServicios from './ComprobanteServicios';
 
+// The bell polls the same endpoints these tests mock; it has its own tests (NotificationBell.test.jsx).
+vi.mock('../components/NotificationBell', () => ({ default: () => null }));
+
 vi.mock('../lib/pdf', () => ({ downloadPdf: vi.fn() }));
 // The Preline plugins never finish loading here, so the form is driven through the native controls the period and date
 // fields fall back to (the fields and their plugins have their own tests; `e2e/receipts.spec.js` covers the real ones).

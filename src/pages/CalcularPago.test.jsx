@@ -4,6 +4,9 @@ import { MemoryRouter } from 'react-router-dom';
 import { AuthProvider } from '../auth/AuthContext';
 import CalcularPago from './CalcularPago';
 
+// The bell polls the same endpoints these tests mock; it has its own tests (NotificationBell.test.jsx).
+vi.mock('../components/NotificationBell', () => ({ default: () => null }));
+
 const json = (body, status = 200) => new Response(JSON.stringify(body), { status });
 const now = new Date();
 const thisMonth = (day = 10) => new Date(now.getFullYear(), now.getMonth(), day, 12).toISOString();

@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../auth/useAuth';
 import Header from './Header';
+import NotificationBell from './NotificationBell';
 
 /**
  * Admin header. Each page passes its own `links` (see `ADMIN_NAV`).
@@ -17,6 +18,7 @@ export default function AdminHeader({ links }) {
 
   return (
     <Header centered links={links}>
+      <NotificationBell />
       <button
         type="button"
         onClick={handleLogout}

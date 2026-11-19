@@ -30,6 +30,16 @@ const BILL = { monto: '200.000,50', kwh: '450' };
 const group = (page, id) => page.locator(`#${id}`).locator('xpath=ancestor::div[contains(@class,"form-group")][1]');
 const rows = (page) => page.locator('#residentesTableBody tr');
 
+const listRequests = (mock) => mock.calls('GET', '/api/calculos-medidor');
+
+// The admin header's notification bell reads the same list when the page loads (twice in dev: StrictMode runs the
+// effect twice). It flags `data-ready="true"` when it is done, so the page's own requests are counted from there.
+async function countPageListRequests(page, mock) {
+  await page.locator('.notification-bell[data-ready="true"]').waitFor();
+  const before = listRequests(mock).length;
+  return () => listRequests(mock).length - before;
+}
+
 async function calculatePrice(page, { monto = BILL.monto, kwh = BILL.kwh } = {}) {
   await page.locator('#montoFactura').fill(monto);
   await page.locator('#totalKwhFactura').fill(kwh);
@@ -73,6 +83,7 @@ test.describe('calcular pago (electricity bill split)', () => {
 
   test('step 1 validates the bill before calculating', async ({ page, mock }) => {
     await page.goto(PAGE);
+    const pageRequests = await countPageListRequests(page, mock);
     await page.locator('#btnCalcularPrecio').click();
 
     await expect(group(page, 'montoFactura')).toHaveClass(/error/);
@@ -89,7 +100,7 @@ test.describe('calcular pago (electricity bill split)', () => {
     await expect(group(page, 'montoFactura')).toHaveClass(/error/);
     await expect(group(page, 'totalKwhFactura')).toHaveClass(/error/);
 
-    expect(mock.calls('GET', '/api/calculos-medidor')).toHaveLength(0);
+    expect(pageRequests()).toBe(0);
   });
 
   test('errors are cleared as soon as the bill is valid', async ({ page, mock }) => {
@@ -110,7 +121,7 @@ test.describe('calcular pago (electricity bill split)', () => {
     await expect(page.locator('#step2Section')).toBeVisible();
     await expect(page.locator('#residentesMonthLabel')).toHaveText(CURRENT_MONTH_LABEL);
 
-    const [request] = mock.calls('GET', '/api/calculos-medidor');
+    const request = listRequests(mock).at(-1);
     expect(request.origin).toBe('http://localhost:3000');
     expect(request.headers.authorization).toBe(`Bearer ${FAKE_TOKEN}`);
 
@@ -158,6 +169,7 @@ test.describe('calcular pago (electricity bill split)', () => {
 
   test('calculating again with a new bill refreshes the residents and clears the selection', async ({ page, mock }) => {
     await openWithData(page, mock);
+    const pageRequests = await countPageListRequests(page, mock);
     await calculatePrice(page);
     await selectResident(page, 'Hab 4');
     await expect(page.locator('#residenteSeleccionado')).toBeVisible();
@@ -169,11 +181,12 @@ test.describe('calcular pago (electricity bill split)', () => {
     await selectResident(page, 'Hab 4');
     await expect(page.locator('#residentePrecioKwhDisplay')).toHaveText('$250,00');
     await expect(page.locator('#residenteTotalDisplay')).toHaveText('$15.125,00');
-    expect(mock.calls('GET', '/api/calculos-medidor')).toHaveLength(2);
+    expect(pageRequests()).toBe(2);
   });
 
   test('the month pager re-filters without refetching and clears the selection', async ({ page, mock }) => {
     await openWithData(page, mock);
+    const pageRequests = await countPageListRequests(page, mock);
     await calculatePrice(page);
     await selectResident(page, 'Hab 4');
 
@@ -194,7 +207,7 @@ test.describe('calcular pago (electricity bill split)', () => {
     await page.locator('#btnMesSiguiente').click();
     await expect(page.locator('#residentesMonthLabel')).toHaveText(CURRENT_MONTH_LABEL);
     await expect(rows(page)).toHaveCount(3);
-    expect(mock.calls('GET', '/api/calculos-medidor')).toHaveLength(1);
+    expect(pageRequests()).toBe(1);
   });
 
   test('shows a loading message while the residents are fetched', async ({ page, mock }) => {
